@@ -1,0 +1,2610 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Bus Karyawan</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://unpkg.com/@zxing/library@0.20.0/umd/index.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#111827;--ink2:#374151;--muted:#9CA3AF;
+  --border:#E5E7EB;--bg:#F3F4F6;--white:#fff;
+  --red:#E53E3E;--red-d:#C53030;--red-l:#FFF5F5;
+  --bus1:#2B6CB0;--bus2:#276749;--bus3:#C05621;
+  --up:#276749;--dn:#C53030;--upl:#F0FFF4;--dnl:#FFF5F5;
+  --sidebar:#1A202C;--r:10px;
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;font-size:14px;-webkit-font-smoothing:antialiased}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#D1D5DB;border-radius:99px}
+
+/* ━━━ WELCOME SCREEN ━━━ */
+#welcome{
+  position:fixed;inset:0;z-index:9999;
+  background:var(--sidebar);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;
+}
+.wlc-brand{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.wlc-ico{
+  width:56px;height:56px;background:#fff;
+  border-radius:16px;display:grid;place-items:center;
+  font-size:28px;box-shadow:0 8px 24px rgba(229,62,62,.4);
+  padding:6px;overflow:hidden;
+}
+.wlc-ico img{width:100%;height:100%;object-fit:contain}
+.wlc-name{font-size:28px;font-weight:800;color:#fff;letter-spacing:-.6px}
+.wlc-name em{font-style:normal;color:#FC8181}
+.wlc-sub{font-size:12px;color:rgba(255,255,255,.4);margin-bottom:44px;letter-spacing:.3px}
+.wlc-label{font-size:12px;font-weight:600;color:rgba(255,255,255,.5);margin-bottom:16px;text-transform:uppercase;letter-spacing:.8px}
+.wlc-cards{display:flex;gap:12px;width:100%;max-width:400px}
+.wlc-card{
+  flex:1;background:rgba(255,255,255,.05);
+  border:1.5px solid rgba(255,255,255,.09);
+  border-radius:16px;padding:22px 14px 18px;
+  text-align:center;cursor:pointer;transition:all .2s;
+}
+.wlc-card:hover{background:rgba(255,255,255,.09);border-color:rgba(252,129,129,.3);transform:translateY(-2px)}
+.wlc-card.on{background:rgba(229,62,62,.2);border-color:var(--red);box-shadow:0 0 0 3px rgba(229,62,62,.15);transform:translateY(-2px)}
+.wlc-ico2{font-size:34px;margin-bottom:10px}
+.wlc-ttl{font-size:14px;font-weight:700;color:#fff;margin-bottom:4px}
+.wlc-dsc{font-size:10.5px;color:rgba(255,255,255,.38);line-height:1.55}
+.wlc-go{
+  margin-top:28px;padding:14px 48px;
+  background:var(--red);color:#fff;border:none;border-radius:12px;
+  font-family:'Inter',sans-serif;font-size:14px;font-weight:700;
+  cursor:pointer;display:none;
+  box-shadow:0 6px 20px rgba(229,62,62,.4);transition:all .15s;
+}
+.wlc-go:hover{background:var(--red-d);transform:translateY(-1px)}
+.wlc-go.show{display:block}
+.w-go.show{display:block}
+.wlc-note{margin-top:12px;font-size:10px;color:rgba(255,255,255,.18)}
+
+/* ━━━ APP ━━━ */
+#app{display:none}
+
+/* ━━━━━━━━━━━━━━━━━━━━
+   LAPTOP LAYOUT
+━━━━━━━━━━━━━━━━━━━━ */
+/* SIDEBAR */
+.sidebar{
+  position:fixed;top:0;left:0;bottom:0;width:230px;
+  background:var(--sidebar);
+  display:flex;flex-direction:column;z-index:100;
+}
+.sb-logo{
+  height:60px;padding:0 20px;
+  display:flex;align-items:center;gap:10px;
+  background:var(--red);flex-shrink:0;
+}
+.sb-ico{width:32px;height:32px;background:#fff;border-radius:9px;display:grid;place-items:center;font-size:16px;padding:4px;overflow:hidden}
+.sb-ico img{width:100%;height:100%;object-fit:contain}
+.sb-name{font-size:15px;font-weight:800;color:#fff;letter-spacing:-.3px}
+.sb-name em{font-style:normal;color:#FED7D7}
+
+.sb-section{padding:20px 16px 6px;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.22)}
+
+.sb-item{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 16px;margin:1px 10px;border-radius:8px;
+  background:none;border:none;
+  font-family:'Inter',sans-serif;font-size:12.5px;font-weight:500;
+  color:rgba(255,255,255,.45);cursor:pointer;
+  transition:all .15s;text-align:left;width:calc(100% - 20px);
+}
+.sb-item:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.9)}
+.sb-item.on{background:var(--red);color:#fff;font-weight:600}
+.sb-item .si{font-size:16px;width:20px;text-align:center;flex-shrink:0}
+
+.sb-rute-box{margin:10px 10px 0;padding:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:10px}
+.sb-rute-title{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:rgba(255,255,255,.25);margin-bottom:8px}
+.sb-rb{display:flex;align-items:center;gap:8px;width:100%;padding:7px 8px;background:none;border:none;border-radius:6px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;color:rgba(255,255,255,.4);cursor:pointer;transition:all .15s;margin-bottom:2px}
+.sb-rb:hover{background:rgba(255,255,255,.07);color:#fff}
+.sb-rb.on{background:rgba(255,255,255,.1);color:#fff}
+.sb-rb.on .rdot{opacity:1;transform:scale(1)}
+.rdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;opacity:.2;transform:scale(.7);transition:all .15s}
+.rdot.a{background:#63B3ED}.rdot.b{background:#68D391}.rdot.c{background:#F6AD55}
+
+.sb-footer{margin-top:auto;border-top:1px solid rgba(255,255,255,.06)}
+.sb-switch-btn{display:flex;align-items:center;gap:8px;padding:12px 16px;background:none;border:none;font-family:'Inter',sans-serif;font-size:11.5px;color:rgba(255,255,255,.35);cursor:pointer;transition:color .15s;width:100%}
+.sb-switch-btn:hover{color:rgba(255,255,255,.7)}
+.sb-db-status{display:flex;align-items:center;gap:7px;padding:10px 16px 14px}
+.sb-clock{padding:0 16px 16px;font-size:10px;color:rgba(255,255,255,.25)}
+.sb-clock strong{display:block;font-size:15px;color:rgba(255,255,255,.6);font-weight:700;letter-spacing:.5px}
+
+/* LAPTOP TOPBAR */
+.lt-main{margin-left:230px;min-height:100vh;display:flex;flex-direction:column}
+.lt-topbar{
+  background:var(--white);border-bottom:1px solid var(--border);
+  height:60px;padding:0 28px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:50;
+  box-shadow:0 1px 0 var(--border);
+}
+.lt-page-title{font-size:16px;font-weight:700;color:var(--ink)}
+.lt-topbar-right{display:flex;align-items:center;gap:12px}
+.lt-search-box{
+  display:flex;align-items:center;gap:8px;
+  background:var(--bg);border:1.5px solid var(--border);
+  border-radius:20px;padding:7px 16px;width:220px;
+  transition:border-color .15s;
+}
+.lt-search-box:focus-within{border-color:var(--red);background:var(--white)}
+.lt-search-box input{border:none;background:transparent;font-family:'Inter',sans-serif;font-size:12px;color:var(--ink);outline:none;width:100%}
+.lt-search-box input::placeholder{color:var(--muted)}
+.lt-mode-btns{display:flex;gap:6px;background:var(--bg);padding:4px;border-radius:8px;border:1px solid var(--border)}
+.lt-mode-btns button{padding:5px 14px;border:none;border-radius:6px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;color:var(--muted);background:transparent}
+.lt-mode-btns button.on.naik{background:var(--up);color:#fff;box-shadow:0 2px 6px rgba(39,103,73,.3)}
+.lt-mode-btns button.on.turun{background:var(--dn);color:#fff;box-shadow:0 2px 6px rgba(197,48,48,.3)}
+.lt-avatar{width:36px;height:36px;background:var(--red);border-radius:50%;display:grid;place-items:center;color:#fff;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0}
+.lt-wrap{padding:24px 28px;flex:1;background:var(--bg)}
+
+/* ━━━━━━━━━━━━━━━━━━━━
+   MOBILE LAYOUT
+━━━━━━━━━━━━━━━━━━━━ */
+/* MOBILE HEADER */
+.mob-hdr{
+  background:linear-gradient(135deg,var(--red) 0%,#C53030 100%);
+  position:sticky;top:0;z-index:100;
+  box-shadow:0 4px 16px rgba(229,62,62,.3);
+}
+.mh-row1{padding:12px 16px 10px;display:flex;align-items:center;justify-content:space-between}
+.mh-brand{display:flex;align-items:center;gap:10px}
+.mh-ico{width:34px;height:34px;background:#fff;border-radius:10px;display:grid;place-items:center;font-size:16px;padding:4px;overflow:hidden}
+.mh-ico img{width:100%;height:100%;object-fit:contain}
+.mh-name{font-size:16px;font-weight:800;color:#fff;letter-spacing:-.4px}
+.mh-name em{font-style:normal;color:#FED7D7}
+.mh-clk{font-size:10px;color:rgba(255,255,255,.65);margin-top:1px}
+.mh-right{display:flex;align-items:center;gap:8px}
+.mh-sw{background:rgba(255,255,255,.18);border:none;border-radius:8px;font-size:14px;cursor:pointer;color:#fff;padding:6px 8px;line-height:1}
+.mh-rutes{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.mh-rutes::-webkit-scrollbar{display:none}
+.mh-rt{display:flex;align-items:center;gap:5px;flex-shrink:0;padding:6px 13px;border:1px solid rgba(255,255,255,.16);border-radius:99px;background:rgba(255,255,255,.08);font-family:'Inter',sans-serif;font-size:11px;font-weight:700;color:rgba(255,255,255,.62);cursor:pointer;white-space:nowrap;transition:all .15s}
+.mh-rt .rdot2{width:6px;height:6px;border-radius:50%;flex-shrink:0;background:currentColor;opacity:.55}
+.mh-rt.on{background:#fff;color:#111827;border-color:#fff}
+.mh-rt.on .rdot2{opacity:1}
+.mh-rt.a.on .rdot2{background:#2563EB}.mh-rt.b.on .rdot2{background:#059669}.mh-rt.c.on .rdot2{background:#D97706}
+
+/* MOBILE CONTENT */
+.mob-wrap{padding:14px 14px 86px}
+
+/* BOTTOM NAV - GoPay style */
+.bot-nav{
+  position:fixed;bottom:0;left:0;right:0;
+  background:var(--white);
+  border-top:1px solid var(--border);
+  display:flex;align-items:center;
+  z-index:100;
+  padding-bottom:env(safe-area-inset-bottom,0);
+  box-shadow:0 -4px 20px rgba(0,0,0,.08);
+  height:62px;
+}
+.bn-btn{
+  flex:1;padding:0;background:none;border:none;
+  font-family:'Inter',sans-serif;font-size:9.5px;font-weight:500;
+  color:var(--muted);cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;height:100%;transition:color .15s;
+}
+.bn-btn .bi{font-size:20px;line-height:1}
+.bn-btn.on{color:var(--red)}
+.bn-btn.on .bi-line{stroke:var(--red)}
+
+/* CENTER SCAN BUTTON */
+.bn-center-wrap{
+  display:flex;flex-direction:column;align-items:center;
+  flex:1;position:relative;padding-bottom:0;
+}
+.bn-center{
+  width:58px;height:58px;
+  background:linear-gradient(135deg,var(--red),#C53030);
+  border:none;border-radius:18px;
+  display:grid;place-items:center;cursor:pointer;
+  box-shadow:0 4px 16px rgba(229,62,62,.45);
+  color:#fff;font-size:26px;
+  position:absolute;bottom:8px;
+  transition:all .15s;
+}
+.bn-center:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(229,62,62,.5)}
+.bn-center:active{transform:scale(.95)}
+.bn-center-label{font-size:9.5px;font-weight:600;color:var(--red);margin-top:36px}
+
+/* ━━━━━━━━━━━━━━━━━━━━
+   SHARED COMPONENTS
+━━━━━━━━━━━━━━━━━━━━ */
+.page{display:none}.page.on{display:block}
+
+/* PAGE HEADER */
+.page-header{margin-bottom:18px}
+.page-header h2{font-size:18px;font-weight:800;color:var(--ink);letter-spacing:-.4px}
+.page-header p{font-size:12px;color:var(--muted);margin-top:2px}
+
+/* CARD */
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.card-hd{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-hd h3{font-size:12px;font-weight:700;color:var(--ink);text-transform:uppercase;letter-spacing:.5px}
+.card-bd{padding:18px}
+
+/* STATS */
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+@media(max-width:520px){.stat-row{grid-template-columns:repeat(2,1fr)}}
+.stat{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:var(--r);padding:16px 14px;
+  box-shadow:0 1px 3px rgba(0,0,0,.04);
+  position:relative;overflow:hidden;
+}
+.stat-top-bar{position:absolute;top:0;left:0;right:0;height:3px}
+.stat-n{font-size:28px;font-weight:800;letter-spacing:-1px;line-height:1.1;margin-bottom:4px}
+.stat-n.g{color:var(--up)}.stat-n.r{color:var(--dn)}.stat-n.b{color:var(--bus1)}.stat-n.o{color:var(--bus3)}
+.stat-l{font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+.stat-ico{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:30px;opacity:.08}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12.5px;min-width:460px}
+th{padding:10px 14px;text-align:left;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);border-bottom:2px solid var(--border);background:var(--bg);white-space:nowrap}
+td{padding:12px 14px;border-bottom:1px solid var(--border);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#FAFAFA}
+
+/* FORM */
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:480px){.frow{grid-template-columns:1fr}}
+.fg{margin-bottom:12px}
+.fg label{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:5px}
+.fg input,.fg select{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'Inter',sans-serif;font-size:13px;color:var(--ink);background:var(--bg);transition:all .15s}
+.fg input:focus,.fg select:focus{outline:none;border-color:var(--red);background:var(--white);box-shadow:0 0 0 3px rgba(229,62,62,.08)}
+.fg input::placeholder{color:#D1D5DB}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 16px;border:none;border-radius:8px;font-family:'Inter',sans-serif;font-size:12.5px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;letter-spacing:.1px}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--red);color:#fff;box-shadow:0 2px 8px rgba(229,62,62,.3)}.btn-primary:hover{background:var(--red-d)}
+.btn-ghost{background:transparent;color:var(--ink2);border:1.5px solid var(--border)}.btn-ghost:hover{background:var(--bg)}
+.btn-red{background:transparent;color:var(--dn);border:1.5px solid #FCA5A5}.btn-red:hover{background:var(--dnl)}
+.btn-full{width:100%}.btn-sm{padding:5px 10px;font-size:10.5px;border-radius:6px}
+
+/* MANUAL INPUT */
+.man-row{display:flex;gap:8px}
+.man-row input{flex:1;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'Inter',sans-serif;font-size:13px;color:var(--ink);background:var(--bg);transition:all .15s}
+.man-row input:focus{outline:none;border-color:var(--red);background:var(--white);box-shadow:0 0 0 3px rgba(229,62,62,.08)}
+
+/* MODE TOGGLE */
+.mode-row{display:flex;gap:8px;margin-bottom:12px;background:var(--bg);padding:4px;border-radius:10px;border:1px solid var(--border)}
+.mode-btn{flex:1;padding:9px;border-radius:7px;border:none;background:transparent;font-family:'Inter',sans-serif;font-size:12.5px;font-weight:600;cursor:pointer;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:5px;transition:all .15s}
+.mode-btn.on.naik{background:var(--white);color:var(--up);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.mode-btn.on.turun{background:var(--white);color:var(--dn);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+
+/* RESULT BOX */
+.result-box{background:var(--white);border:1px solid var(--border);border-left:4px solid var(--up);border-radius:var(--r);padding:16px;display:none;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,.06);animation:slideIn .2s ease}
+.result-box.show{display:block}
+@keyframes slideIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.rb-top{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.rb-av{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--red),#C53030);color:#fff;font-size:18px;font-weight:700;display:grid;place-items:center;flex-shrink:0;box-shadow:0 4px 12px rgba(229,62,62,.3)}
+.rb-name{font-size:15px;font-weight:700;color:var(--ink)}
+.rb-id{font-size:11px;color:var(--muted);margin-top:2px}
+.rb-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding-top:12px;border-top:1px solid var(--border)}
+.rb-item label{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);display:block;margin-bottom:3px}
+.rb-item p{font-size:13px;font-weight:600;color:var(--ink)}
+
+/* BADGE & RUTE TAG */
+.badge{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700}
+.badge-up{background:var(--upl);color:var(--up)}
+.badge-dn{background:var(--dnl);color:var(--dn)}
+.badge-warn{background:var(--red);color:#fff;font-weight:800;box-shadow:0 0 0 2px var(--red-l),0 1px 4px rgba(229,62,62,.4);animation:pulseWarn 1.6s ease-in-out infinite}
+@keyframes pulseWarn{0%,100%{opacity:1}50%{opacity:.72}}
+.badge-blue{background:#EBF4FF;color:var(--bus1)}
+.rt{display:inline-flex;align-items:center;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700}
+/* Baris yang berstatus belum absen/belum turun disorot merah muda agar tidak terlewat */
+tr.row-alert{background:var(--red-l) !important}
+tr.row-alert:hover{background:#ffe8e8 !important}
+tr.row-alert td{border-left:3px solid var(--red)}
+.rt.a{background:#EBF4FF;color:var(--bus1)}
+.rt.b{background:#F0FFF4;color:var(--bus2)}
+.rt.c{background:#FFFAF0;color:var(--bus3)}
+
+/* SCAN FULLSCREEN */
+#scan-fullscreen{border-radius:14px;overflow:hidden;margin-bottom:14px}
+@keyframes lz{0%,100%{top:4%}50%{top:90%}}
+
+/* QR GRID — ukuran kartu setara ID card standar (CR80: 85.6mm x 54mm) */
+.bc-grid{display:grid;grid-template-columns:repeat(auto-fill,85.6mm);gap:14px;justify-content:center}
+.bc-item{display:flex;flex-direction:column;gap:6px}
+.bc-card{width:85.6mm;height:54mm;box-sizing:border-box;background:#fff;border:1px solid var(--border);border-radius:3mm;padding:4mm 3mm;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.04);transition:box-shadow .15s;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
+.bc-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.bc-name{font-size:12.5px;font-weight:700;color:var(--ink);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.bc-sub{font-size:10px;margin-bottom:8px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.bc-qr{display:flex;justify-content:center}
+.bc-qr canvas,.bc-qr img{width:30mm!important;height:30mm!important}
+.bc-actions{display:flex;gap:4px}
+.bc-actions .btn{flex:1;padding:6px 4px;font-size:10.5px;white-space:nowrap}
+
+/* HTTPS WARNING */
+.hw{background:#FEF9C3;border:1px solid #F6E05E;border-radius:8px;padding:10px 12px;font-size:11px;color:#744210;margin-bottom:12px;line-height:1.6;display:none}
+
+/* EMPTY STATE */
+.empty{text-align:center;padding:40px 14px;color:var(--muted)}
+.empty .ei{font-size:36px;margin-bottom:10px}.empty p{font-size:12.5px}
+
+/* SCAN LAYOUT */
+.scan-lt{display:grid;grid-template-columns:380px 1fr;gap:16px}
+@media(max-width:820px){.scan-lt{grid-template-columns:1fr}}
+
+/* TOAST */
+#toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:#fff;padding:11px 20px;border-radius:10px;font-size:13px;font-weight:600;z-index:9999;transition:transform .25s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+#toast.show{transform:translateX(-50%) translateY(0)}
+
+/* FLASH */
+@keyframes flash-ok{0%{box-shadow:0 0 0 0 rgba(39,103,73,.5)}100%{box-shadow:0 0 0 22px rgba(39,103,73,0)}}
+.flash-ok{animation:flash-ok .4s ease-out}
+
+@media print{
+  #welcome,.sidebar,.mob-hdr,.bot-nav,.btn,.man-row,#toast,.bc-actions{display:none!important}
+  .bc-card{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+
+<!-- WELCOME -->
+<div id="welcome">
+  <div class="wlc-brand">
+    <div class="wlc-ico">&#x1F68C;</div>
+    <div class="wlc-name">Bus <em>Karyawan</em></div>
+  </div>
+  <div class="w-sub" style="font-size:12px;color:rgba(255,255,255,.4);margin-bottom:44px;letter-spacing:.3px">Sistem Absensi Shuttle Karyawan</div>
+  <div class="wlc-label" style="font-size:12px;font-weight:600;color:rgba(255,255,255,.5);margin-bottom:16px;text-transform:uppercase;letter-spacing:.8px">Pilih tampilan perangkat Anda</div>
+  <div class="wlc-cards">
+    <div class="wlc-card" id="wc-hp" onclick="pickLayout('hp')">
+      <div class="wlc-ico2">&#x1F4F1;</div>
+      <div class="wlc-ttl">Handphone</div>
+      <div class="wlc-dsc">Tampilan ringkas, cocok dipegang satu tangan saat scan di pintu bus</div>
+    </div>
+    <div class="wlc-card" id="wc-lt" onclick="pickLayout('laptop')">
+      <div class="wlc-ico2">&#x1F4BB;</div>
+      <div class="wlc-ttl">Laptop / PC</div>
+      <div class="wlc-dsc">Tampilan luas dengan sidebar, cocok untuk admin dan rekap data</div>
+    </div>
+  </div>
+  <button class="wlc-go" id="w-go" onclick="enterApp()">Masuk ke Aplikasi &rarr;</button>
+  <div class="wlc-note">Pilihan disimpan otomatis &bull; Bisa diganti kapan saja</div>
+</div>
+
+<!-- APP -->
+<div id="app">
+
+  <!-- LAPTOP -->
+  <div id="ly-laptop" style="display:none">
+    <div class="sidebar">
+      <div class="sb-logo">
+        <div class="sb-ico">&#x1F68C;</div>
+        <div class="sb-name">Bus <em>Karyawan</em></div>
+      </div>
+      <div class="sb-section">Menu Utama</div>
+      <button class="sb-item on" id="sbi-scan"      onclick="goTab('scan')"><span class="si">&#x1F4F7;</span> Scan Absen</button>
+      <button class="sb-item"    id="sbi-orang"      onclick="goTab('orang')"><span class="si">&#x1F465;</span> Karyawan</button>
+      <button class="sb-item" id="sbi-lanjutan" onclick="clickFiturLanjutan()" style="background:var(--red-l);color:var(--red-d)"><span class="si">&#x1F513;</span> Fitur Lanjutan</button>
+      <button class="sb-item admin-only" id="sbi-dashboard"  onclick="goTab('dashboard')" style="display:none"><span class="si">&#x1F4C8;</span> Dashboard</button>
+      <button class="sb-item admin-only" id="sbi-rekap"      onclick="goTab('rekap')" style="display:none"><span class="si">&#x1F4CA;</span> Rekap</button>
+      <button class="sb-item admin-only" id="sbi-tidakhadir" onclick="goTab('tidakhadir')" style="display:none"><span class="si">&#x26A0;&#xFE0F;</span> Tidak Hadir</button>
+      <button class="sb-item admin-only" id="sbi-barcode"    onclick="goTab('barcode')" style="display:none"><span class="si">&#x1F516;</span> QR Code</button>
+      <button class="sb-item admin-only" id="sbi-rute"       onclick="goTab('rute')" style="display:none"><span class="si">&#x1F5FA;&#xFE0F;</span> Kelola Rute</button>
+      <div class="sb-section" style="margin-top:6px">Rute Bus</div>
+      <div class="sb-rute-box">
+        <div class="sb-rute-title">Pilih Rute</div>
+        <button class="sb-rb on" id="srb-A" onclick="setRute('A')"><span class="rdot a"></span><span id="sn-A">Rute A</span></button>
+        <button class="sb-rb"    id="srb-B" onclick="setRute('B')"><span class="rdot b"></span><span id="sn-B">Rute B</span></button>
+        <button class="sb-rb"    id="srb-C" onclick="setRute('C')"><span class="rdot c"></span><span id="sn-C">Rute C</span></button>
+      </div>
+      <div class="sb-footer">
+        <button class="sb-switch-btn" id="btn-lock-app" onclick="lockApp()" style="background:rgba(229,62,62,.15);color:#FCA5A5;margin-bottom:8px">&#x1F512; Kunci Fitur Admin</button>
+        <button class="sb-switch-btn" onclick="switchLayout()">&#x1F4F1; Ganti ke Tampilan HP</button>
+        <div class="sb-db-status">
+          <div id="db-dot" style="width:7px;height:7px;border-radius:50%;background:#EF4444;flex-shrink:0"></div>
+          <span id="db-txt" style="font-size:10.5px;color:rgba(255,255,255,.35);font-weight:500">Menghubungkan...</span>
+        </div>
+        <div class="sb-clock">
+          <strong id="sb-time">00:00:00</strong>
+          <span id="sb-date">--</span>
+        </div>
+      </div>
+    </div>
+    <div class="lt-main">
+      <div class="lt-topbar">
+        <div class="lt-page-title" id="lt-ttl">Scan Absen</div>
+        <div class="lt-topbar-right">
+          <div class="lt-avatar">T</div>
+        </div>
+      </div>
+      <div class="lt-wrap" id="lt-wrap"></div>
+    </div>
+  </div>
+
+  <!-- MOBILE -->
+  <div id="ly-mobile" style="display:none">
+    <!-- HEADER MOBILE - Modern Style -->
+    <div class="mob-hdr">
+      <div class="mh-row1">
+        <div class="mh-brand">
+          <div class="mh-ico">&#x1F68C;</div>
+          <div>
+            <div class="mh-name">Bus <em>Karyawan</em></div>
+            <div id="mh-clk" style="font-size:9.5px;color:rgba(255,255,255,.65);margin-top:1px">--</div>
+          </div>
+        </div>
+        <div class="mh-right">
+          <div id="mh-db-dot" style="width:7px;height:7px;border-radius:50%;background:#EF4444;margin-right:4px"></div>
+          <button class="mh-sw" onclick="switchLayout()" title="Ganti tampilan">&#x1F4BB;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="mob-wrap" id="mob-wrap"></div>
+
+    <!-- BOTTOM NAV - GoPay Style -->
+    <div class="bot-nav">
+      <button class="bn-btn on" id="mbn-scan" onclick="goTab('scan')">
+        <span class="bi">&#x1F3E0;</span>Beranda
+      </button>
+      <button class="bn-btn" id="mbn-orang" onclick="goTab('orang')">
+        <span class="bi">&#x1F465;</span>Karyawan
+      </button>
+
+      <!-- TOMBOL SCAN TENGAH MENONJOL -->
+      <div class="bn-center-wrap">
+        <button class="bn-center" id="mbn-scanner" onclick="goTab('scan');setTimeout(()=>startCam(),300)">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 7V5a1 1 0 0 1 1-1h2"/>
+            <path d="M4 17v2a1 1 0 0 0 1 1h2"/>
+            <path d="M17 4h2a1 1 0 0 1 1 1v2"/>
+            <path d="M20 17v2a1 1 0 0 1-1 1h-2"/>
+            <line x1="7" y1="12" x2="17" y2="12"/>
+          </svg>
+        </button>
+        <div class="bn-center-label">Scan</div>
+      </div>
+
+      <button class="bn-btn" id="mbn-lanjutan" onclick="handleLanjutanSlot()">
+        <span class="bi" id="mbn-lanjutan-ic">&#x1F513;</span><span id="mbn-lanjutan-lb">Lanjutan</span>
+      </button>
+      <button class="bn-btn" id="mbn-more" onclick="toggleMoreMenu()">
+        <span class="bi">&#x22EE;&#xFE0F;</span>Lainnya
+      </button>
+    </div>
+
+    <!-- MORE MENU POPUP -->
+    <div id="more-menu-overlay" onclick="closeMoreMenu()" style="
+      display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);
+      z-index:199;backdrop-filter:blur(2px);
+    "></div>
+    <div id="more-menu" style="
+      display:none;position:fixed;bottom:70px;left:12px;right:12px;
+      background:var(--white);border-radius:16px;z-index:200;
+      box-shadow:0 -4px 32px rgba(0,0,0,.18);
+      overflow:hidden;
+    ">
+      <!-- Header -->
+      <div style="padding:14px 18px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+        <div style="font-size:13px;font-weight:700;color:var(--ink)">Menu Lainnya</div>
+        <button onclick="closeMoreMenu()" style="background:var(--bg);border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:16px;color:var(--muted);display:grid;place-items:center">&#x2715;</button>
+      </div>
+
+      <!-- Menu Grid -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border)">
+
+        <button onclick="goTabMore('orang')" style="
+          display:flex;flex-direction:column;align-items:center;gap:8px;
+          padding:20px 14px;background:var(--white);border:none;cursor:pointer;
+          transition:background .15s;
+        " onmousedown="this.style.background='var(--bg)'" onmouseup="this.style.background='var(--white)'">
+          <div style="width:44px;height:44px;background:#FFFBEB;border-radius:12px;display:grid;place-items:center;font-size:22px">&#x1F465;</div>
+          <div style="font-size:12px;font-weight:600;color:var(--ink)">Karyawan</div>
+          <div style="font-size:10px;color:var(--muted)">Tambah & kelola</div>
+        </button>
+
+        <button onclick="clickFiturLanjutan();closeMoreMenu()" id="mmt-lanjutan" style="
+          display:flex;flex-direction:column;align-items:center;gap:8px;
+          padding:20px 14px;background:var(--white);border:none;cursor:pointer;
+          transition:background .15s;
+        " onmousedown="this.style.background='var(--bg)'" onmouseup="this.style.background='var(--white)'">
+          <div style="width:44px;height:44px;background:var(--red-l);border-radius:12px;display:grid;place-items:center;font-size:22px">&#x1F513;</div>
+          <div style="font-size:12px;font-weight:600;color:var(--red-d)">Fitur Lanjutan</div>
+          <div style="font-size:10px;color:var(--muted)">Login admin</div>
+        </button>
+
+        <button onclick="goTabMore('dashboard')" class="admin-only-tile" style="
+          display:none;flex-direction:column;align-items:center;gap:8px;
+          padding:20px 14px;background:var(--white);border:none;cursor:pointer;
+          transition:background .15s;
+        " onmousedown="this.style.background='var(--bg)'" onmouseup="this.style.background='var(--white)'">
+          <div style="width:44px;height:44px;background:#EBF4FF;border-radius:12px;display:grid;place-items:center;font-size:22px">&#x1F4C8;</div>
+          <div style="font-size:12px;font-weight:600;color:var(--ink)">Dashboard</div>
+          <div style="font-size:10px;color:var(--muted)">Statistik & grafik</div>
+        </button>
+
+        <button onclick="goTabMore('rekap')" class="admin-only-tile" style="
+          display:none;flex-direction:column;align-items:center;gap:8px;
+          padding:20px 14px;background:var(--white);border:none;cursor:pointer;
+          transition:background .15s;
+        " onmousedown="this.style.background='var(--bg)'" onmouseup="this.style.background='var(--white)'">
+          <div style="width:44px;height:44px;background:#EBF4FF;border-radius:12px;display:grid;place-items:center;font-size:22px">&#x1F4CA;</div>
+          <div style="font-size:12px;font-weight:600;color:var(--ink)">Rekap</div>
+          <div style="font-size:10px;color:var(--muted)">Absensi harian/bulanan</div>
+        </button>
+
+        <button onclick="goTabMore('barcode')" class="admin-only-tile" style="
+          display:none;flex-direction:column;align-items:center;gap:8px;
+          padding:20px 14px;background:var(--white);border:none;cursor:pointer;
+          transition:background .15s;
+        " onmousedown="this.style.background='var(--bg)'" onmouseup="this.style.background='var(--white)'">
+          <div style="width:44px;height:44px;background:#EBF4FF;border-radius:12px;display:grid;place-items:center;font-size:22px">&#x1F4F1;</div>
+          <div style="font-size:12px;font-weight:600;color:var(--ink)">QR Code</div>
+          <div style="font-size:10px;color:var(--muted)">Generate & cetak</div>
+        </button>
+
+        <button onclick="goTabMore('rute')" class="admin-only-tile" style="
+          display:none;flex-direction:column;align-items:center;gap:8px;
+          padding:20px 14px;background:var(--white);border:none;cursor:pointer;
+          transition:background .15s;
+        " onmousedown="this.style.background='var(--bg)'" onmouseup="this.style.background='var(--white)'">
+          <div style="width:44px;height:44px;background:#F0FFF4;border-radius:12px;display:grid;place-items:center;font-size:22px">&#x1F5FA;&#xFE0F;</div>
+          <div style="font-size:12px;font-weight:600;color:var(--ink)">Kelola Rute</div>
+          <div style="font-size:10px;color:var(--muted)">Atur jadwal bus</div>
+        </button>
+
+        <button onclick="goTabMore('tidakhadir')" class="admin-only-tile" style="
+          display:none;flex-direction:column;align-items:center;gap:8px;
+          padding:20px 14px;background:var(--white);border:none;cursor:pointer;
+          transition:background .15s;
+        " onmousedown="this.style.background='var(--bg)'" onmouseup="this.style.background='var(--white)'">
+          <div style="width:44px;height:44px;background:var(--red-l);border-radius:12px;display:grid;place-items:center;font-size:22px">&#x26A0;&#xFE0F;</div>
+          <div style="font-size:12px;font-weight:600;color:var(--ink)">Tidak Hadir</div>
+          <div style="font-size:10px;color:var(--muted)">Belum absen</div>
+        </button>
+
+      </div>
+
+      <!-- Kunci fitur admin -->
+      <div class="admin-only-tile" data-disp="block" style="display:none;padding:12px 16px 0">
+        <button onclick="lockApp();closeMoreMenu()" style="
+          width:100%;padding:11px;border:1.5px solid var(--red);
+          background:var(--red-l);border-radius:10px;
+          font-family:'Inter',sans-serif;font-size:12.5px;font-weight:600;
+          color:var(--red-d);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
+        ">&#x1F512; Kunci Fitur Admin</button>
+      </div>
+
+      <!-- Switch layout button -->
+      <div style="padding:12px 16px;border-top:1px solid var(--border)">
+        <button onclick="switchLayout();closeMoreMenu()" style="
+          width:100%;padding:11px;border:1.5px solid var(--border);
+          background:var(--bg);border-radius:10px;
+          font-family:'Inter',sans-serif;font-size:12.5px;font-weight:600;
+          color:var(--ink2);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
+        ">&#x1F4BB; Ganti ke Tampilan Laptop</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- PAGE TEMPLATES -->
+<div id="tpl" style="display:none">
+
+  <!-- SCAN -->
+  <div data-page="scan">
+
+    <!-- FULLSCREEN SCANNER VIEW -->
+    <div id="scan-fullscreen" style="
+      position:relative;
+      width:100%;
+      background:#000;
+      border-radius:16px;
+      overflow:hidden;
+      margin-bottom:12px;
+      min-height:520px;
+    ">
+      <!-- VIDEO FULLSCREEN -->
+      <video id="scan-video" playsinline muted style="
+        width:100%;height:100%;
+        object-fit:cover;display:block;
+        min-height:520px;max-height:680px;
+      "></video>
+
+      <!-- TOP BAR di dalam kamera -->
+      <div style="
+        position:absolute;top:0;left:0;right:0;
+        z-index:10;
+        background:linear-gradient(to bottom,rgba(0,0,0,.7),rgba(0,0,0,.3) 80%,transparent);
+      ">
+        <div style="padding:12px 14px 8px;display:flex;align-items:center;justify-content:space-between">
+          <!-- Mode toggle di dalam kamera -->
+          <div style="display:flex;gap:6px">
+            <button id="cam-naik" onclick="setMode('naik')" style="
+              padding:5px 12px;border:none;border-radius:99px;
+              background:rgba(22,163,74,.85);color:#fff;
+              font-family:'Inter',sans-serif;font-size:11px;font-weight:700;cursor:pointer;
+            ">&#x2B06; Naik</button>
+            <button id="cam-turun" onclick="setMode('turun')" style="
+              padding:5px 12px;border:none;border-radius:99px;
+              background:rgba(255,255,255,.18);color:#fff;
+              font-family:'Inter',sans-serif;font-size:11px;font-weight:700;cursor:pointer;
+            ">&#x2B07; Turun</button>
+          </div>
+        </div>
+        <!-- Pilihan Rute Bus - dipilih manual oleh petugas scan -->
+        <div class="mh-rutes" style="padding:8px 14px 12px;margin-top:4px">
+          <button class="mh-rt a on" id="mrb-A" onclick="setRute('A')"><span class="rdot2"></span><span id="mn-A">Rute A</span></button>
+          <button class="mh-rt b"    id="mrb-B" onclick="setRute('B')"><span class="rdot2"></span><span id="mn-B">Rute B</span></button>
+          <button class="mh-rt c"    id="mrb-C" onclick="setRute('C')"><span class="rdot2"></span><span id="mn-C">Rute C</span></button>
+        </div>
+      </div>
+
+      <!-- SCAN FRAME (kotak sudut) -->
+      <div style="
+        position:absolute;inset:0;
+        display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+        gap:16px;
+        padding-top:130px;
+        padding-bottom:28px;
+        pointer-events:none;z-index:5;
+      ">
+        <!-- Overlay gelap di luar kotak -->
+        <div style="position:absolute;inset:0;background:rgba(0,0,0,.45)"></div>
+        <!-- Kotak transparan di tengah -->
+        <div id="scan-qr-box" style="
+          position:relative;flex-shrink:0;
+          width:62%;max-width:220px;aspect-ratio:1;
+          z-index:6;
+        ">
+          <!-- Hapus overlay gelap di area kotak -->
+          <div style="
+            position:absolute;inset:-2px;
+            background:transparent;
+            box-shadow:0 0 0 9999px rgba(0,0,0,.45);
+          "></div>
+
+          <!-- Sudut-sudut biru -->
+          <div style="position:absolute;top:0;left:0;width:28px;height:28px;border-top:3.5px solid #60A5FA;border-left:3.5px solid #60A5FA;border-radius:4px 0 0 0"></div>
+          <div style="position:absolute;top:0;right:0;width:28px;height:28px;border-top:3.5px solid #60A5FA;border-right:3.5px solid #60A5FA;border-radius:0 4px 0 0"></div>
+          <div style="position:absolute;bottom:0;left:0;width:28px;height:28px;border-bottom:3.5px solid #60A5FA;border-left:3.5px solid #60A5FA;border-radius:0 0 0 4px"></div>
+          <div style="position:absolute;bottom:0;right:0;width:28px;height:28px;border-bottom:3.5px solid #60A5FA;border-right:3.5px solid #60A5FA;border-radius:0 0 4px 0"></div>
+
+          <!-- Laser kuning -->
+          <div id="sf-laser" style="
+            display:none;
+            position:absolute;left:6%;right:6%;height:3px;
+            background:linear-gradient(90deg,transparent,#FBBF24,#F59E0B,#FBBF24,transparent);
+            box-shadow:0 0 10px #F59E0B,0 0 20px rgba(251,191,36,.5);
+            border-radius:2px;
+            animation:lz 1.8s ease-in-out infinite;
+          "></div>
+        </div>
+
+        <!-- Teks hint -->
+        <div id="scan-hint" style="
+          display:none;flex-shrink:0;
+          background:rgba(0,0,0,.6);backdrop-filter:blur(4px);
+          color:#fff;font-size:11px;font-weight:500;
+          padding:5px 14px;border-radius:99px;white-space:nowrap;z-index:10;
+        ">Arahkan QR Code ke dalam kotak</div>
+      </div>
+
+      <!-- HTTPS warning -->
+      <div class="hw" id="hw" style="
+        position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+        width:80%;background:rgba(254,249,195,.95);border-radius:10px;
+        padding:12px;font-size:11px;color:#713F12;text-align:center;
+        line-height:1.6;z-index:20;display:none;
+      ">
+        &#x26A0;&#xFE0F; <strong>Kamera perlu HTTPS.</strong><br>
+        Upload ke Netlify agar kamera berfungsi.<br>
+        Gunakan input manual di bawah.
+      </div>
+
+      <!-- Cam error overlay -->
+      <div id="cam-err-wrap" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,.8);z-index:15;display:none;align-items:center;justify-content:center;padding:20px">
+        <div style="text-align:center;color:#fff">
+          <div style="font-size:36px;margin-bottom:10px">&#x1F4F7;</div>
+          <div id="cam-err-msg" style="font-size:12px;line-height:1.7;color:rgba(255,255,255,.85)"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTROL BAR kamera - di luar area video, tidak menutupi kotak scan -->
+    <div style="
+      display:flex;align-items:center;justify-content:center;gap:20px;
+      background:var(--white);border:1px solid var(--border);border-radius:14px;
+      padding:12px 16px;margin-bottom:12px;
+    ">
+      <!-- Tombol Buka Kamera -->
+      <button id="btn-on" onclick="startCam()" style="
+        display:flex;flex-direction:column;align-items:center;gap:4px;
+        background:var(--bg);border:1px solid var(--border);border-radius:14px;padding:10px 18px;
+        color:var(--ink);font-family:'Inter',sans-serif;font-size:11px;font-weight:600;cursor:pointer;
+      ">
+        <span style="font-size:22px">&#x1F4F7;</span>
+        Buka Kamera
+      </button>
+
+      <!-- Tombol Stop (hidden) -->
+      <button id="btn-off" onclick="stopCam()" style="
+        display:none;flex-direction:column;align-items:center;gap:4px;
+        background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.35);border-radius:14px;padding:10px 18px;
+        color:#DC2626;font-family:'Inter',sans-serif;font-size:11px;font-weight:600;cursor:pointer;
+      ">
+        <span style="font-size:22px">&#x23F9;</span>
+        Stop
+      </button>
+
+      <!-- Tombol Flip -->
+      <button id="btn-flip-wrap" onclick="flipCam()" style="
+        display:none;flex-direction:column;align-items:center;gap:4px;
+        background:var(--bg);border:1px solid var(--border);border-radius:14px;padding:10px 18px;
+        color:var(--ink);font-family:'Inter',sans-serif;font-size:11px;font-weight:600;cursor:pointer;
+      ">
+        <span style="font-size:22px">&#x1F504;</span>
+        Balik
+      </button>
+    </div>
+
+    <!-- RESULT CARD (muncul setelah scan) -->
+    <div class="result-box" id="result-box" style="margin-bottom:12px">
+      <div class="rb-top">
+        <div class="rb-av" id="rb-av">?</div>
+        <div><div class="rb-name" id="rb-name">--</div><div class="rb-id" id="rb-id">--</div></div>
+      </div>
+      <div class="rb-grid">
+        <div class="rb-item"><label>Rute</label><p id="rb-rute">--</p></div>
+        <div class="rb-item"><label>Mode</label><p id="rb-mode">--</p></div>
+        <div class="rb-item"><label>Waktu</label><p id="rb-wkt">--</p></div>
+        <div class="rb-item"><label>Status</label><p id="rb-sts">--</p></div>
+      </div>
+    </div>
+
+    <!-- INPUT MANUAL -->
+    <div class="card" style="margin-bottom:12px">
+      <div class="card-hd"><h3>&#x2328; Input Manual</h3></div>
+      <div class="card-bd">
+        <div class="man-row">
+          <input id="man-in" placeholder="Ketik ID karyawan, tekan Enter..." />
+          <button class="btn btn-primary" onclick="doManual()">Absen</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- AKTIVITAS TERBARU -->
+    <div class="card">
+      <div class="card-hd"><h3>Aktivitas Terbaru</h3></div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Nama</th><th>Rute</th><th>Mode</th><th>Jam</th></tr></thead>
+          <tbody id="recent-tb"><tr><td colspan="4"><div class="empty"><p>Belum ada aktivitas</p></div></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- REKAP -->
+  <div data-page="rekap">
+    <!-- Tab Harian / Bulanan -->
+    <div style="display:flex;gap:8px;margin-bottom:14px;background:var(--bg);border-radius:10px;padding:4px;border:1px solid var(--border)">
+      <button id="rtab-harian" onclick="switchRekapTab('harian')" style="flex:1;padding:8px;border:none;border-radius:7px;background:var(--bus1);color:#fff;font-family:'Inter',sans-serif;font-size:12.5px;font-weight:600;cursor:pointer">&#x1F4C5; Harian</button>
+      <button id="rtab-bulanan" onclick="switchRekapTab('bulanan')" style="flex:1;padding:8px;border:none;border-radius:7px;background:transparent;color:var(--muted);font-family:'Inter',sans-serif;font-size:12.5px;font-weight:600;cursor:pointer">&#x1F4C6; Bulanan</button>
+    </div>
+
+    <!-- HARIAN -->
+    <div id="rekap-harian">
+      <div class="stat-row">
+        <div class="stat"><div class="stat-n b" id="st-total">0</div><div class="stat-l">Total Naik</div></div>
+        <div class="stat"><div class="stat-n r" id="st-turun">0</div><div class="stat-l">Sudah Turun</div></div>
+        <div class="stat"><div class="stat-n o" id="st-blm">0</div><div class="stat-l">Belum Naik</div></div>
+      </div>
+      <div class="card">
+        <div class="card-hd" style="flex-wrap:wrap;gap:8px">
+          <h3>Rekap Harian &mdash; <span id="rek-tgl">--</span></h3>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+            <input type="date" id="rek-date-pick" onchange="renderRekap()" style="padding:5px 8px;border:1.5px solid var(--border);border-radius:7px;font-family:'Inter',sans-serif;font-size:11px;background:var(--bg);color:var(--ink)">
+            <select id="filter-rute" onchange="renderRekap()" style="padding:5px 9px;border:1.5px solid var(--border);border-radius:7px;font-family:'Inter',sans-serif;font-size:11px;background:var(--bg);color:var(--ink)">
+              <option value="">Semua Rute</option>
+              <option value="A">Rute A</option><option value="B">Rute B</option><option value="C">Rute C</option>
+            </select>
+            <button class="btn btn-ghost btn-sm" onclick="exportRekapExcel()">&#x2B07; Excel</button>
+            <button class="btn btn-red btn-sm" onclick="resetHari()">&#x1F5D1; Reset Tanggal Ini</button>
+          </div>
+        </div>
+        <!-- Search rekap -->
+        <div style="padding:10px 14px;border-bottom:1px solid var(--border)">
+          <div style="display:flex;align-items:center;gap:8px;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:7px 12px">
+            <span style="color:var(--muted);font-size:13px">&#x1F50D;</span>
+            <input id="rekap-search" type="text" placeholder="Cari nama karyawan..."
+              onkeyup="filterRekap()"
+              style="border:none;background:transparent;font-family:'Inter',sans-serif;font-size:12.5px;color:var(--ink);outline:none;width:100%"/>
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Nama</th><th>ID</th><th>Rute</th><th>Naik</th><th>Turun</th><th>Status</th><th>Aksi</th></tr></thead>
+            <tbody id="rekap-tb"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- BULANAN -->
+    <div id="rekap-bulanan" style="display:none">
+      <div class="card">
+        <div class="card-hd">
+          <h3>Rekap Bulanan</h3>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+            <select id="bln-pick" onchange="renderRekapBulanan()" style="padding:5px 9px;border:1.5px solid var(--border);border-radius:7px;font-family:'Inter',sans-serif;font-size:11px;background:var(--bg);color:var(--ink)">
+              <option value="0">Januari</option><option value="1">Februari</option><option value="2">Maret</option>
+              <option value="3">April</option><option value="4">Mei</option><option value="5">Juni</option>
+              <option value="6">Juli</option><option value="7">Agustus</option><option value="8">September</option>
+              <option value="9">Oktober</option><option value="10">November</option><option value="11">Desember</option>
+            </select>
+            <select id="thn-pick" onchange="renderRekapBulanan()" style="padding:5px 9px;border:1.5px solid var(--border);border-radius:7px;font-family:'Inter',sans-serif;font-size:11px;background:var(--bg);color:var(--ink)"></select>
+            <select id="filter-rute-bln" onchange="renderRekapBulanan()" style="padding:5px 9px;border:1.5px solid var(--border);border-radius:7px;font-family:'Inter',sans-serif;font-size:11px;background:var(--bg);color:var(--ink)">
+              <option value="">Semua Rute</option>
+              <option value="A">Rute A</option><option value="B">Rute B</option><option value="C">Rute C</option>
+            </select>
+            <button class="btn btn-ghost btn-sm" onclick="exportRekapBulananExcel()">&#x2B07; Excel</button>
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Tanggal</th><th>Nama</th><th>ID</th><th>Rute</th><th>Naik</th><th>Turun</th><th>Status</th></tr></thead>
+            <tbody id="rekap-bln-tb"></tbody>
+          </table>
+        </div>
+        <div style="padding:12px 14px;border-top:1px solid var(--border);display:flex;gap:8px">
+          <div id="bln-stat" style="font-size:12px;color:var(--muted);flex:1"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TIDAK HADIR -->
+  <div data-page="tidakhadir">
+    <!-- Tab Harian / Bulanan -->
+    <div style="display:flex;gap:8px;margin-bottom:14px;background:var(--bg);border-radius:10px;padding:4px;border:1px solid var(--border)">
+      <button id="thtab-harian" onclick="switchTidakHadirTab('harian')" style="flex:1;padding:8px;border:none;border-radius:7px;background:var(--red);color:#fff;font-family:'Inter',sans-serif;font-size:12.5px;font-weight:600;cursor:pointer">&#x1F4C5; Harian</button>
+      <button id="thtab-bulanan" onclick="switchTidakHadirTab('bulanan')" style="flex:1;padding:8px;border:none;border-radius:7px;background:transparent;color:var(--muted);font-family:'Inter',sans-serif;font-size:12.5px;font-weight:600;cursor:pointer">&#x1F4C6; Bulanan</button>
+    </div>
+
+    <!-- HARIAN -->
+    <div id="th-harian">
+      <div class="card" style="border:1.5px solid var(--red);box-shadow:0 2px 10px rgba(229,62,62,.15)">
+        <div class="card-hd" style="background:var(--red-l);border-bottom:1.5px solid var(--red);flex-wrap:wrap;gap:8px">
+          <h3 style="color:var(--red-d)">&#x26A0;&#xFE0F; Karyawan Belum Absen &mdash; <span id="th-tgl">--</span></h3>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+            <input type="date" id="th-date-pick" onchange="renderTidakHadirHarian()" style="padding:5px 8px;border:1.5px solid var(--border);border-radius:7px;font-family:'Inter',sans-serif;font-size:11px;background:var(--white);color:var(--ink)">
+            <div id="th-count-badge" style="font-size:12.5px;font-weight:800;color:#fff;background:var(--red);padding:3px 10px;border-radius:20px"></div>
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Nama</th><th>ID</th><th>Departemen</th></tr></thead>
+            <tbody id="th-absen-tb"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- BULANAN -->
+    <div id="th-bulanan" style="display:none">
+      <div class="card" style="border:1.5px solid var(--red);box-shadow:0 2px 10px rgba(229,62,62,.15)">
+        <div class="card-hd" style="background:var(--red-l);border-bottom:1.5px solid var(--red);flex-wrap:wrap;gap:8px">
+          <h3 style="color:var(--red-d)">&#x1F4CA; Rekap Ketidakhadiran Bulanan</h3>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+            <select id="th-bln-pick" onchange="renderTidakHadirBulanan()" style="padding:5px 9px;border:1.5px solid var(--border);border-radius:7px;font-family:'Inter',sans-serif;font-size:11px;background:var(--white);color:var(--ink)">
+              <option value="0">Januari</option><option value="1">Februari</option><option value="2">Maret</option>
+              <option value="3">April</option><option value="4">Mei</option><option value="5">Juni</option>
+              <option value="6">Juli</option><option value="7">Agustus</option><option value="8">September</option>
+              <option value="9">Oktober</option><option value="10">November</option><option value="11">Desember</option>
+            </select>
+            <select id="th-thn-pick" onchange="renderTidakHadirBulanan()" style="padding:5px 9px;border:1.5px solid var(--border);border-radius:7px;font-family:'Inter',sans-serif;font-size:11px;background:var(--white);color:var(--ink)"></select>
+            <button class="btn btn-ghost btn-sm" onclick="exportTidakHadirBulananExcel()">&#x2B07; Excel</button>
+            <div id="th-bln-stat" style="font-size:12px;color:var(--red-d);font-weight:600"></div>
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Nama</th><th>ID</th><th>Departemen</th><th>Hadir</th><th>Tidak Hadir</th><th>Detail</th></tr></thead>
+            <tbody id="th-bulanan-tb"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KARYAWAN -->
+  <div data-page="orang">
+    <!-- Form Tambah - full width di mobile -->
+    <div class="card">
+      <div class="card-hd"><h3>&#x2B; Tambah Karyawan</h3></div>
+      <div class="card-bd">
+        <div class="frow">
+          <div class="fg"><label>ID Karyawan</label><input id="in-id" placeholder="EMP001" /></div>
+          <div class="fg"><label>Nama Lengkap</label><input id="in-nama" placeholder="Nama lengkap" /></div>
+        </div>
+        <div class="frow">
+          <div class="fg"><label>Departemen</label><input id="in-jab" placeholder="IT, HRD, Finance..." /></div>
+        </div>
+        <button class="btn btn-primary btn-full" onclick="addPerson()">&#x2B; Tambah Karyawan</button>
+      </div>
+    </div>
+
+    <!-- Daftar + Search -->
+    <div class="card">
+      <div class="card-hd" style="flex-wrap:wrap;gap:8px">
+        <h3>Daftar (<span id="kary-cnt">0</span>)</h3>
+        <div style="display:flex;gap:8px;flex:1;min-width:160px">
+          <!-- Search box -->
+          <div style="flex:1;display:flex;align-items:center;gap:6px;background:var(--bg);border:1.5px solid var(--border);border-radius:7px;padding:5px 10px">
+            <span style="color:var(--muted);font-size:13px">&#x1F50D;</span>
+            <input id="orang-search" type="text" placeholder="Cari nama atau ID..."
+              onkeyup="filterOrang()"
+              style="border:none;background:transparent;font-family:'Inter',sans-serif;font-size:12px;color:var(--ink);outline:none;width:100%"/>
+          </div>
+          <button class="btn btn-red btn-sm" onclick="hapusSemua()">Hapus Semua</button>
+        </div>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>Nama</th><th>Departemen</th><th></th></tr></thead>
+          <tbody id="orang-tb"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- QR CODE -->
+  <div data-page="barcode">
+    <div class="card" style="margin-bottom:13px">
+      <div class="card-hd"><h3>QR Code Karyawan</h3></div>
+      <div class="card-bd">
+        <p style="font-size:12px;color:var(--muted);margin-bottom:11px;line-height:1.6">QR code unik untuk tiap karyawan. Scan kamera saat naik &amp; turun bus. Cetak dan bagikan.</p>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-primary" onclick="renderQR()">&#x1F504; Generate QR</button>
+          <button class="btn btn-ghost"   onclick="window.print()">&#x1F5A8; Cetak</button>
+        </div>
+      </div>
+    </div>
+    <div class="bc-grid" id="bc-grid"></div>
+  </div>
+
+  <!-- RUTE -->
+  <div data-page="rute">
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px">
+      <div class="card">
+        <div class="card-hd"><h3><span class="rt a">Rute A</span></h3></div>
+        <div class="card-bd">
+          <div class="fg"><label>Nama Rute</label><input id="rn-a" placeholder="Cth: Rute Bekasi" /></div>
+          <div class="fg"><label>Jam Berangkat</label><input id="rj-a" type="time" value="07:00" /></div>
+          <div class="fg"><label>Jam Pulang</label><input id="rjp-a" type="time" value="17:00" /></div>
+          <button class="btn btn-primary btn-full btn-sm" onclick="saveRute('A')">Simpan Rute A</button>
+          <div style="margin-top:8px;font-size:10.5px;color:var(--muted)" id="ri-A">--</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><h3><span class="rt b">Rute B</span></h3></div>
+        <div class="card-bd">
+          <div class="fg"><label>Nama Rute</label><input id="rn-b" placeholder="Cth: Rute Depok" /></div>
+          <div class="fg"><label>Jam Berangkat</label><input id="rj-b" type="time" value="07:00" /></div>
+          <div class="fg"><label>Jam Pulang</label><input id="rjp-b" type="time" value="17:00" /></div>
+          <button class="btn btn-primary btn-full btn-sm" onclick="saveRute('B')">Simpan Rute B</button>
+          <div style="margin-top:8px;font-size:10.5px;color:var(--muted)" id="ri-B">--</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><h3><span class="rt c">Rute C</span></h3></div>
+        <div class="card-bd">
+          <div class="fg"><label>Nama Rute</label><input id="rn-c" placeholder="Cth: Rute Tangerang" /></div>
+          <div class="fg"><label>Jam Berangkat</label><input id="rj-c" type="time" value="07:00" /></div>
+          <div class="fg"><label>Jam Pulang</label><input id="rjp-c" type="time" value="17:00" /></div>
+          <button class="btn btn-primary btn-full btn-sm" onclick="saveRute('C')">Simpan Rute C</button>
+          <div style="margin-top:8px;font-size:10.5px;color:var(--muted)" id="ri-C">--</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div data-page="dashboard">
+    <!-- Period Selector -->
+    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center">
+      <div style="display:flex;gap:4px;background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:3px">
+        <button id="dp-harian"  onclick="setDashPeriod('harian')"  style="padding:6px 14px;border:none;border-radius:6px;background:transparent;color:var(--muted);font-family:'Inter',sans-serif;font-size:12px;font-weight:600;cursor:pointer">Harian</button>
+        <button id="dp-minggu"  onclick="setDashPeriod('minggu')"  style="padding:6px 14px;border:none;border-radius:6px;background:var(--bus1);color:#fff;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;cursor:pointer">Minggu</button>
+        <button id="dp-bulan"   onclick="setDashPeriod('bulan')"   style="padding:6px 14px;border:none;border-radius:6px;background:transparent;color:var(--muted);font-family:'Inter',sans-serif;font-size:12px;font-weight:600;cursor:pointer">Bulan</button>
+        <button id="dp-tahun"   onclick="setDashPeriod('tahun')"   style="padding:6px 14px;border:none;border-radius:6px;background:transparent;color:var(--muted);font-family:'Inter',sans-serif;font-size:12px;font-weight:600;cursor:pointer">Tahun</button>
+      </div>
+      <div id="dash-range" style="font-size:12px;color:var(--muted);font-weight:500"></div>
+    </div>
+
+    <!-- Ringkasan Hari Ini -->
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-hd"><h3>&#x1F4CB; Ringkasan Hari Ini</h3></div>
+      <div class="card-bd" style="padding-top:14px">
+        <div class="stat-row" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr));margin-bottom:0">
+          <div class="stat"><div class="stat-icon">&#x1F465;</div><div class="stat-n b" id="dt-total">0</div><div class="stat-l">Total Karyawan</div></div>
+          <div class="stat"><div class="stat-icon">&#x2B06;</div><div class="stat-n g" id="dt-naik">0</div><div class="stat-l">Sudah Naik</div></div>
+          <div class="stat"><div class="stat-icon">&#x2B07;</div><div class="stat-n b" id="dt-turun">0</div><div class="stat-l">Sudah Turun</div></div>
+          <div class="stat"><div class="stat-icon">&#x26A0;&#xFE0F;</div><div class="stat-n r" id="dt-belum">0</div><div class="stat-l">Belum Absen</div></div>
+          <div class="stat"><div class="stat-icon">&#x1F4C8;</div><div class="stat-n g" id="dt-persen">0%</div><div class="stat-l">Tingkat Kehadiran</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grafik Semua Rute -->
+    <div class="card" style="margin-bottom:12px">
+      <div class="card-hd"><h3>&#x1F4C8; Grafik Kehadiran — Semua Rute</h3></div>
+      <div class="card-bd"><canvas id="chart-all" height="110"></canvas></div>
+    </div>
+
+    <!-- Grafik Per Rute -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:12px">
+      <div class="card">
+        <div class="card-hd"><h3 style="color:var(--bus1)">&#x1F68C; Rute A</h3></div>
+        <div class="card-bd"><canvas id="chart-a" height="120"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><h3 style="color:var(--bus2)">&#x1F68C; Rute B</h3></div>
+        <div class="card-bd"><canvas id="chart-b" height="120"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><h3 style="color:var(--bus3)">&#x1F68C; Rute C</h3></div>
+        <div class="card-bd"><canvas id="chart-c" height="120"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Proporsi Rute -->
+    <div class="card" style="margin-bottom:12px">
+      <div class="card-hd"><h3>&#x1F4CA; Proporsi Rute</h3></div>
+      <div class="card-bd" style="max-width:360px;margin:0 auto"><canvas id="chart-donut" height="220"></canvas></div>
+    </div>
+
+    <!-- Ringkasan per Departemen -->
+    <div class="card" style="margin-bottom:12px">
+      <div class="card-hd"><h3>&#x1F3E2; Ringkasan per Departemen — Hari Ini</h3></div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Departemen</th><th>Jumlah Karyawan</th><th>Sudah Absen</th><th>Belum Absen</th><th>Tingkat Kehadiran</th></tr></thead>
+          <tbody id="dash-dept-tb"><tr><td colspan="5"><div class="empty"><p>Belum ada data</p></div></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+</div><!-- /tpl -->
+<div id="toast"></div>
+
+<!-- AUTH MODAL: gerbang password untuk fitur admin (Dashboard, Rekap, Tidak Hadir, QR Code, Kelola Rute) -->
+<div id="auth-overlay" style="display:none;position:fixed;inset:0;background:rgba(17,24,39,.55);z-index:9998;backdrop-filter:blur(3px);align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:18px;max-width:360px;width:100%;padding:28px 26px;box-shadow:0 20px 60px rgba(0,0,0,.35)">
+    <div style="text-align:center;margin-bottom:18px">
+      <div style="width:56px;height:56px;border-radius:14px;background:var(--red-l);display:grid;place-items:center;font-size:26px;margin:0 auto 12px">&#x1F512;</div>
+      <div style="font-size:17px;font-weight:800;color:var(--ink)">Akses Terbatas</div>
+      <div style="font-size:12.5px;color:var(--muted);margin-top:4px">Masukkan username &amp; password admin untuk membuka fitur ini</div>
+    </div>
+    <div style="margin-bottom:12px">
+      <label style="font-size:11.5px;font-weight:600;color:var(--ink2);display:block;margin-bottom:5px">Username</label>
+      <input id="auth-user" type="text" autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('auth-pass').focus()" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:9px;font-family:'Inter',sans-serif;font-size:13.5px;box-sizing:border-box" placeholder="Username">
+    </div>
+    <div style="margin-bottom:8px">
+      <label style="font-size:11.5px;font-weight:600;color:var(--ink2);display:block;margin-bottom:5px">Password</label>
+      <div style="position:relative">
+        <input id="auth-pass" type="password" autocomplete="current-password" onkeydown="if(event.key==='Enter')tryLogin()" style="width:100%;padding:10px 40px 10px 12px;border:1.5px solid var(--border);border-radius:9px;font-family:'Inter',sans-serif;font-size:13.5px;box-sizing:border-box" placeholder="Password">
+        <button type="button" onclick="toggleAuthPassVisibility()" id="auth-pass-eye" style="position:absolute;right:4px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:6px 8px;font-size:15px;line-height:1" title="Lihat password">&#x1F441;&#xFE0F;</button>
+      </div>
+    </div>
+    <div id="auth-err" style="color:var(--red);font-size:12px;font-weight:600;min-height:16px;margin-bottom:8px"></div>
+    <button onclick="tryLogin()" style="width:100%;padding:11px;border:none;border-radius:10px;background:var(--red);color:#fff;font-family:'Inter',sans-serif;font-size:13.5px;font-weight:700;cursor:pointer;margin-bottom:8px">Masuk</button>
+    <button onclick="closeAuthModal()" style="width:100%;padding:10px;border:none;background:transparent;color:var(--muted);font-family:'Inter',sans-serif;font-size:12.5px;font-weight:600;cursor:pointer">Batal</button>
+  </div>
+</div>
+
+<script>
+// ── AUDIO ──────────────────────────────────────────────
+function beep(ok){
+  try{
+    const AC=window.AudioContext||window.webkitAudioContext;
+    const ctx=new AC(),o=ctx.createOscillator(),g=ctx.createGain();
+    o.connect(g);g.connect(ctx.destination);
+    if(ok){
+      o.frequency.value=880;g.gain.setValueAtTime(.22,ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.14);
+      o.start();o.stop(ctx.currentTime+.14);
+      setTimeout(()=>{
+        const c2=new AC(),o2=c2.createOscillator(),g2=c2.createGain();
+        o2.connect(g2);g2.connect(c2.destination);
+        o2.frequency.value=1100;g2.gain.setValueAtTime(.18,c2.currentTime);
+        g2.gain.exponentialRampToValueAtTime(.001,c2.currentTime+.12);
+        o2.start();o2.stop(c2.currentTime+.12);
+      },150);
+    }else{
+      o.type='sawtooth';o.frequency.value=200;
+      g.gain.setValueAtTime(.15,ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.22);
+      o.start();o.stop(ctx.currentTime+.22);
+    }
+  }catch(e){}
+}
+
+// ── FIREBASE CONFIG ────────────────────────────────────
+// GANTI nilai di bawah ini dengan konfigurasi Firebase kamu!
+const FB_CONFIG = {
+  apiKey:            "AIzaSyCVIuUDYxGe3PfS6UX2sfMtm6sM3mjbVME",
+  authDomain:        "bustrakindo.firebaseapp.com",
+  databaseURL:       "https://bustrakindo-default-rtdb.firebaseio.com",
+  projectId:         "bustrakindo",
+  storageBucket:     "bustrakindo.firebasestorage.app",
+  messagingSenderId: "392678558064",
+  appId:             "1:392678558064:web:a440aca54a9813076027b5"
+};
+
+// ── DATA ───────────────────────────────────────────────
+let people = [];
+let logs   = [];
+let rutes  = {
+  A:{nama:'Rute A',berangkat:'07:00',pulang:'17:00'},
+  B:{nama:'Rute B',berangkat:'07:00',pulang:'17:00'},
+  C:{nama:'Rute C',berangkat:'07:00',pulang:'17:00'}
+};
+let layout = localStorage.getItem('bkv4_ly') || '';
+let aRute='A', aMode='naik', recent=[];
+let isFront=false, camStream=null, scanIv=null, scanCvs=null, scanCtx2=null;
+let lastCode='', lastCodeT=0, camRunning=false, zxing=null, allDev=[];
+
+// DB reference
+let db = null;
+let useFirebase = false;
+
+// ── INIT FIREBASE ──────────────────────────────────────
+function initFirebase() {
+  try {
+    // Cek apakah library Firebase sudah dimuat
+    if (typeof firebase === 'undefined') {
+      console.warn('Firebase library belum dimuat, pakai localStorage');
+      loadLocal();
+      updateDbStatus(false, 'Mode Lokal (Firebase tidak tersedia)');
+      return;
+    }
+    if (!FB_CONFIG.apiKey || FB_CONFIG.apiKey === 'GANTI_API_KEY') {
+      console.warn('Firebase belum dikonfigurasi, pakai localStorage');
+      loadLocal();
+      updateDbStatus(false, 'Mode Lokal (Firebase belum dikonfigurasi)');
+      return;
+    }
+    // Cek apakah sudah diinit sebelumnya
+    if (!firebase.apps.length) {
+      firebase.initializeApp(FB_CONFIG);
+    }
+    db = firebase.database();
+    useFirebase = true;
+
+    // Listen real-time karyawan
+    db.ref('people').on('value', snap => {
+      people = [];
+      snap.forEach(c => { const v=c.val(); if(v) people.push(v); });
+      renderOrang();
+      updateDbStatus(true, 'Firebase — Real-time ✓');
+    }, err => { console.error('people error:', err); loadLocal(); updateDbStatus(false, 'Error: '+err.message); });
+
+    // Listen real-time logs absensi
+    db.ref('logs').on('value', snap => {
+      logs = [];
+      snap.forEach(c => { const v=c.val(); if(v) logs.push(v); });
+      renderRekap();
+      renderRecent();
+    }, err => { console.error('logs error:', err); });
+
+    // Listen real-time rute
+    db.ref('rutes').on('value', snap => {
+      if (snap.exists()) {
+        rutes = snap.val();
+        updateRuteNames();
+        loadRuteForm();
+      } else {
+        db.ref('rutes').set(rutes).catch(dbErr);
+      }
+    }, err => { console.error('rutes error:', err); });
+
+    toast('Database terhubung ✓');
+  } catch(e) {
+    console.error('Firebase error:', e);
+    updateDbStatus(false, 'Error Firebase: '+e.message);
+    loadLocal();
+  }
+}
+
+function loadLocal() {
+  people = JSON.parse(localStorage.getItem('bkv4_p') || '[]');
+  logs   = JSON.parse(localStorage.getItem('bkv4_l') || '[]');
+  const r= JSON.parse(localStorage.getItem('bkv4_r') || 'null');
+  if (r) rutes = r;
+  if (!people.length) seedDemo();
+}
+
+function seedDemo() {
+  people = [
+    {id:'EMP001',nama:'Andi Saputra', jab:'Staff IT',  rute:'A'},
+    {id:'EMP002',nama:'Budi Santoso', jab:'Manager',   rute:'A'},
+    {id:'EMP003',nama:'Citra Dewi',   jab:'Staff HRD', rute:'B'},
+    {id:'EMP004',nama:'Dian Purnama', jab:'Analis',    rute:'B'},
+    {id:'EMP005',nama:'Eka Rahmat',   jab:'SPV',       rute:'C'},
+    {id:'EMP006',nama:'Fitri Hnd',    jab:'Staff',     rute:'C'},
+  ];
+  save();
+}
+
+// ── Penanganan error tulis ke Firebase (biar tidak diam-diam gagal) ──
+function dbErr(e){
+  console.error('Firebase write error:', e);
+  toast('Gagal simpan ke database: '+(e&&e.message?e.message:'cek koneksi/izin Firebase'));
+  updateDbStatus(false, 'Gagal sinkron ('+(e&&e.code?e.code:'error')+')');
+}
+
+function updateDbStatus(ok, msg) {
+  const dot = document.getElementById('db-dot');
+  const txt = document.getElementById('db-txt');
+  const dot2 = document.getElementById('mh-db-dot');
+  if (dot)  dot.style.background  = ok ? '#22C55E' : '#EF4444';
+  if (dot2) dot2.style.background = ok ? '#22C55E' : '#EF4444';
+  if (txt)  txt.textContent = msg || (ok ? 'Firebase — Real-time ✓' : 'Mode Lokal');
+}
+
+// ── SAVE ───────────────────────────────────────────────
+function save() {
+  if (useFirebase && db) return; // Firebase auto-sync via push/set
+  localStorage.setItem('bkv4_p', JSON.stringify(people));
+  localStorage.setItem('bkv4_l', JSON.stringify(logs));
+  localStorage.setItem('bkv4_r', JSON.stringify(rutes));
+}
+
+function savePeople() {
+  if (useFirebase && db) {
+    const obj = {};
+    people.forEach(p => { obj[p.id] = p; });
+    db.ref('people').set(obj).catch(dbErr);
+  } else {
+    localStorage.setItem('bkv4_p', JSON.stringify(people));
+  }
+}
+
+function saveLog(rec) {
+  if (useFirebase && db) {
+    db.ref('logs').push(rec).catch(dbErr);
+  } else {
+    logs.push(rec);
+    localStorage.setItem('bkv4_l', JSON.stringify(logs));
+  }
+}
+
+function updateLog(rec) {
+  if (useFirebase && db) {
+    // Cari key log yang sesuai lalu update
+    db.ref('logs').orderByChild('id').equalTo(rec.id).once('value', snap => {
+      snap.forEach(child => {
+        if (child.val().tanggal === rec.tanggal && child.val().rute === rec.rute) {
+          child.ref.update({ turun: rec.turun }).catch(dbErr);
+        }
+      });
+    });
+  } else {
+    localStorage.setItem('bkv4_l', JSON.stringify(logs));
+  }
+}
+
+function saveRutes() {
+  if (useFirebase && db) {
+    db.ref('rutes').set(rutes).catch(dbErr);
+  } else {
+    localStorage.setItem('bkv4_r', JSON.stringify(rutes));
+  }
+}
+
+function deletePersonDB(id) {
+  if (useFirebase && db) {
+    db.ref('people/'+id).remove().catch(dbErr);
+  } else {
+    people = people.filter(p => p.id !== id);
+    localStorage.setItem('bkv4_p', JSON.stringify(people));
+  }
+}
+
+function deleteAllPeopleDB() {
+  if (useFirebase && db) {
+    db.ref('people').remove().catch(dbErr);
+  } else {
+    people = [];
+    localStorage.setItem('bkv4_p', JSON.stringify(people));
+  }
+}
+
+function resetHariDB(tgl) {
+  tgl = tgl || new Date().toLocaleDateString('id-ID');
+  if (useFirebase && db) {
+    db.ref('logs').orderByChild('tanggal').equalTo(tgl).once('value', snap => {
+      snap.forEach(c => { c.ref.remove(); });
+    });
+  } else {
+    logs = logs.filter(l => l.tanggal !== tgl);
+    localStorage.setItem('bkv4_l', JSON.stringify(logs));
+    renderRekap();
+  }
+  toast('Rekap tanggal '+tgl+' direset');
+}
+
+// ── CLOCK ──────────────────────────────────────────────
+const DAYS=['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+const MONS=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'];
+function p2(x){return String(x).padStart(2,'0')}
+function tick(){
+  const n=new Date();
+  const d=DAYS[n.getDay()]+' '+n.getDate()+' '+MONS[n.getMonth()];
+  const t=p2(n.getHours())+':'+p2(n.getMinutes())+':'+p2(n.getSeconds());
+  const el1=document.getElementById('sb-time'),el2=document.getElementById('sb-date');
+  const el3=document.getElementById('mh-clk');
+  if(el1)el1.textContent=t;if(el2)el2.textContent=d;
+  if(el3)el3.textContent=d+' '+p2(n.getHours())+':'+p2(n.getMinutes());
+}
+tick();setInterval(tick,1000);
+
+// ── WELCOME ────────────────────────────────────────────
+function pickLayout(l){
+  layout=l;
+  document.getElementById('wc-hp').classList.toggle('on',l==='hp');
+  document.getElementById('wc-lt').classList.toggle('on',l==='laptop');
+  document.getElementById('w-go').classList.add('show');
+}
+function enterApp(){
+  if(!layout){toast('Pilih tampilan dulu');return;}
+  localStorage.setItem('bkv4_ly',layout);
+  document.getElementById('welcome').style.display='none';
+  document.getElementById('app').style.display='block';
+  applyLayout(layout);
+}
+function switchLayout(){
+  stopCam();
+  layout=layout==='laptop'?'hp':'laptop';
+  localStorage.setItem('bkv4_ly',layout);
+  applyLayout(layout);
+  goTab('scan');
+  toast('Tampilan: '+(layout==='laptop'?'Laptop':'Handphone'));
+}
+
+// ── APPLY LAYOUT ───────────────────────────────────────
+function applyLayout(l){
+  const wrap=l==='laptop'
+    ?document.getElementById('lt-wrap')
+    :document.getElementById('mob-wrap');
+  wrap.innerHTML='';
+  const tpl=document.getElementById('tpl');
+  Array.from(tpl.children).forEach(c=>{
+    const cl=c.cloneNode(true);
+    cl.classList.add('page');
+    cl.id='page-'+c.dataset.page;
+    if(c.dataset.page==='scan')cl.classList.add('on');
+    wrap.appendChild(cl);
+  });
+  if(l==='laptop'){
+    document.getElementById('ly-laptop').style.display='';
+    document.getElementById('ly-mobile').style.display='none';
+    wrap.querySelectorAll('.mob-mode').forEach(e=>e.style.display='none');
+    wrap.querySelectorAll('.orang-grid').forEach(e=>e.style.gridTemplateColumns='1fr 1fr');
+    const sf=wrap.querySelector('#scan-fullscreen');
+    if(sf){sf.style.minHeight='430px';}
+    const sv=wrap.querySelector('#scan-video');
+    if(sv){sv.style.minHeight='430px';sv.style.maxHeight='520px';}
+  }else{
+    document.getElementById('ly-mobile').style.display='';
+    document.getElementById('ly-laptop').style.display='none';
+    wrap.querySelectorAll('.mob-mode').forEach(e=>e.style.display='flex');
+    wrap.querySelectorAll('.orang-grid').forEach(e=>e.style.gridTemplateColumns='1fr');
+    const sf=wrap.querySelector('#scan-fullscreen');
+    if(sf){sf.style.minHeight='440px';}
+    const sv=wrap.querySelector('#scan-video');
+    if(sv){sv.style.minHeight='440px';sv.style.maxHeight='480px';}
+  }
+  // HTTPS warning
+  if(location.protocol==='file:'){
+    const hw=wrap.querySelector('#hw');if(hw)hw.style.display='block';
+  }
+  // Re-attach Enter listener
+  const mi=wrap.querySelector('#man-in');
+  if(mi)mi.addEventListener('keydown',e=>{if(e.key==='Enter')doManual();});
+  renderOrang();loadRuteForm();updateRuteNames();setRute(aRute);setMode(aMode);
+  updateAuthUI();
+}
+
+// ── RUTE ───────────────────────────────────────────────
+function setRute(r){
+  aRute=r;
+  ['A','B','C'].forEach(x=>{
+    const sb=document.getElementById('srb-'+x);
+    if(sb)sb.classList.toggle('on',x===r);
+    const mb=document.getElementById('mrb-'+x);
+    if(mb){mb.className='mh-rt '+x.toLowerCase()+(x===r?' on':'');}
+  });
+  const rt=document.getElementById('rt-scan');
+  if(rt){rt.textContent=(rutes[r]?rutes[r].nama:('Rute '+r));}
+}
+function updateRuteNames(){
+  ['A','B','C'].forEach(r=>{
+    const mn=document.getElementById('mn-'+r);if(mn)mn.textContent=rutes[r].nama||'Rute '+r;
+    const sn=document.getElementById('sn-'+r);if(sn)sn.textContent=rutes[r].nama||'Rute '+r;
+  });
+}
+
+// ── MODE ───────────────────────────────────────────────
+function setMode(m){
+  aMode=m;
+  // Tombol mode naik/turun di halaman scan
+  const ids={naik:['m-naik'],turun:['m-turun']};
+  ['naik','turun'].forEach(k=>{
+    ids[k].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el){el.className=k+(m===k?' on':'');}
+    });
+  });
+  // In-camera buttons
+  const cn=document.getElementById('cam-naik');
+  const ct=document.getElementById('cam-turun');
+  if(cn){cn.style.background=m==='naik'?'rgba(22,163,74,.85)':'rgba(255,255,255,.18)';}
+  if(ct){ct.style.background=m==='turun'?'rgba(220,38,38,.85)':'rgba(255,255,255,.18)';}
+}
+
+// ── NAV ────────────────────────────────────────────────
+// ── AUTH GATE (1 password untuk semua fitur admin) ─────
+// Ganti username/password di bawah ini sesuai kebutuhan
+const ADMIN_USER='admin';
+const ADMIN_PASS='karyawan123';
+
+function isAuthed(){
+  return sessionStorage.getItem('bkv4_auth')==='1';
+}
+let pendingTab=null;
+function requestAuth(tab){
+  pendingTab=tab;
+  const err=document.getElementById('auth-err');if(err)err.textContent='';
+  const u=document.getElementById('auth-user');if(u)u.value='';
+  const p=document.getElementById('auth-pass');if(p){p.value='';p.type='password';}
+  const eye=document.getElementById('auth-pass-eye');if(eye){eye.innerHTML='&#x1F441;&#xFE0F;';eye.title='Lihat password';}
+  const ov=document.getElementById('auth-overlay');if(ov)ov.style.display='flex';
+  setTimeout(()=>{const u2=document.getElementById('auth-user');if(u2)u2.focus();},100);
+}
+function closeAuthModal(){
+  const ov=document.getElementById('auth-overlay');if(ov)ov.style.display='none';
+  pendingTab=null;
+}
+function toggleAuthPassVisibility(){
+  const p=document.getElementById('auth-pass');
+  const eye=document.getElementById('auth-pass-eye');
+  if(!p)return;
+  const showing=p.type==='text';
+  p.type=showing?'password':'text';
+  if(eye){eye.innerHTML=showing?'&#x1F441;&#xFE0F;':'&#x1F648;';eye.title=showing?'Lihat password':'Sembunyikan password';}
+}
+function tryLogin(){
+  const u=(document.getElementById('auth-user')||{value:''}).value.trim();
+  const p=(document.getElementById('auth-pass')||{value:''}).value;
+  if(u===ADMIN_USER&&p===ADMIN_PASS){
+    sessionStorage.setItem('bkv4_auth','1');
+    const ov=document.getElementById('auth-overlay');if(ov)ov.style.display='none';
+    updateAuthUI();
+    const t=pendingTab||'dashboard';pendingTab=null;
+    toast('Login berhasil, semua fitur terbuka');
+    goTab(t);
+  }else{
+    const err=document.getElementById('auth-err');if(err)err.textContent='Username atau password salah';
+  }
+}
+function lockApp(){
+  sessionStorage.removeItem('bkv4_auth');
+  updateAuthUI();
+  toast('Fitur admin dikunci kembali');
+  goTab('scan');
+}
+
+// Klik "Fitur Lanjutan": kalau belum login -> minta login (lalu ke Dashboard).
+// Kalau sudah login (harusnya tombol ini sudah tersembunyi), langsung ke Dashboard.
+function clickFiturLanjutan(){
+  if(isAuthed()){goTab('dashboard');}
+  else{requestAuth('dashboard');}
+}
+// Slot bottom-nav mobile: sebelum login = tombol "Lanjutan" (buka login),
+// sesudah login = tombol pintasan "Grafik" (buka Dashboard)
+function handleLanjutanSlot(){
+  if(isAuthed()){goTab('dashboard');}
+  else{requestAuth('dashboard');}
+}
+
+// Tampilkan/sembunyikan semua menu fitur admin sesuai status login
+function updateAuthUI(){
+  const authed=isAuthed();
+  document.querySelectorAll('.admin-only').forEach(el=>{ el.style.display=authed?'':'none'; });
+  document.querySelectorAll('.admin-only-tile').forEach(el=>{
+    el.style.display=authed?(el.dataset.disp||'flex'):'none';
+  });
+  const sbLanjutan=document.getElementById('sbi-lanjutan');
+  if(sbLanjutan)sbLanjutan.style.display=authed?'none':'';
+  const mmtLanjutan=document.getElementById('mmt-lanjutan');
+  if(mmtLanjutan)mmtLanjutan.style.display=authed?'none':'flex';
+  const mbnIc=document.getElementById('mbn-lanjutan-ic');
+  const mbnLb=document.getElementById('mbn-lanjutan-lb');
+  if(mbnIc)mbnIc.innerHTML=authed?'&#x1F4C8;':'&#x1F513;';
+  if(mbnLb)mbnLb.textContent=authed?'Grafik':'Lanjutan';
+}
+
+function goTab(id){
+  // Gerbang password: halaman admin butuh login (username+password), Karyawan & Scan Absen bebas akses
+  const LOCKED_PAGES=['dashboard','rekap','tidakhadir','barcode','rute'];
+  if(LOCKED_PAGES.includes(id) && !isAuthed()){
+    requestAuth(id);
+    return;
+  }
+  const wrap=layout==='laptop'?document.getElementById('lt-wrap'):document.getElementById('mob-wrap');
+  if(!wrap)return;
+  wrap.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  const pg=wrap.querySelector('#page-'+id);if(pg)pg.classList.add('on');
+
+  // Update all nav buttons
+  ['scan','dashboard','rekap','tidakhadir','orang','barcode','rute'].forEach(x=>{
+    const sb=document.getElementById('sbi-'+x);if(sb)sb.classList.toggle('on',x===id);
+  });
+
+  // Mobile bottom nav active state
+  const mobBtns=['scan','orang'];
+  mobBtns.forEach(x=>{
+    const b=document.getElementById('mbn-'+x);
+    if(b)b.classList.toggle('on',x===id);
+  });
+  const lj=document.getElementById('mbn-lanjutan');
+  if(lj)lj.classList.toggle('on',id==='dashboard'&&isAuthed());
+
+  const titles={
+    scan:'Beranda & Scan',dashboard:'Dashboard Statistik',
+    rekap:'Rekap Absensi',tidakhadir:'Rekap Ketidakhadiran',
+    orang:'Data Karyawan',barcode:'QR Code',rute:'Kelola Rute'
+  };
+  const ltt=document.getElementById('lt-ttl');if(ltt)ltt.textContent=titles[id]||id;
+
+  if(id==='rekap'){renderRekap();}
+  if(id==='tidakhadir'){initTidakHadirBlnPicker();renderTidakHadirHarian();renderTidakHadirBulanan();}
+  if(id==='orang'){renderOrang();}
+  if(id==='rute'){loadRuteForm();}
+  if(id==='dashboard'){renderDashboard();}
+}
+
+// ── SCANNER ────────────────────────────────────────────
+async function startCam(){
+  if(camRunning)return;
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    setCamErr('Browser tidak mendukung kamera. Pakai Chrome/Firefox versi terbaru.');return;
+  }
+  try{
+    camStream=await navigator.mediaDevices.getUserMedia({
+      video:{facingMode:isFront?'user':{ideal:'environment'},width:{ideal:640},height:{ideal:480}}
+    });
+    const vid=document.getElementById('scan-video');
+    if(!vid){toast('Elemen video tidak ditemukan');return;}
+    vid.srcObject=camStream;
+    vid.setAttribute('playsinline',true);
+    await vid.play();
+    camRunning=true;
+
+    // Setup ZXing reader dengan hint QR only (tanpa TRY_HARDER agar decode lebih cepat & konsisten)
+    const hints=new Map();
+    const formats=[
+      ZXing.BarcodeFormat.QR_CODE,
+    ];
+    hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS,formats);
+    hints.set(ZXing.DecodeHintType.TRY_HARDER,false);
+    zxing=new ZXing.BrowserMultiFormatReader(hints);
+    // CATATAN: sebelumnya di sini ada zxing.decodeFromVideoElement() yang berjalan BERSAMAAN
+    // dengan loop canvas di bawah. Dua mesin decode berebut CPU/kamera di saat yang sama,
+    // itulah sebabnya scan kadang cepat kadang lambat/nge-lag. Sekarang hanya SATU mesin
+    // decode yang jalan (loop canvas ter-crop di bawah) supaya konsisten cepat & responsif.
+
+    // Loop decode pakai canvas (kompatibel di semua browser, area di-crop biar lebih ringan & cepat)
+    scanCvs=document.createElement('canvas');
+    scanCtx2=scanCvs.getContext('2d',{willReadFrequently:true});
+
+    let scanBusy=false;
+    function scanFrame(){
+      if(!camRunning)return;
+      if(!scanBusy&&vid.videoWidth&&vid.videoHeight){
+        scanBusy=true;
+        // Crop bagian tengah video (area kotak pemandu) agar QR lebih cepat & jelas terdeteksi
+        const vw=vid.videoWidth,vh=vid.videoHeight;
+        const cropSize=Math.min(vw,vh)*0.85; // sedikit lebih luas dari frame guide
+        const sx=(vw-cropSize)/2, sy=(vh-cropSize)/2;
+        scanCvs.width=cropSize;
+        scanCvs.height=cropSize;
+        scanCtx2.drawImage(vid,sx,sy,cropSize,cropSize,0,0,cropSize,cropSize);
+        try{
+          let result;
+          if(typeof zxing.decodeFromCanvas==='function'){
+            result=zxing.decodeFromCanvas(scanCvs);
+          }else{
+            const lumSrc=new ZXing.HTMLCanvasElementLuminanceSource(scanCvs);
+            const binarizer=new ZXing.HybridBinarizer(lumSrc);
+            const bitmap=new ZXing.BinaryBitmap(binarizer);
+            result=zxing.decodeBitmap(bitmap);
+          }
+          if(result)processCode(result.getText());
+        }catch(e){
+          // NotFoundException = wajar, tidak ada kode terdeteksi di frame ini
+        }
+        scanBusy=false;
+      }
+      scanIv=requestAnimationFrame(scanFrame);
+    }
+    scanIv=requestAnimationFrame(scanFrame);
+
+
+    // Enumerate cameras untuk tombol flip
+    try{allDev=(await navigator.mediaDevices.enumerateDevices()).filter(d=>d.kind==='videoinput');}catch(e){allDev=[];}
+    setCamUI(true);
+    toast('Kamera aktif');
+  }catch(e){
+    const n=e.name||'';
+    if(n==='NotAllowedError'||n==='PermissionDeniedError')
+      setCamErr('Izin kamera ditolak. Klik ikon kunci di address bar browser lalu pilih Izinkan, kemudian coba lagi.');
+    else if(n==='NotFoundError'||n==='DevicesNotFoundError')
+      setCamErr('Tidak ada kamera ditemukan. Pastikan kamera tersambung.');
+    else if(n==='NotReadableError'||n==='TrackStartError')
+      setCamErr('Kamera sedang digunakan aplikasi lain. Tutup aplikasi kamera lain lalu coba lagi.');
+    else if(location.protocol==='file:')
+      setCamErr('File dibuka secara lokal (file://). Upload ke Netlify dan buka via https:// agar kamera berfungsi.');
+    else
+      setCamErr('Kamera gagal: '+e.message);
+  }
+}
+
+function stopCam(){
+  if(scanIv){cancelAnimationFrame(scanIv);scanIv=null;}
+  if(zxing){try{zxing.reset();}catch(e){}zxing=null;}
+  if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null;}
+  camRunning=false;
+  const vid=document.getElementById('scan-video');
+  if(vid){if(vid.srcObject){vid.srcObject.getTracks().forEach(t=>t.stop());}vid.srcObject=null;}
+  clearCamErr();
+  setCamUI(false);
+}
+
+
+function setCamErr(msg){
+  const wrap=document.getElementById('cam-err-wrap');
+  const txt=document.getElementById('cam-err-msg');
+  if(wrap){wrap.style.display='flex';}
+  if(txt)txt.innerHTML=msg;
+}
+function clearCamErr(){
+  const wrap=document.getElementById('cam-err-wrap');
+  if(wrap)wrap.style.display='none';
+}
+
+function setCamUI(on){
+  const btnOn=document.getElementById('btn-on');
+  const btnOff=document.getElementById('btn-off');
+  const laser=document.getElementById('sf-laser');
+  const hint=document.getElementById('scan-hint');
+  const flip=document.getElementById('btn-flip-wrap');
+  if(btnOn) btnOn.style.display=on?'none':'flex';
+  if(btnOff) btnOff.style.display=on?'flex':'none';
+  if(laser) laser.style.display=on?'':'none';
+  if(hint) hint.style.display=on?'':'none';
+  if(flip) flip.style.display=(on&&allDev.length>1)?'flex':'none';
+}
+
+async function flipCam(){
+  isFront=!isFront;
+  stopCam();
+  await new Promise(r=>setTimeout(r,300));
+  startCam();
+  toast(isFront?'Kamera depan':'Kamera belakang');
+}
+
+function doManual(){
+  const el=document.getElementById('man-in');if(!el)return;
+  const v=el.value.trim();if(!v)return;
+  processCode(v);el.value='';
+}
+
+// ── PROCESS ────────────────────────────────────────────
+function processCode(code){
+  const now=Date.now();
+  if(code===lastCode&&now-lastCodeT<2200)return;
+  lastCode=code;lastCodeT=now;
+  const p=people.find(x=>x.id===code);
+  if(!p){beep(false);toast('ID tidak dikenali: '+code);return;}
+  const rRute=aRute; // rute ditentukan manual oleh petugas scan (tidak lagi otomatis ikut data karyawan)
+  const n=new Date();
+  const tgl=n.toLocaleDateString('id-ID');
+  const wkt=p2(n.getHours())+':'+p2(n.getMinutes());
+  const log=logs.find(l=>l.id===p.id&&l.tanggal===tgl&&l.rute===rRute);
+  // Cari log orang ini di TANGGAL YANG SAMA tapi di rute LAIN (untuk cegah duplikat lintas rute)
+  const logRuteLain=logs.find(l=>l.id===p.id&&l.tanggal===tgl&&l.rute!==rRute);
+  let finalRute=rRute;
+  if(aMode==='naik'){
+    if(log&&log.naik){beep(false);toast(p.nama+' sudah naik');showResult(p,wkt,'sudah-naik',rRute);return;}
+    if(logRuteLain&&logRuteLain.naik){
+      const namaRuteLain=rutes[logRuteLain.rute]?rutes[logRuteLain.rute].nama:'Rute '+logRuteLain.rute;
+      beep(false);
+      toast(p.nama+' sudah naik di '+namaRuteLain+' - tidak bisa scan di rute lain');
+      showResult(p,wkt,'sudah-naik',logRuteLain.rute);
+      return;
+    }
+    const rec={id:p.id,nama:p.nama,jab:p.jab||'',rute:rRute,tanggal:tgl,naik:wkt,turun:null};
+    if(!log){
+      saveLog(rec);
+      if(!useFirebase) logs.push(rec);
+    } else {
+      log.naik=wkt;
+      updateLog(log);
+    }
+    beep(true);showResult(p,wkt,'naik',rRute);
+    toast(p.nama+' - Naik '+rutes[rRute].nama);
+  }else{
+    // Untuk turun, pakai log naik yang benar-benar tercatat - baik di rute ini maupun rute lain hari ini
+    const logAktif = (log&&log.naik) ? log : ((logRuteLain&&logRuteLain.naik) ? logRuteLain : null);
+    if(!logAktif){beep(false);toast(p.nama+' belum naik');showResult(p,wkt,'belum-naik',rRute);return;}
+    if(logAktif.turun){beep(false);toast(p.nama+' sudah turun');return;}
+    logAktif.turun=wkt;
+    updateLog(logAktif);
+    finalRute=logAktif.rute;
+    if(!useFirebase) localStorage.setItem('bkv4_l',JSON.stringify(logs));
+    beep(true);showResult(p,wkt,'turun',finalRute);
+    toast(p.nama+' - Turun '+rutes[finalRute].nama);
+  }
+  recent.unshift({nama:p.nama,rute:finalRute,mode:aMode,wkt});
+  if(recent.length>8)recent.pop();
+  renderRecent();
+  const sw=document.getElementById('scan-fullscreen');
+  if(sw){sw.classList.add('flash-ok');setTimeout(()=>sw.classList.remove('flash-ok'),450);}
+}
+
+function showResult(p,wkt,st,rRute){
+  const box=document.getElementById('result-box');if(!box)return;
+  const r=rRute||aRute;
+  const mm={naik:'<span class="badge badge-up">&#x2B06; Naik</span>',turun:'<span class="badge badge-dn">&#x2B07; Turun</span>','sudah-naik':'<span class="badge badge-warn">Sudah Naik</span>','belum-naik':'<span class="badge badge-warn">Belum Naik</span>'};
+  const sm={naik:'<span class="badge badge-up">Tercatat &#x2713;</span>',turun:'<span class="badge badge-dn">Tercatat &#x2713;</span>','sudah-naik':'<span class="badge badge-warn">Duplikat</span>','belum-naik':'<span class="badge badge-warn">Naik Dulu</span>'};
+  document.getElementById('rb-av').textContent=p.nama[0].toUpperCase();
+  document.getElementById('rb-name').textContent=p.nama;
+  document.getElementById('rb-id').textContent=p.id+(p.jab?' - '+p.jab:'');
+  document.getElementById('rb-rute').innerHTML='<span class="rt '+r.toLowerCase()+'">'+(rutes[r]?rutes[r].nama:'Rute '+r)+'</span>';
+  document.getElementById('rb-mode').innerHTML=mm[st]||'';
+  document.getElementById('rb-wkt').textContent=wkt;
+  document.getElementById('rb-sts').innerHTML=sm[st]||'';
+  box.classList.add('show');
+}
+
+function renderRecent(){
+  const tb=document.getElementById('recent-tb');if(!tb)return;
+  if(!recent.length){tb.innerHTML='<tr><td colspan="4"><div class="empty"><p>Belum ada aktivitas</p></div></td></tr>';return;}
+  tb.innerHTML=recent.map(r=>'<tr><td><strong>'+r.nama+'</strong></td><td><span class="rt '+r.rute.toLowerCase()+'">'+(rutes[r.rute]?rutes[r.rute].nama:r.rute)+'</span></td><td>'+(r.mode==='naik'?'<span class="badge badge-up">&#x2B06;</span>':'<span class="badge badge-dn">&#x2B07;</span>')+'</td><td>'+r.wkt+'</td></tr>').join('');
+}
+
+// ── REKAP TAB ──────────────────────────────────────────
+let rekapTab='harian';
+function switchRekapTab(tab){
+  rekapTab=tab;
+  const rh=document.getElementById('rekap-harian');
+  const rb=document.getElementById('rekap-bulanan');
+  if(rh)rh.style.display=tab==='harian'?'':'none';
+  if(rb)rb.style.display=tab==='bulanan'?'':'none';
+  const bh=document.getElementById('rtab-harian');
+  const bb=document.getElementById('rtab-bulanan');
+  if(bh){bh.style.background=tab==='harian'?'var(--bus1)':'transparent';bh.style.color=tab==='harian'?'#fff':'var(--muted)';}
+  if(bb){bb.style.background=tab==='bulanan'?'var(--bus1)':'transparent';bb.style.color=tab==='bulanan'?'#fff':'var(--muted)';}
+  if(tab==='bulanan'){initBlnPicker();renderRekapBulanan();}
+}
+
+function initBlnPicker(){
+  const now=new Date();
+  const bp=document.getElementById('bln-pick');if(bp)bp.value=now.getMonth();
+  const tp=document.getElementById('thn-pick');
+  if(tp&&!tp.options.length){
+    for(let y=2024;y<=now.getFullYear()+1;y++){
+      const o=document.createElement('option');o.value=y;o.textContent=y;
+      if(y===now.getFullYear())o.selected=true;tp.appendChild(o);
+    }
+  }
+}
+
+function renderRekapBulanan(){
+  const bln=parseInt((document.getElementById('bln-pick')||{value:new Date().getMonth()}).value);
+  const thn=parseInt((document.getElementById('thn-pick')||{value:new Date().getFullYear()}).value||new Date().getFullYear());
+  const fr=(document.getElementById('filter-rute-bln')||{value:''}).value||'';
+  const BNAMES=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  const parseTgl=t=>{const [d,m,y]=t.split('/').map(Number);return new Date(y,m-1,d);};
+  const data=logs.filter(l=>{
+    const parts=l.tanggal?l.tanggal.split('/'):[];
+    if(parts.length<3)return false;
+    return parseInt(parts[1])-1===bln&&parseInt(parts[2])===thn&&(!fr||l.rute===fr);
+  }).sort((a,b)=>parseTgl(a.tanggal)-parseTgl(b.tanggal));
+  const tb=document.getElementById('rekap-bln-tb');
+  const stat=document.getElementById('bln-stat');
+  if(!tb)return;
+  if(!data.length){tb.innerHTML='<tr><td colspan="7"><div class="empty"><div class="ei">&#x1F4ED;</div><p>Tidak ada data '+BNAMES[bln]+' '+thn+'</p></div></td></tr>';if(stat)stat.textContent='';return;}
+  // Kelompokkan per TANGGAL dulu (biar hari-hari tidak menyatu), lalu per departemen di dalam tiap tanggal
+  const tglGroups={};
+  data.forEach(l=>{
+    if(!tglGroups[l.tanggal])tglGroups[l.tanggal]=[];
+    tglGroups[l.tanggal].push(l);
+  });
+  const tglList=Object.keys(tglGroups).sort((a,b)=>parseTgl(a)-parseTgl(b));
+  let html='';
+  tglList.forEach(tgl=>{
+    const entriesTgl=tglGroups[tgl];
+    html+='<tr><td colspan="7" style="background:var(--ink);color:#fff;font-weight:800;font-size:12.5px;padding:10px 12px">&#x1F4C5; '+tgl+' <span style="font-weight:500;opacity:.75">('+entriesTgl.length+' orang)</span></td></tr>';
+    const deptGroups={};
+    entriesTgl.forEach(l=>{
+      const d=l.jab&&l.jab.trim()?l.jab.trim():'Tanpa Departemen';
+      if(!deptGroups[d])deptGroups[d]=[];
+      deptGroups[d].push(l);
+    });
+    const deptNames=Object.keys(deptGroups).sort((a,b)=>a.localeCompare(b,'id'));
+    deptNames.forEach(d=>{
+      const anggota=deptGroups[d];
+      html+='<tr><td colspan="7" style="background:var(--bg);font-weight:700;font-size:11.5px;color:var(--bus1);padding:7px 12px 7px 26px">&#x1F3E2; '+d+' <span style="color:var(--muted);font-weight:500">('+anggota.length+')</span></td></tr>';
+      html+=anggota.map(l=>'<tr'+(l.naik?'':' class="row-alert"')+'><td>'+l.tanggal+'</td><td><strong>'+l.nama+'</strong></td><td><span class="badge badge-blue">'+l.id+'</span></td><td><span class="rt '+l.rute.toLowerCase()+'">'+(rutes[l.rute]?rutes[l.rute].nama:l.rute)+'</span></td><td>'+(l.naik||'--')+'</td><td>'+(l.turun||'--')+'</td><td>'+(l.turun?'<span class="badge badge-dn">Turun</span>':l.naik?'<span class="badge badge-up">Di Bus</span>':'<span class="badge badge-warn">&#x26A0; Belum</span>')+'</td></tr>').join('');
+    });
+  });
+  tb.innerHTML=html;
+  if(stat)stat.textContent='Total '+data.length+' perjalanan | '+BNAMES[bln]+' '+thn;
+}
+
+
+// ── TIDAK HADIR (halaman terpisah) ─────────────────────
+function initTidakHadirBlnPicker(){
+  const now=new Date();
+  const bp=document.getElementById('th-bln-pick');if(bp&&bp.value==='')bp.value=now.getMonth();
+  if(bp&&!bp.value)bp.value=now.getMonth();
+  const tp=document.getElementById('th-thn-pick');
+  if(tp&&!tp.options.length){
+    for(let y=2024;y<=now.getFullYear()+1;y++){
+      const o=document.createElement('option');o.value=y;o.textContent=y;
+      if(y===now.getFullYear())o.selected=true;tp.appendChild(o);
+    }
+  }
+}
+
+let tidakHadirTab='harian';
+function switchTidakHadirTab(tab){
+  tidakHadirTab=tab;
+  const th=document.getElementById('th-harian');
+  const tb=document.getElementById('th-bulanan');
+  if(th)th.style.display=tab==='harian'?'':'none';
+  if(tb)tb.style.display=tab==='bulanan'?'':'none';
+  const bh=document.getElementById('thtab-harian');
+  const bb=document.getElementById('thtab-bulanan');
+  if(bh){bh.style.background=tab==='harian'?'var(--red)':'transparent';bh.style.color=tab==='harian'?'#fff':'var(--muted)';}
+  if(bb){bb.style.background=tab==='bulanan'?'var(--red)':'transparent';bb.style.color=tab==='bulanan'?'#fff':'var(--muted)';}
+  if(tab==='bulanan'){initTidakHadirBlnPicker();renderTidakHadirBulanan();}
+  else{renderTidakHadirHarian();}
+}
+
+// Rekap ketidakhadiran bulanan: berapa kali tiap karyawan tidak absen dari total hari aktif bulan itu
+function renderTidakHadirBulanan(bln,thn){
+  if(bln===undefined)bln=parseInt((document.getElementById('th-bln-pick')||{value:new Date().getMonth()}).value);
+  if(thn===undefined)thn=parseInt((document.getElementById('th-thn-pick')||{value:new Date().getFullYear()}).value||new Date().getFullYear());
+  const tb=document.getElementById('th-bulanan-tb');if(!tb)return;
+  const BNAMES=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  // Semua log bulan ini (semua rute) - dipakai utk menentukan hari mana saja bus beroperasi
+  const bulanLogs=logs.filter(l=>{
+    const parts=l.tanggal?l.tanggal.split('/'):[];
+    if(parts.length<3)return false;
+    return parseInt(parts[1])-1===bln&&parseInt(parts[2])===thn;
+  });
+  const parseTgl=t=>{const [d,m,y]=t.split('/').map(Number);return new Date(y,m-1,d);};
+  const hariAktif=Array.from(new Set(bulanLogs.map(l=>l.tanggal))).sort((a,b)=>parseTgl(a)-parseTgl(b));
+  const stat=document.getElementById('th-bln-stat');
+  if(stat)stat.textContent=hariAktif.length+' hari aktif | '+BNAMES[bln]+' '+thn;
+  if(!hariAktif.length){
+    tb.innerHTML='<tr><td colspan="7"><div class="empty"><div class="ei">&#x1F4ED;</div><p>Tidak ada data '+BNAMES[bln]+' '+thn+'</p></div></td></tr>';
+    return;
+  }
+  const rekapPeg=people.map(p=>{
+    const absenDates=hariAktif.filter(tgl=>!bulanLogs.find(l=>l.id===p.id&&l.tanggal===tgl));
+    return {p,hadir:hariAktif.length-absenDates.length,absen:absenDates.length,absenDates};
+  });
+  const groups={};
+  rekapPeg.forEach(r=>{
+    const d=r.p.jab&&r.p.jab.trim()?r.p.jab.trim():'Tanpa Departemen';
+    if(!groups[d])groups[d]=[];
+    groups[d].push(r);
+  });
+  const deptNames=Object.keys(groups).sort((a,b)=>a.localeCompare(b,'id'));
+  let html='';let no=1;
+  deptNames.forEach(d=>{
+    const anggota=groups[d].slice().sort((a,b)=>a.p.nama.localeCompare(b.p.nama,'id'));
+    html+='<tr><td colspan="7" style="background:var(--bg);font-weight:700;font-size:11.5px;color:var(--bus1);padding:8px 12px">&#x1F3E2; '+d+' <span style="color:var(--muted);font-weight:500">('+anggota.length+')</span></td></tr>';
+    html+=anggota.map(r=>{
+      const rid='abs-'+r.p.id.replace(/[^a-zA-Z0-9]/g,'')+'-'+bln+'-'+thn;
+      const warnaAbsen=r.absen>0?'var(--dn)':'var(--up)';
+      let row='<tr>'+
+        '<td style="color:var(--muted);font-size:11px">'+(no++)+'</td>'+
+        '<td><strong>'+r.p.nama+'</strong></td>'+
+        '<td><span class="badge badge-blue">'+r.p.id+'</span></td>'+
+        '<td style="color:var(--muted);font-size:11.5px">'+(r.p.jab||'--')+'</td>'+
+        '<td><span class="badge badge-up">'+r.hadir+'</span></td>'+
+        '<td><span style="font-weight:700;color:'+warnaAbsen+'">'+r.absen+'</span></td>'+
+        '<td>'+(r.absen>0?'<button class="btn btn-ghost btn-sm" onclick="toggleDetailAbsen(\''+rid+'\')">&#x1F441; Lihat</button>':'--')+'</td>'+
+        '</tr>';
+      if(r.absen>0){
+        row+='<tr id="'+rid+'" style="display:none"><td></td><td colspan="6" style="background:var(--dnl);font-size:11.5px;color:var(--dn);padding:8px 12px">Tidak absen tanggal: '+r.absenDates.join(', ')+'</td></tr>';
+      }
+      return row;
+    }).join('');
+  });
+  tb.innerHTML=html;
+}
+function toggleDetailAbsen(id){
+  const el=document.getElementById(id);if(!el)return;
+  el.style.display=el.style.display==='none'?'':'none';
+}
+
+function exportTidakHadirBulananExcel(){
+  if(typeof XLSX==='undefined'){toast('Library Excel belum dimuat, coba refresh');return;}
+  const bln=parseInt((document.getElementById('th-bln-pick')||{value:new Date().getMonth()}).value);
+  const thn=parseInt((document.getElementById('th-thn-pick')||{value:new Date().getFullYear()}).value||new Date().getFullYear());
+  const BNAMES=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  const bulanLogs=logs.filter(l=>{
+    const parts=l.tanggal?l.tanggal.split('/'):[];
+    if(parts.length<3)return false;
+    return parseInt(parts[1])-1===bln&&parseInt(parts[2])===thn;
+  });
+  const parseTgl=t=>{const [d,m,y]=t.split('/').map(Number);return new Date(y,m-1,d);};
+  const hariAktif=Array.from(new Set(bulanLogs.map(l=>l.tanggal))).sort((a,b)=>parseTgl(a)-parseTgl(b));
+  if(!hariAktif.length){toast('Tidak ada data '+BNAMES[bln]+' '+thn);return;}
+  const rekapPeg=people.map(p=>{
+    const absenDates=hariAktif.filter(tgl=>!bulanLogs.find(l=>l.id===p.id&&l.tanggal===tgl));
+    return {p,hadir:hariAktif.length-absenDates.length,absen:absenDates.length,absenDates};
+  });
+  const groups={};
+  rekapPeg.forEach(r=>{
+    const d=r.p.jab&&r.p.jab.trim()?r.p.jab.trim():'Tanpa Departemen';
+    if(!groups[d])groups[d]=[];
+    groups[d].push(r);
+  });
+  const deptNames=Object.keys(groups).sort((a,b)=>a.localeCompare(b,'id'));
+  const rows=[];let no=1;
+  deptNames.forEach(d=>{
+    groups[d].slice().sort((a,b)=>a.p.nama.localeCompare(b.p.nama,'id')).forEach(r=>{
+      rows.push([no++,r.p.nama,r.p.id,d,r.hadir,r.absen,r.absenDates.join(', ')]);
+    });
+  });
+  const hdr=[['No','Nama','ID','Departemen','Hadir','Tidak Hadir','Tanggal Tidak Hadir']];
+  const totalHadir=rekapPeg.reduce((s,r)=>s+r.hadir,0);
+  const totalAbsen=rekapPeg.reduce((s,r)=>s+r.absen,0);
+  const ws=XLSX.utils.aoa_to_sheet([...hdr,...rows,[],['','','TOTAL','',totalHadir,totalAbsen,'']]);
+  ws['!cols']=[{wch:4},{wch:22},{wch:9},{wch:16},{wch:8},{wch:11},{wch:40}];
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,('Ketidakhadiran '+BNAMES[bln]).substring(0,31));
+  XLSX.writeFile(wb,'Ketidakhadiran_'+BNAMES[bln]+'_'+thn+'.xlsx');
+  toast('File Excel berhasil diunduh!');
+}
+
+function calcDur(naik,turun){
+  try{const [nh,nm]=naik.split(':').map(Number);const [th,tm]=turun.split(':').map(Number);const d=(th*60+tm)-(nh*60+nm);if(d<0)return '--';return Math.floor(d/60)+'j '+(d%60)+'m';}catch(e){return '--';}
+}
+
+// ── REKAP HARIAN ───────────────────────────────────────
+function renderRekap(){
+  const dp=document.getElementById('rek-date-pick');
+  let tgl;
+  if(dp&&dp.value){const d=new Date(dp.value);tgl=d.toLocaleDateString('id-ID');}
+  else{tgl=new Date().toLocaleDateString('id-ID');}
+  if(dp&&!dp.value)dp.value=new Date().toISOString().slice(0,10);
+  const fr=(document.getElementById('filter-rute')||{value:''}).value||'';
+  const hariAll=logs.filter(l=>l.tanggal===tgl); // semua rute, dipakai utk hitung yg belum absen
+  let hari=hariAll;
+  if(fr)hari=hari.filter(l=>l.rute===fr);
+  const g=id=>document.getElementById(id);
+  if(g('rek-tgl'))g('rek-tgl').textContent=tgl;
+  if(g('st-total'))g('st-total').textContent=hari.length;
+  if(g('st-turun'))g('st-turun').textContent=hari.filter(l=>l.turun).length;
+  if(g('st-blm'))g('st-blm').textContent=people.filter(p=>!hariAll.find(l=>l.id===p.id)).length;
+  const tb=document.getElementById('rekap-tb');
+  if(tb){
+    if(!hari.length){
+      tb.innerHTML='<tr><td colspan="8"><div class="empty"><div class="ei">&#x1F4ED;</div><p>Belum ada catatan</p></div></td></tr>';
+    } else {
+      // Kelompokkan per departemen
+      const groups={};
+      hari.forEach(l=>{
+        const d=l.jab&&l.jab.trim()?l.jab.trim():'Tanpa Departemen';
+        if(!groups[d])groups[d]=[];
+        groups[d].push(l);
+      });
+      const deptNames=Object.keys(groups).sort((a,b)=>a.localeCompare(b,'id'));
+      let html='';let no=1;
+      deptNames.forEach(d=>{
+        const anggota=groups[d];
+        html+='<tr class="rekap-dept-hd" data-dept="'+d+'"><td colspan="8" style="background:var(--bg);font-weight:700;font-size:11.5px;color:var(--bus1);padding:8px 12px">&#x1F3E2; '+d+' <span style="color:var(--muted);font-weight:500">('+anggota.length+')</span></td></tr>';
+        html+=anggota.map(l=>'<tr class="rekap-row'+(l.naik?'':' row-alert')+'" data-dept="'+d+'"><td style="color:var(--muted);font-size:11px">'+(no++)+'</td><td><strong>'+l.nama+'</strong></td><td><span class="badge badge-blue">'+l.id+'</span></td><td><span class="rt '+l.rute.toLowerCase()+'">'+(rutes[l.rute]?rutes[l.rute].nama:l.rute)+'</span></td><td>'+(l.naik||'--')+'</td><td>'+(l.turun||'--')+'</td><td>'+(l.turun?'<span class="badge badge-dn">Turun</span>':l.naik?'<span class="badge badge-up">Di Bus</span>':'<span class="badge badge-warn">&#x26A0; Belum</span>')+'</td><td><button class="btn btn-red btn-sm" onclick="hapusLogItem(\''+l.id+'\',\''+l.tanggal+'\',\''+l.rute+'\')" title="Hapus baris ini">&#x1F5D1;</button></td></tr>').join('');
+      });
+      tb.innerHTML=html;
+    }
+  }
+}
+
+// Daftar karyawan yang tidak naik/tidak scan sama sekali pada tanggal terpilih (halaman Tidak Hadir)
+function renderTidakHadirHarian(){
+  const dp=document.getElementById('th-date-pick');
+  let tgl;
+  if(dp&&dp.value){tgl=new Date(dp.value).toLocaleDateString('id-ID');}
+  else{tgl=new Date().toLocaleDateString('id-ID');}
+  if(dp&&!dp.value)dp.value=new Date().toISOString().slice(0,10);
+  const hariAll=logs.filter(l=>l.tanggal===tgl);
+  const tb=document.getElementById('th-absen-tb');if(!tb)return;
+  const bt=document.getElementById('th-tgl');if(bt)bt.textContent=tgl;
+  const notScanned=people.filter(p=>!hariAll.find(l=>l.id===p.id));
+  const badge=document.getElementById('th-count-badge');
+  if(badge)badge.textContent=notScanned.length+' orang belum absen';
+  if(!notScanned.length){
+    tb.innerHTML='<tr><td colspan="4"><div class="empty"><div class="ei">&#x2705;</div><p>Semua karyawan sudah absen hari ini</p></div></td></tr>';
+    return;
+  }
+  const groups={};
+  notScanned.forEach(p=>{
+    const d=p.jab&&p.jab.trim()?p.jab.trim():'Tanpa Departemen';
+    if(!groups[d])groups[d]=[];
+    groups[d].push(p);
+  });
+  const deptNames=Object.keys(groups).sort((a,b)=>a.localeCompare(b,'id'));
+  let html='';let no=1;
+  deptNames.forEach(d=>{
+    const anggota=groups[d].slice().sort((a,b)=>a.nama.localeCompare(b.nama,'id'));
+    html+='<tr><td colspan="4" style="background:var(--dnl);font-weight:700;font-size:11.5px;color:var(--dn);padding:8px 12px">&#x1F3E2; '+d+' <span style="color:var(--muted);font-weight:500">('+anggota.length+')</span></td></tr>';
+    html+=anggota.map(p=>'<tr><td style="color:var(--muted);font-size:11px">'+(no++)+'</td><td><strong>'+p.nama+'</strong></td><td><span class="badge badge-blue">'+p.id+'</span></td><td style="color:var(--muted);font-size:11.5px">'+(p.jab||'--')+'</td></tr>').join('');
+  });
+  tb.innerHTML=html;
+}
+
+function resetHari(){
+  const dp=document.getElementById('rek-date-pick');
+  let tgl;
+  if(dp&&dp.value){tgl=new Date(dp.value).toLocaleDateString('id-ID');}
+  else{tgl=new Date().toLocaleDateString('id-ID');}
+  if(!confirm('Reset absensi tanggal '+tgl+'? Semua data di tanggal ini akan dihapus permanen.'))return;
+  resetHariDB(tgl);
+}
+
+function exportRekapExcel(){
+  if(typeof XLSX==='undefined'){toast('Library Excel belum dimuat, coba refresh');return;}
+  const dp=document.getElementById('rek-date-pick');
+  let tgl;
+  if(dp&&dp.value){tgl=new Date(dp.value).toLocaleDateString('id-ID');}
+  else{tgl=new Date().toLocaleDateString('id-ID');}
+  const fr=(document.getElementById('filter-rute')||{value:''}).value||'';
+  let hari=logs.filter(l=>l.tanggal===tgl);
+  if(fr)hari=hari.filter(l=>l.rute===fr);
+  if(!hari.length){toast('Tidak ada data tanggal '+tgl+(fr?' untuk '+(rutes[fr]?rutes[fr].nama:'Rute '+fr):''));return;}
+  const wb=XLSX.utils.book_new();
+  const makeSheet=(data,name)=>{
+    const hdr=[['No','Nama','ID','Departemen','Rute','Jam Naik','Jam Turun','Status']];
+    const rows=data.map((l,i)=>[i+1,l.nama,l.id,l.jab||'',(rutes[l.rute]?rutes[l.rute].nama:'Rute '+l.rute),(l.naik||'--'),(l.turun||'--'),(l.turun?'Sudah Turun':l.naik?'Di Bus':'Belum Naik')]);
+    const ws=XLSX.utils.aoa_to_sheet([...hdr,...rows,[],['','','TOTAL PERJALANAN','',data.length,'','','']]);
+    ws['!cols']=[{wch:4},{wch:22},{wch:9},{wch:14},{wch:14},{wch:9},{wch:9},{wch:13}];
+    XLSX.utils.book_append_sheet(wb,ws,name.substring(0,31));
+  };
+  // Sheet utama: karyawan yang SUDAH absen (ditambahkan dulu agar jadi sheet aktif saat file dibuka)
+  if(fr){
+    // Hanya rute yang sedang difilter, satu sheet saja
+    makeSheet(hari,rutes[fr]?rutes[fr].nama:'Rute '+fr);
+  } else {
+    // Semua rute, dipisah per sheet
+    makeSheet(hari,'Semua Rute');
+    ['A','B','C'].forEach(r=>{const dr=hari.filter(l=>l.rute===r);if(dr.length)makeSheet(dr,rutes[r]?rutes[r].nama:'Rute '+r);});
+  }
+  // Sheet tambahan: karyawan yang belum absen/scan sama sekali tanggal ini (ditambahkan TERAKHIR)
+  const hariSemuaRute=logs.filter(l=>l.tanggal===tgl);
+  const belumAbsen=people.filter(p=>!hariSemuaRute.find(l=>l.id===p.id));
+  if(belumAbsen.length){
+    const grp={};
+    belumAbsen.forEach(p=>{const d=p.jab&&p.jab.trim()?p.jab.trim():'Tanpa Departemen';if(!grp[d])grp[d]=[];grp[d].push(p);});
+    const dn=Object.keys(grp).sort((a,b)=>a.localeCompare(b,'id'));
+    const rows=[];let no=1;
+    dn.forEach(d=>{grp[d].slice().sort((a,b)=>a.nama.localeCompare(b.nama,'id')).forEach(p=>{rows.push([no++,p.nama,p.id,d]);});});
+    const hdr=[['No','Nama','ID','Departemen']];
+    const ws2=XLSX.utils.aoa_to_sheet([...hdr,...rows,[],['TOTAL BELUM ABSEN','',belumAbsen.length,'']]);
+    ws2['!cols']=[{wch:4},{wch:22},{wch:9},{wch:16}];
+    XLSX.utils.book_append_sheet(wb,ws2,'Belum Absen'.substring(0,31));
+  }
+  if(fr){
+    XLSX.writeFile(wb,'Rekap_'+tgl.replace(/\//g,'-')+'_'+(rutes[fr]?rutes[fr].nama:'Rute'+fr).replace(/\s+/g,'')+'.xlsx');
+  } else {
+    XLSX.writeFile(wb,'Rekap_'+tgl.replace(/\//g,'-')+'.xlsx');
+  }
+  toast('File Excel berhasil diunduh!');
+}
+
+// ── DASHBOARD ──────────────────────────────────────────
+let dashPeriod='minggu',chartAll=null,chartA=null,chartB=null,chartC=null,chartDonut=null;
+
+function setDashPeriod(p){
+  dashPeriod=p;
+  ['harian','minggu','bulan','tahun'].forEach(x=>{
+    const el=document.getElementById('dp-'+x);
+    if(el){el.style.background=x===p?'var(--bus1)':'transparent';el.style.color=x===p?'#fff':'var(--muted)';}
+  });
+  renderDashboard();
+}
+
+function renderDashboard(){
+  const now=new Date();
+  let labels=[],dataA=[],dataB=[],dataC=[],rangeText='';
+  if(dashPeriod==='harian'){
+    const tgl=now.toLocaleDateString('id-ID');
+    for(let h=5;h<=21;h++){
+      labels.push(p2(h)+':00');
+      dataA.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='A'&&l.naik&&parseInt(l.naik.split(':')[0])===h).length);
+      dataB.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='B'&&l.naik&&parseInt(l.naik.split(':')[0])===h).length);
+      dataC.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='C'&&l.naik&&parseInt(l.naik.split(':')[0])===h).length);
+    }
+    rangeText='Hari Ini - '+tgl;
+  } else if(dashPeriod==='minggu'){
+    for(let i=6;i>=0;i--){
+      const d=new Date(now);d.setDate(now.getDate()-i);
+      const tgl=d.toLocaleDateString('id-ID');
+      const day=['Min','Sen','Sel','Rab','Kam','Jum','Sab'][d.getDay()];
+      labels.push(day+' '+d.getDate());
+      dataA.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='A').length);
+      dataB.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='B').length);
+      dataC.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='C').length);
+    }
+    rangeText='7 Hari Terakhir';
+  } else if(dashPeriod==='bulan'){
+    const MN=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+    const y=now.getFullYear(), m=now.getMonth();
+    const daysInMonth=new Date(y,m+1,0).getDate();
+    for(let d=1;d<=daysInMonth;d++){
+      const dt=new Date(y,m,d);
+      const tgl=dt.toLocaleDateString('id-ID');
+      labels.push(String(d));
+      dataA.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='A').length);
+      dataB.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='B').length);
+      dataC.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='C').length);
+    }
+    rangeText='Bulan '+MN[m]+' '+y;
+  } else {
+    const MN=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agt','Sep','Okt','Nov','Des'];
+    for(let m=0;m<12;m++){
+      labels.push(MN[m]);let ca=0,cb=0,cc=0;
+      logs.forEach(l=>{
+        const pts=l.tanggal?l.tanggal.split('/'):[];
+        if(pts.length<3)return;
+        if(parseInt(pts[1])-1===m&&parseInt(pts[2])===now.getFullYear()){
+          if(l.rute==='A')ca++;else if(l.rute==='B')cb++;else if(l.rute==='C')cc++;
+        }
+      });
+      dataA.push(ca);dataB.push(cb);dataC.push(cc);
+    }
+    rangeText='Tahun '+now.getFullYear();
+  }
+  const dr=document.getElementById('dash-range');if(dr)dr.textContent=rangeText;
+  const tA=dataA.reduce((s,v)=>s+v,0),tB=dataB.reduce((s,v)=>s+v,0),tC=dataC.reduce((s,v)=>s+v,0);
+  const da=document.getElementById('d-a'),db=document.getElementById('d-b'),dc=document.getElementById('d-c'),dt=document.getElementById('d-total');
+  if(da)da.textContent=tA;if(db)db.textContent=tB;if(dc)dc.textContent=tC;if(dt)dt.textContent=tA+tB+tC;
+
+  // Kapasitas bus: 32 penumpang = 100% hadir. Dipakai untuk tooltip saat grafik disentuh/diklik.
+  const BUS_CAP=32;
+  const tooltipCfg={
+    callbacks:{
+      label:function(ctx){
+        const v=ctx.parsed.y!==undefined?ctx.parsed.y:ctx.parsed;
+        const pct=Math.round((v/BUS_CAP)*100);
+        return ' '+ctx.dataset.label+': '+v+' orang ('+pct+'% dari kapasitas '+BUS_CAP+')';
+      }
+    },
+    backgroundColor:'rgba(17,24,39,.92)',titleFont:{size:11.5,weight:'700'},bodyFont:{size:11.5},padding:10,cornerRadius:8,displayColors:true
+  };
+  const sc={responsive:true,maintainAspectRatio:true,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:tooltipCfg},scales:{x:{grid:{display:false},ticks:{font:{size:10},color:'#94A3B8'}},y:{beginAtZero:true,ticks:{stepSize:1,font:{size:10},color:'#94A3B8'},grid:{color:'rgba(0,0,0,.05)'}}}};
+
+  const ca=document.getElementById('chart-all');
+  if(ca){if(chartAll)chartAll.destroy();
+    chartAll=new Chart(ca,{type:'bar',data:{labels,datasets:[
+      {label:rutes.A.nama,data:dataA,backgroundColor:'rgba(37,99,235,.75)',borderRadius:4},
+      {label:rutes.B.nama,data:dataB,backgroundColor:'rgba(5,150,105,.75)',borderRadius:4},
+      {label:rutes.C.nama,data:dataC,backgroundColor:'rgba(217,119,6,.75)',borderRadius:4}
+    ]},options:{...sc,interaction:{mode:'index',intersect:false},plugins:{legend:{display:true,position:'top',labels:{font:{size:11},boxWidth:12}},tooltip:tooltipCfg}}}); }
+
+  const mk=(cid,prev,data,color,lbl)=>{
+    const el=document.getElementById(cid);if(!el)return null;
+    if(prev)prev.destroy();
+    return new Chart(el,{type:'line',data:{labels,datasets:[{label:lbl,data,borderColor:color,backgroundColor:color+'22',fill:true,tension:.4,pointRadius:3,pointBackgroundColor:color}]},options:sc});
+  };
+  chartA=mk('chart-a',chartA,dataA,'#2563EB',rutes.A.nama);
+  chartB=mk('chart-b',chartB,dataB,'#059669',rutes.B.nama);
+  chartC=mk('chart-c',chartC,dataC,'#D97706',rutes.C.nama);
+
+  // Donut proporsi rute (sesuai periode yang dipilih)
+  const dcv=document.getElementById('chart-donut');
+  if(dcv){
+    if(chartDonut)chartDonut.destroy();
+    if(tA+tB+tC>0){
+      chartDonut=new Chart(dcv,{type:'doughnut',data:{labels:[rutes.A.nama,rutes.B.nama,rutes.C.nama],datasets:[{data:[tA,tB,tC],backgroundColor:['#2563EB','#059669','#D97706'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:10}}}}});
+    }
+  }
+
+  renderDashboardExtra();
+}
+
+// ── DASHBOARD: RINGKASAN HARI INI, DEPARTEMEN, BELUM ABSEN, SEDANG DI BUS ──
+function renderDashboardExtra(){
+  const g=id=>document.getElementById(id);
+  const tgl=new Date().toLocaleDateString('id-ID');
+  const hari=logs.filter(l=>l.tanggal===tgl);
+  const belumIds=new Set(hari.map(l=>l.id));
+
+  const totalKary=people.length;
+  const sudahNaik=hari.filter(l=>l.naik).length;
+  const sudahTurun=hari.filter(l=>l.turun).length;
+  const belumList=people.filter(p=>!belumIds.has(p.id));
+  const persen=totalKary?Math.round((sudahNaik/totalKary)*100):0;
+
+  if(g('dt-total'))g('dt-total').textContent=totalKary;
+  if(g('dt-naik'))g('dt-naik').textContent=sudahNaik;
+  if(g('dt-turun'))g('dt-turun').textContent=sudahTurun;
+  if(g('dt-belum'))g('dt-belum').textContent=belumList.length;
+  if(g('dt-persen'))g('dt-persen').textContent=persen+'%';
+
+  // Ringkasan per departemen
+  const deptTb=g('dash-dept-tb');
+  if(deptTb){
+    const depts={};
+    people.forEach(p=>{
+      const d=p.jab||'Tanpa Departemen';
+      if(!depts[d])depts[d]={total:0,belum:0};
+      depts[d].total++;
+      if(!belumIds.has(p.id))depts[d].belum++;
+    });
+    const keys=Object.keys(depts);
+    if(!keys.length){
+      deptTb.innerHTML='<tr><td colspan="5"><div class="empty"><p>Belum ada data karyawan</p></div></td></tr>';
+    }else{
+      deptTb.innerHTML=keys.sort().map(d=>{
+        const info=depts[d];
+        const hadir=info.total-info.belum;
+        const pct=info.total?Math.round((hadir/info.total)*100):0;
+        return '<tr><td><strong>'+d+'</strong></td><td>'+info.total+'</td>'+
+          '<td><span class="badge badge-up">'+hadir+'</span></td>'+
+          '<td>'+(info.belum>0?'<span class="badge badge-warn">'+info.belum+'</span>':'<span class="badge badge-up">0</span>')+'</td>'+
+          '<td>'+pct+'%</td></tr>';
+      }).join('');
+    }
+  }
+}
+
+// ── EXPORT DATA ──────────────────────────────────────
+function getLapData(bln,thn,semua){
+  return logs.filter(l=>{
+    if(semua)return true;
+    const pts=l.tanggal?l.tanggal.split('/'):[];
+    if(pts.length<3)return false;
+    return parseInt(pts[1])-1===bln&&parseInt(pts[2])===thn;
+  }).sort((a,b)=>a.tanggal.localeCompare(b.tanggal)).map(l=>({
+    tanggal:l.tanggal||'',nama:l.nama||'',id:l.id||'',jabatan:l.jab||'',
+    rute:l.rute||'',ruteNama:rutes[l.rute]?rutes[l.rute].nama:'Rute '+(l.rute||''),
+    naik:l.naik||'',turun:l.turun||'',
+    durasi:(l.naik&&l.turun)?calcDur(l.naik,l.turun):'--',
+    status:l.turun?'Sudah Turun':l.naik?'Di Bus':'Belum Naik'
+  }));
+}
+
+function hapusLogItem(id, tanggal, rute){
+  if(!confirm('Hapus data absensi '+tanggal+' ini?'))return;
+  if(useFirebase&&db){
+    db.ref('logs').orderByChild('id').equalTo(id).once('value',snap=>{
+      snap.forEach(c=>{
+        const v=c.val();
+        if(v.tanggal===tanggal&&v.rute===rute) c.ref.remove();
+      });
+    });
+  } else {
+    logs=logs.filter(l=>!(l.id===id&&l.tanggal===tanggal&&l.rute===rute));
+    localStorage.setItem('bkv4_l',JSON.stringify(logs));
+  }
+  if(document.getElementById('rekap-tb'))renderRekap();
+  if(document.getElementById('rekap-bln-tb'))renderRekapBulanan();
+  toast('Data dihapus');
+}
+
+function filterRekap(){
+  // Filter tabel rekap yang sudah di-render berdasarkan search (mempertahankan header departemen)
+  const q=(document.getElementById('rekap-search')||{value:''}).value.toLowerCase().trim();
+  const tb=document.getElementById('rekap-tb');if(!tb)return;
+  const deptVisible={};
+  tb.querySelectorAll('tr.rekap-row').forEach(r=>{
+    const txt=r.textContent.toLowerCase();
+    const show=!q||txt.includes(q);
+    r.style.display=show?'':'none';
+    if(show)deptVisible[r.dataset.dept]=true;
+  });
+  tb.querySelectorAll('tr.rekap-dept-hd').forEach(h=>{
+    h.style.display=deptVisible[h.dataset.dept]?'':'none';
+  });
+}
+
+function exportRekapBulananExcel(){
+  if(typeof XLSX==='undefined'){toast('Library Excel belum dimuat, coba refresh');return;}
+  const now=new Date();
+  const bln=parseInt((document.getElementById('bln-pick')||{value:now.getMonth()}).value);
+  const thn=parseInt((document.getElementById('thn-pick')||{value:now.getFullYear()}).value||now.getFullYear());
+  const fr=(document.getElementById('filter-rute-bln')||{value:''}).value||'';
+  const BNAMES=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  let data=getLapData(bln,thn);
+  if(fr)data=data.filter(r=>r.rute===fr);
+  if(!data.length){toast('Tidak ada data '+BNAMES[bln]+' '+thn+(fr?' untuk '+(rutes[fr]?rutes[fr].nama:'Rute '+fr):''));return;}
+  const wb=XLSX.utils.book_new();
+  const makeSheet=(d,name)=>{
+    const hdr=[['No','Tanggal','Nama','ID','Departemen','Rute','Jam Naik','Jam Turun','Durasi','Status']];
+    const rows=d.map((r,i)=>[i+1,r.tanggal,r.nama,r.id,r.jabatan,r.ruteNama,r.naik,r.turun,r.durasi,r.status]);
+    const ws=XLSX.utils.aoa_to_sheet([...hdr,...rows,[],['','','TOTAL PERJALANAN','',d.length,'','','','','']]);
+    ws['!cols']=[{wch:4},{wch:13},{wch:22},{wch:9},{wch:14},{wch:14},{wch:9},{wch:9},{wch:8},{wch:13}];
+    XLSX.utils.book_append_sheet(wb,ws,name.substring(0,31));
+  };
+  if(fr){
+    makeSheet(data,rutes[fr]?rutes[fr].nama:'Rute '+fr);
+    XLSX.writeFile(wb,'Rekap_'+BNAMES[bln]+'_'+thn+'_'+(rutes[fr]?rutes[fr].nama:'Rute'+fr).replace(/\s+/g,'')+'.xlsx');
+  } else {
+    makeSheet(data,'Semua Rute');
+    ['A','B','C'].forEach(r=>{const dr=data.filter(x=>x.rute===r);if(dr.length)makeSheet(dr,rutes[r]?rutes[r].nama:'Rute '+r);});
+    XLSX.writeFile(wb,'Rekap_'+BNAMES[bln]+'_'+thn+'.xlsx');
+  }
+  toast('File Excel berhasil diunduh!');
+}
+
+// ── KARYAWAN ───────────────────────────────────────────
+function addPerson(){
+  const id=(document.getElementById('in-id')||{value:''}).value.trim();
+  const nama=(document.getElementById('in-nama')||{value:''}).value.trim();
+  const jab=(document.getElementById('in-jab')||{value:''}).value.trim();
+  if(!id||!nama){toast('ID dan Nama wajib diisi');return;}
+  if(people.find(p=>p.id===id)){toast('ID sudah dipakai');return;}
+  const rec={id,nama,jab}; // rute tidak lagi disimpan di data karyawan - ditentukan manual saat scan
+  if(useFirebase&&db){
+    db.ref('people/'+id).set(rec).then(()=>{
+      toast(nama+' ditambahkan & tersinkron ✓');
+    }).catch(e=>{
+      dbErr(e);
+      toast('Gagal menyimpan '+nama+' ke database — data TIDAK tersimpan');
+    });
+  }else{
+    people.push(rec);
+    localStorage.setItem('bkv4_p',JSON.stringify(people));
+    renderOrang();
+    toast(nama+' ditambahkan (mode lokal)');
+  }
+  ['in-id','in-nama','in-jab'].forEach(x=>{const e=document.getElementById(x);if(e)e.value='';});
+}
+function hapusPerson(id){
+  if(!confirm('Hapus karyawan ini?'))return;
+  deletePersonDB(id);
+  if(!useFirebase){renderOrang();}
+  toast('Dihapus');
+}
+function hapusSemua(){
+  if(!confirm('Hapus semua data karyawan?'))return;
+  deleteAllPeopleDB();
+  if(!useFirebase){renderOrang();}
+  toast('Semua dihapus');
+}
+function renderOrang(){
+  const cnt=document.getElementById('kary-cnt');if(cnt)cnt.textContent=people.length;
+  const tb=document.getElementById('orang-tb');if(!tb)return;
+  const q=(document.getElementById('orang-search')||{value:''}).value.toLowerCase().trim();
+  const list = q ? people.filter(p=>p.nama.toLowerCase().includes(q)||p.id.toLowerCase().includes(q)) : people;
+  if(!list.length){
+    tb.innerHTML='<tr><td colspan="4"><div class="empty"><div class="ei">&#x1F464;</div><p>'+(q?'Tidak ada hasil untuk "'+q+'"':'Belum ada karyawan terdaftar')+'</p></div></td></tr>';
+    return;
+  }
+  // Kelompokkan per departemen, lalu urutkan nama A-Z di tiap departemen
+  const groups={};
+  list.forEach(p=>{
+    const d=p.jab&&p.jab.trim()?p.jab.trim():'Tanpa Departemen';
+    if(!groups[d])groups[d]=[];
+    groups[d].push(p);
+  });
+  const deptNames=Object.keys(groups).sort((a,b)=>a.localeCompare(b,'id'));
+  let html='';
+  deptNames.forEach(d=>{
+    const anggota=groups[d].slice().sort((a,b)=>a.nama.localeCompare(b.nama,'id'));
+    html+='<tr><td colspan="4" style="background:var(--bg);font-weight:700;font-size:11.5px;color:var(--bus1);padding:8px 12px">&#x1F3E2; '+d+' <span style="color:var(--muted);font-weight:500">('+anggota.length+')</span></td></tr>';
+    html+=anggota.map(function(p){
+      return '<tr>'+
+        '<td><span class="badge badge-blue">'+p.id+'</span></td>'+
+        '<td><strong>'+p.nama+'</strong></td>'+
+        '<td style="color:var(--muted);font-size:11.5px">'+p.jab+'</td>'+
+        '<td><button class="btn btn-red btn-sm" data-pid="'+p.id+'" onclick="hapusPerson(this.dataset.pid)">&#x1F5D1;</button></td>'+
+        '</tr>';
+    }).join('');
+  });
+  tb.innerHTML=html;
+}
+
+function filterOrang(){renderOrang();}
+
+// ── QR CODE ────────────────────────────────────────────
+function renderQR(){
+  const grid=document.getElementById('bc-grid');if(!grid)return;
+  if(!people.length){grid.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="ei">&#x1F516;</div><p>Tambahkan karyawan dulu</p></div>';return;}
+  // Kelompokkan per departemen, urut nama A-Z di tiap departemen
+  const groups={};
+  people.forEach(p=>{
+    const d=p.jab&&p.jab.trim()?p.jab.trim():'Tanpa Departemen';
+    if(!groups[d])groups[d]=[];
+    groups[d].push(p);
+  });
+  const deptNames=Object.keys(groups).sort((a,b)=>a.localeCompare(b,'id'));
+  let html='';
+  deptNames.forEach(d=>{
+    const anggota=groups[d].slice().sort((a,b)=>a.nama.localeCompare(b.nama,'id'));
+    html+='<div style="grid-column:1/-1;font-weight:700;font-size:13px;color:var(--bus1);padding:14px 2px 4px;border-bottom:1.5px solid var(--border);margin-bottom:2px">&#x1F3E2; '+d+' <span style="color:var(--muted);font-weight:500;font-size:11.5px">('+anggota.length+' orang)</span></div>';
+    html+=anggota.map(p=>'<div class="bc-item"><div class="bc-card"><div class="bc-name">'+p.nama+'</div><div class="bc-sub">'+p.id+(p.jab?' &bull; '+p.jab:'')+'</div><div class="bc-qr" id="qr-'+p.id+'"></div></div><div class="bc-actions"><button class="btn btn-ghost" onclick="downloadQRPNG(\''+p.id+'\')" title="Unduh PNG">&#x1F5BC; PNG</button><button class="btn btn-ghost" onclick="downloadQRPDF(\''+p.id+'\')" title="Unduh PDF">&#x1F4C4; PDF</button><button class="btn btn-primary" onclick="shareQR(\''+p.id+'\')" title="Bagikan">&#x1F4E4; Bagikan</button></div></div>').join('');
+  });
+  grid.innerHTML=html;
+  people.forEach(p=>{
+    try{new QRCode(document.getElementById('qr-'+p.id),{text:p.id,width:130,height:130,colorDark:'#0F172A',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.H});}catch(e){}
+  });
+}
+
+// Gambar ulang kartu QR (nama + ID/departemen + QR) ke canvas tersendiri,
+// dipakai untuk export PNG / PDF / Bagikan per karyawan (1 QR = 1 file)
+function composeQRCard(p){
+  const wrap=document.getElementById('qr-'+p.id);
+  const qrSource=wrap?(wrap.querySelector('canvas')||wrap.querySelector('img')):null;
+  if(!qrSource){toast('QR belum siap, klik "Generate QR" dulu');return null;}
+  const W=860,H=540;
+  const cvs=document.createElement('canvas');cvs.width=W;cvs.height=H;
+  const ctx=cvs.getContext('2d');
+  ctx.fillStyle='#ffffff';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='#E5E7EB';ctx.lineWidth=4;ctx.strokeRect(6,6,W-12,H-12);
+  ctx.fillStyle='#0F172A';ctx.font='700 32px Arial,sans-serif';ctx.textAlign='center';
+  ctx.fillText(p.nama,W/2,58);
+  ctx.fillStyle='#6B7280';ctx.font='500 20px Arial,sans-serif';
+  ctx.fillText(p.id+(p.jab?' \u2022 '+p.jab:''),W/2,90);
+  const qrSize=320;
+  try{ctx.drawImage(qrSource,(W-qrSize)/2,116,qrSize,qrSize);}catch(e){}
+  ctx.fillStyle='#9CA3AF';ctx.font='500 16px Arial,sans-serif';
+  ctx.fillText('Bus Karyawan \u2014 Kartu Absensi QR', W/2, H-22);
+  return cvs;
+}
+
+function downloadQRPNG(id){
+  const p=people.find(x=>x.id===id);if(!p)return;
+  const cvs=composeQRCard(p);if(!cvs)return;
+  const a=document.createElement('a');
+  a.href=cvs.toDataURL('image/png');
+  a.download='QR_'+p.nama.replace(/\s+/g,'_')+'_'+p.id+'.png';
+  document.body.appendChild(a);a.click();a.remove();
+  toast('QR '+p.nama+' berhasil diunduh (PNG)');
+}
+
+function downloadQRPDF(id){
+  const p=people.find(x=>x.id===id);if(!p)return;
+  if(!window.jspdf){toast('Library PDF belum dimuat, coba refresh');return;}
+  const cvs=composeQRCard(p);if(!cvs)return;
+  const imgData=cvs.toDataURL('image/png');
+  const {jsPDF}=window.jspdf;
+  const pdf=new jsPDF({orientation:'landscape',unit:'mm',format:[95.6,64]});
+  const pw=pdf.internal.pageSize.getWidth(), ph=pdf.internal.pageSize.getHeight();
+  const margin=5;
+  pdf.addImage(imgData,'PNG',margin,margin,pw-margin*2,ph-margin*2);
+  pdf.save('QR_'+p.nama.replace(/\s+/g,'_')+'_'+p.id+'.pdf');
+  toast('QR '+p.nama+' berhasil diunduh (PDF)');
+}
+
+async function shareQR(id){
+  const p=people.find(x=>x.id===id);if(!p)return;
+  const cvs=composeQRCard(p);if(!cvs)return;
+  cvs.toBlob(async (blob)=>{
+    if(!blob)return;
+    const file=new File([blob],'QR_'+p.id+'.png',{type:'image/png'});
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      try{
+        await navigator.share({files:[file],title:'QR Absensi - '+p.nama,text:'QR Code absensi untuk '+p.nama+' ('+p.id+')'});
+      }catch(e){ /* dibatalkan pengguna, tidak apa-apa */ }
+    }else{
+      const a=document.createElement('a');
+      a.href=URL.createObjectURL(blob);
+      a.download='QR_'+p.nama.replace(/\s+/g,'_')+'_'+p.id+'.png';
+      document.body.appendChild(a);a.click();a.remove();
+      toast('Perangkat tidak mendukung Bagikan langsung, PNG diunduh sebagai gantinya');
+    }
+  },'image/png');
+}
+
+// ── RUTE ───────────────────────────────────────────────
+function loadRuteForm(){
+  ['A','B','C'].forEach(r=>{
+    const k=r.toLowerCase();
+    const rn=document.getElementById('rn-'+k);if(rn)rn.value=rutes[r].nama||'';
+    const rj=document.getElementById('rj-'+k);if(rj)rj.value=rutes[r].berangkat||'07:00';
+    const rjp=document.getElementById('rjp-'+k);if(rjp)rjp.value=rutes[r].pulang||'17:00';
+    const ri=document.getElementById('ri-'+r);if(ri)ri.textContent='Berangkat '+rutes[r].berangkat+' - Pulang '+rutes[r].pulang;
+  });
+}
+function saveRute(r){
+  const k=r.toLowerCase();
+  const rn=document.getElementById('rn-'+k);if(rn)rutes[r].nama=rn.value.trim()||'Rute '+r;
+  const rj=document.getElementById('rj-'+k);if(rj)rutes[r].berangkat=rj.value||'07:00';
+  const rjp=document.getElementById('rjp-'+k);if(rjp)rutes[r].pulang=rjp.value||'17:00';
+  saveRutes();
+  const ri=document.getElementById('ri-'+r);if(ri)ri.textContent='Berangkat '+rutes[r].berangkat+' - Pulang '+rutes[r].pulang;
+  updateRuteNames();setRute(aRute);toast('Rute '+r+' disimpan');
+}
+
+// ── TOAST ──────────────────────────────────────────────
+let _tt;
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.classList.add('show');
+  clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('show'),2600);
+}
+
+// ── MORE MENU (Mobile) ─────────────────────────────────
+function toggleMoreMenu(){
+  const menu=document.getElementById('more-menu');
+  const overlay=document.getElementById('more-menu-overlay');
+  const isOpen=menu&&menu.style.display!=='none';
+  if(isOpen){ closeMoreMenu(); }
+  else {
+    if(menu)menu.style.display='block';
+    if(overlay)overlay.style.display='block';
+    // animate in
+    if(menu){menu.style.transform='translateY(20px)';menu.style.opacity='0';menu.style.transition='all .22s ease';
+      setTimeout(()=>{menu.style.transform='translateY(0)';menu.style.opacity='1';},10);}
+    // mark more btn active
+    const mb=document.getElementById('mbn-more');
+    if(mb)mb.classList.add('on');
+  }
+}
+
+function closeMoreMenu(){
+  const menu=document.getElementById('more-menu');
+  const overlay=document.getElementById('more-menu-overlay');
+  if(menu){menu.style.transform='translateY(20px)';menu.style.opacity='0';
+    setTimeout(()=>{menu.style.display='none';menu.style.transform='';menu.style.opacity='';},200);}
+  if(overlay)overlay.style.display='none';
+  const mb=document.getElementById('mbn-more');
+  if(mb)mb.classList.remove('on');
+}
+
+function goTabMore(id){
+  closeMoreMenu();
+  setTimeout(()=>goTab(id), 250);
+}
+
+// ── INIT ───────────────────────────────────────────────
+initFirebase();
+if(layout){
+  document.getElementById('welcome').style.display='none';
+  document.getElementById('app').style.display='block';
+  applyLayout(layout);
+}else{
+  if(/Mobi|Android|iPhone/i.test(navigator.userAgent))pickLayout('hp');
+}
+</script>
+</body>
+</html>
