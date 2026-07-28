@@ -11,6 +11,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -979,7 +980,13 @@ tr.row-alert td{border-left:3px solid var(--red)}
       <div class="card-hd"><h3>QR Code Karyawan</h3></div>
       <div class="card-bd">
         <p style="font-size:12px;color:var(--muted);margin-bottom:11px;line-height:1.6">QR code unik untuk tiap karyawan. Scan kamera saat naik &amp; turun bus. Cetak dan bagikan.</p>
-        <div style="display:flex;gap:8px">
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <div style="flex:1;min-width:180px;display:flex;align-items:center;gap:6px;background:var(--bg);border:1.5px solid var(--border);border-radius:7px;padding:5px 10px">
+            <span style="color:var(--muted);font-size:13px">&#x1F50D;</span>
+            <input id="qr-search" type="text" placeholder="Cari nama, ID, atau departemen..."
+              oninput="filterQR()"
+              style="border:none;background:transparent;font-family:'Inter',sans-serif;font-size:12px;color:var(--ink);outline:none;width:100%"/>
+          </div>
           <button class="btn btn-primary" onclick="renderQR()">&#x1F504; Generate QR</button>
           <button class="btn btn-ghost"   onclick="window.print()">&#x1F5A8; Cetak</button>
         </div>
@@ -2446,12 +2453,17 @@ function renderOrang(){
 function filterOrang(){renderOrang();}
 
 // ── QR CODE ────────────────────────────────────────────
+function filterQR(){renderQR();}
+
 function renderQR(){
   const grid=document.getElementById('bc-grid');if(!grid)return;
   if(!people.length){grid.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="ei">&#x1F516;</div><p>Tambahkan karyawan dulu</p></div>';return;}
+  const q=(document.getElementById('qr-search')||{value:''}).value.toLowerCase().trim();
+  const filtered=q?people.filter(p=>(p.nama||'').toLowerCase().includes(q)||(p.id||'').toLowerCase().includes(q)||(p.jab||'').toLowerCase().includes(q)):people;
+  if(!filtered.length){grid.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="ei">&#x1F50D;</div><p>Karyawan tidak ditemukan</p></div>';return;}
   // Kelompokkan per departemen, urut nama A-Z di tiap departemen
   const groups={};
-  people.forEach(p=>{
+  filtered.forEach(p=>{
     const d=p.jab&&p.jab.trim()?p.jab.trim():'Tanpa Departemen';
     if(!groups[d])groups[d]=[];
     groups[d].push(p);
@@ -2461,10 +2473,10 @@ function renderQR(){
   deptNames.forEach(d=>{
     const anggota=groups[d].slice().sort((a,b)=>a.nama.localeCompare(b.nama,'id'));
     html+='<div style="grid-column:1/-1;font-weight:700;font-size:13px;color:var(--bus1);padding:14px 2px 4px;border-bottom:1.5px solid var(--border);margin-bottom:2px">&#x1F3E2; '+d+' <span style="color:var(--muted);font-weight:500;font-size:11.5px">('+anggota.length+' orang)</span></div>';
-    html+=anggota.map(p=>'<div class="bc-item"><div class="bc-card"><div class="bc-name">'+p.nama+'</div><div class="bc-sub">'+p.id+(p.jab?' &bull; '+p.jab:'')+'</div><div class="bc-qr" id="qr-'+p.id+'"></div></div><div class="bc-actions"><button class="btn btn-ghost" onclick="downloadQRPNG(\''+p.id+'\')" title="Unduh PNG">&#x1F5BC; PNG</button><button class="btn btn-ghost" onclick="downloadQRPDF(\''+p.id+'\')" title="Unduh PDF">&#x1F4C4; PDF</button><button class="btn btn-primary" onclick="shareQR(\''+p.id+'\')" title="Bagikan">&#x1F4E4; Bagikan</button></div></div>').join('');
+    html+=anggota.map(p=>'<div class="bc-item"><div class="bc-card"><div class="bc-name">'+p.nama+'</div><div class="bc-sub">'+p.id+(p.jab?' &bull; '+p.jab:'')+'</div><div class="bc-qr" id="qr-'+p.id+'"></div></div><div class="bc-actions"><button class="btn btn-ghost" onclick="downloadQRPNG(\''+p.id+'\')" title="Unduh PNG">&#x1F5BC; PNG</button><button class="btn btn-ghost" onclick="downloadQRPDF(\''+p.id+'\')" title="Unduh PDF">&#x1F4C4; PDF</button><button class="btn btn-ghost" onclick="downloadQRZIP(\''+p.id+'\')" title="Unduh ZIP">&#x1F4E6; ZIP</button><button class="btn btn-primary" onclick="shareQR(\''+p.id+'\')" title="Bagikan">&#x1F4E4; Bagikan</button></div></div>').join('');
   });
   grid.innerHTML=html;
-  people.forEach(p=>{
+  filtered.forEach(p=>{
     try{new QRCode(document.getElementById('qr-'+p.id),{text:p.id,width:130,height:130,colorDark:'#0F172A',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.H});}catch(e){}
   });
 }
@@ -2513,6 +2525,37 @@ function downloadQRPDF(id){
   pdf.addImage(imgData,'PNG',margin,margin,pw-margin*2,ph-margin*2);
   pdf.save('QR_'+p.nama.replace(/\s+/g,'_')+'_'+p.id+'.pdf');
   toast('QR '+p.nama+' berhasil diunduh (PDF)');
+}
+
+async function downloadQRZIP(id){
+  const p=people.find(x=>x.id===id);if(!p)return;
+  if(!window.JSZip){toast('Library ZIP belum dimuat, coba refresh');return;}
+  if(!window.jspdf){toast('Library PDF belum dimuat, coba refresh');return;}
+  const cvs=composeQRCard(p);if(!cvs)return;
+  const namaFile='QR_'+p.nama.replace(/\s+/g,'_')+'_'+p.id;
+
+  cvs.toBlob(async (pngBlob)=>{
+    if(!pngBlob){toast('Gagal membuat PNG');return;}
+
+    const imgData=cvs.toDataURL('image/png');
+    const {jsPDF}=window.jspdf;
+    const pdf=new jsPDF({orientation:'landscape',unit:'mm',format:[95.6,64]});
+    const pw=pdf.internal.pageSize.getWidth(), ph=pdf.internal.pageSize.getHeight();
+    const margin=5;
+    pdf.addImage(imgData,'PNG',margin,margin,pw-margin*2,ph-margin*2);
+    const pdfBlob=pdf.output('blob');
+
+    const zip=new JSZip();
+    zip.file(namaFile+'.png',pngBlob);
+    zip.file(namaFile+'.pdf',pdfBlob);
+    const zipBlob=await zip.generateAsync({type:'blob'});
+
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(zipBlob);
+    a.download=namaFile+'.zip';
+    document.body.appendChild(a);a.click();a.remove();
+    toast('QR '+p.nama+' berhasil diunduh (ZIP)');
+  },'image/png');
 }
 
 async function shareQR(id){
