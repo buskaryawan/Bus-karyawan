@@ -832,6 +832,7 @@ tr.row-alert td{border-left:3px solid var(--red)}
               <option value="pulang">&#x1F319; Pulang Saja</option>
             </select>
             <button class="btn btn-ghost btn-sm" onclick="exportRekapExcel()">&#x2B07; Excel</button>
+            <button class="btn btn-ghost btn-sm" onclick="perbaikiSesiOtomatis()" title="Pindahkan data lama ke kolom Pergi/Pulang yang benar sesuai jam">&#x1F527; Perbaiki Sesi Lama</button>
             <button class="btn btn-red btn-sm" onclick="resetHari()">&#x1F5D1; Reset Tanggal Ini</button>
           </div>
         </div>
@@ -1515,7 +1516,44 @@ const SESI_CUTOFF_HOUR = 16;
 function getSesi(){
   return new Date().getHours() < SESI_CUTOFF_HOUR ? 'naik' : 'turun';
 }
+// ── NORMALISASI NAMA DEPARTEMEN ───────────────────────
+// Supaya "Aviako", "AVIAKO", "aviako" dianggap SATU departemen yang sama
+// (tidak peduli besar/kecil huruf saat diketik), ditampilkan dengan format konsisten.
+function normDept(jab){
+  const s=(jab||'').trim();
+  if(!s) return 'Tanpa Departemen';
+  return s.split(/\s+/).map(w=>{
+    // Singkatan pendek (<=3 huruf) dibiarkan uppercase, misal: IT, HRD, SPV
+    if(w.length<=3) return w.toUpperCase();
+    return w.charAt(0).toUpperCase()+w.slice(1).toLowerCase();
+  }).join(' ');
+}
+
 function labelSesi(m){ return m==='naik' ? 'Pergi' : 'Pulang'; }
+
+// ── PERBAIKI DATA LAMA ────────────────────────────────
+// Memindahkan catatan lama yang salah kolom (misal jam 17:xx tapi tercatat di 'Pergi')
+// ke kolom yang benar sesuai SESI_CUTOFF_HOUR. Data yang sudah lengkap (Pergi+Pulang) tidak disentuh.
+function perbaikiSesiOtomatis(){
+  if(!confirm('Perbaiki semua data lama supaya jam absen masuk ke kolom Pergi/Pulang yang benar (sebelum jam '+p2(SESI_CUTOFF_HOUR)+':00 = Pergi, mulai jam '+p2(SESI_CUTOFF_HOUR)+':00 = Pulang)?\n\nData yang sudah punya keduanya (Pergi & Pulang) tidak akan diubah.'))return;
+  let jumlah=0;
+  logs.forEach(l=>{
+    const origNaik=l.naik,origTurun=l.turun;
+    let changed=false;
+    if(origNaik&&!origTurun){
+      const h=parseInt(origNaik.split(':')[0]);
+      if(!isNaN(h)&&h>=SESI_CUTOFF_HOUR){ l.turun=origNaik; l.naik=null; changed=true; }
+    }
+    if(origTurun&&!origNaik){
+      const h=parseInt(origTurun.split(':')[0]);
+      if(!isNaN(h)&&h<SESI_CUTOFF_HOUR){ l.naik=origTurun; l.turun=null; changed=true; }
+    }
+    if(changed){ jumlah++; updateLog(l); }
+  });
+  if(!useFirebase) save();
+  renderRekap();renderRekapBulanan();renderDashboardExtra();
+  toast(jumlah?(jumlah+' data berhasil dipindah ke sesi yang benar ✓'):'Semua data sudah sesuai, tidak ada yang perlu diperbaiki');
+}
 function setMode(m){
   aMode=m;
   const badge=document.getElementById('sesi-badge');
@@ -1930,7 +1968,7 @@ function renderRekapBulanan(){
     html+='<tr><td colspan="7" style="background:var(--ink);color:#fff;font-weight:800;font-size:12.5px;padding:10px 12px">&#x1F4C5; '+tgl+' <span style="font-weight:500;opacity:.75">('+entriesTgl.length+' orang)</span></td></tr>';
     const deptGroups={};
     entriesTgl.forEach(l=>{
-      const d=l.jab&&l.jab.trim()?l.jab.trim():'Tanpa Departemen';
+      const d=normDept(l.jab);
       if(!deptGroups[d])deptGroups[d]=[];
       deptGroups[d].push(l);
     });
@@ -2001,7 +2039,7 @@ function renderTidakHadirBulanan(bln,thn){
   });
   const groups={};
   rekapPeg.forEach(r=>{
-    const d=r.p.jab&&r.p.jab.trim()?r.p.jab.trim():'Tanpa Departemen';
+    const d=normDept(r.p.jab);
     if(!groups[d])groups[d]=[];
     groups[d].push(r);
   });
@@ -2054,7 +2092,7 @@ function exportTidakHadirBulananExcel(){
   });
   const groups={};
   rekapPeg.forEach(r=>{
-    const d=r.p.jab&&r.p.jab.trim()?r.p.jab.trim():'Tanpa Departemen';
+    const d=normDept(r.p.jab);
     if(!groups[d])groups[d]=[];
     groups[d].push(r);
   });
@@ -2122,7 +2160,7 @@ function renderRekap(){
       // Kelompokkan per departemen
       const groups={};
       hari.forEach(l=>{
-        const d=l.jab&&l.jab.trim()?l.jab.trim():'Tanpa Departemen';
+        const d=normDept(l.jab);
         if(!groups[d])groups[d]=[];
         groups[d].push(l);
       });
@@ -2157,7 +2195,7 @@ function renderTidakHadirHarian(){
   }
   const groups={};
   notScanned.forEach(p=>{
-    const d=p.jab&&p.jab.trim()?p.jab.trim():'Tanpa Departemen';
+    const d=normDept(p.jab);
     if(!groups[d])groups[d]=[];
     groups[d].push(p);
   });
@@ -2212,7 +2250,7 @@ function exportRekapExcel(){
   const belumAbsen=people.filter(p=>!hariSemuaRute.find(l=>l.id===p.id));
   if(belumAbsen.length){
     const grp={};
-    belumAbsen.forEach(p=>{const d=p.jab&&p.jab.trim()?p.jab.trim():'Tanpa Departemen';if(!grp[d])grp[d]=[];grp[d].push(p);});
+    belumAbsen.forEach(p=>{const d=normDept(p.jab);if(!grp[d])grp[d]=[];grp[d].push(p);});
     const dn=Object.keys(grp).sort((a,b)=>a.localeCompare(b,'id'));
     const rows=[];let no=1;
     dn.forEach(d=>{grp[d].slice().sort((a,b)=>a.nama.localeCompare(b.nama,'id')).forEach(p=>{rows.push([no++,p.nama,p.id,d]);});});
@@ -2394,7 +2432,7 @@ function renderDashboardExtra(){
   if(deptTb){
     const depts={};
     people.forEach(p=>{
-      const d=p.jab||'Tanpa Departemen';
+      const d=normDept(p.jab);
       if(!depts[d])depts[d]={total:0,belum:0};
       depts[d].total++;
       if(!belumIds.has(p.id))depts[d].belum++;
@@ -2542,7 +2580,7 @@ function renderOrang(){
   // Kelompokkan per departemen, lalu urutkan nama A-Z di tiap departemen
   const groups={};
   list.forEach(p=>{
-    const d=p.jab&&p.jab.trim()?p.jab.trim():'Tanpa Departemen';
+    const d=normDept(p.jab);
     if(!groups[d])groups[d]=[];
     groups[d].push(p);
   });
@@ -2577,7 +2615,7 @@ function renderQR(){
   // Kelompokkan per departemen, urut nama A-Z di tiap departemen
   const groups={};
   filtered.forEach(p=>{
-    const d=p.jab&&p.jab.trim()?p.jab.trim():'Tanpa Departemen';
+    const d=normDept(p.jab);
     if(!groups[d])groups[d]=[];
     groups[d].push(p);
   });
