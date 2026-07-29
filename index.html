@@ -9,6 +9,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -1069,7 +1070,7 @@ tr.row-alert td{border-left:3px solid var(--red)}
     <!-- Grafik Semua Rute -->
     <div class="card" style="margin-bottom:12px">
       <div class="card-hd"><h3>&#x1F4C8; Grafik Kehadiran — Semua Rute</h3></div>
-      <div class="card-bd"><canvas id="chart-all" height="110"></canvas></div>
+      <div class="card-bd"><canvas id="chart-all" height="170"></canvas></div>
     </div>
 
     <!-- Perbandingan Sesi Pergi vs Pulang -->
@@ -1090,24 +1091,30 @@ tr.row-alert td{border-left:3px solid var(--red)}
             <div id="pp-selisih-n" style="font-size:22px;font-weight:800;color:var(--ink)">0</div>
           </div>
         </div>
-        <canvas id="chart-pergipulang" height="110"></canvas>
+        <canvas id="chart-pergipulang" height="170"></canvas>
       </div>
     </div>
 
-    <!-- Grafik Per Rute -->
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:12px">
+    <!-- Grafik Per Rute: Pergi vs Pulang (biar bisa dibandingkan antar bus) -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px;margin-bottom:12px">
       <div class="card">
-        <div class="card-hd"><h3 style="color:var(--bus1)">&#x1F68C; Rute A</h3></div>
-        <div class="card-bd"><canvas id="chart-a" height="120"></canvas></div>
+        <div class="card-hd"><h3 id="chart-a-title" style="color:var(--bus1)">&#x1F68C; <span id="chart-a-name">Rute A</span> — Pergi vs Pulang</h3></div>
+        <div class="card-bd"><canvas id="chart-a" height="190"></canvas></div>
       </div>
       <div class="card">
-        <div class="card-hd"><h3 style="color:var(--bus2)">&#x1F68C; Rute B</h3></div>
-        <div class="card-bd"><canvas id="chart-b" height="120"></canvas></div>
+        <div class="card-hd"><h3 id="chart-b-title" style="color:var(--bus2)">&#x1F68C; <span id="chart-b-name">Rute B</span> — Pergi vs Pulang</h3></div>
+        <div class="card-bd"><canvas id="chart-b" height="190"></canvas></div>
       </div>
       <div class="card">
-        <div class="card-hd"><h3 style="color:var(--bus3)">&#x1F68C; Rute C</h3></div>
-        <div class="card-bd"><canvas id="chart-c" height="120"></canvas></div>
+        <div class="card-hd"><h3 id="chart-c-title" style="color:var(--bus3)">&#x1F68C; <span id="chart-c-name">Rute C</span> — Pergi vs Pulang</h3></div>
+        <div class="card-bd"><canvas id="chart-c" height="190"></canvas></div>
       </div>
+    </div>
+
+    <!-- Perbandingan Langsung Antar Bus (Pergi & Pulang) -->
+    <div class="card" style="margin-bottom:12px">
+      <div class="card-hd"><h3>&#x1F686; Perbandingan Antar Bus — Sesi Pergi &amp; Pulang</h3></div>
+      <div class="card-bd"><canvas id="chart-bus-compare" height="200"></canvas></div>
     </div>
 
     <!-- Proporsi Rute -->
@@ -2268,7 +2275,8 @@ function exportRekapExcel(){
 }
 
 // ── DASHBOARD ──────────────────────────────────────────
-let dashPeriod='minggu',chartAll=null,chartA=null,chartB=null,chartC=null,chartDonut=null,chartPergiPulang=null;
+let dashPeriod='minggu',chartAll=null,chartA=null,chartB=null,chartC=null,chartDonut=null,chartPergiPulang=null,chartBusCompare=null;
+if(typeof Chart!=='undefined'&&typeof ChartDataLabels!=='undefined'){Chart.register(ChartDataLabels);}
 
 function setDashPeriod(p){
   dashPeriod=p;
@@ -2282,6 +2290,7 @@ function setDashPeriod(p){
 function renderDashboard(){
   const now=new Date();
   let labels=[],dataA=[],dataB=[],dataC=[],dataPergi=[],dataPulang=[],rangeText='';
+  let dataAPergi=[],dataAPulang=[],dataBPergi=[],dataBPulang=[],dataCPergi=[],dataCPulang=[];
   if(dashPeriod==='harian'){
     const tgl=now.toLocaleDateString('id-ID');
     for(let h=5;h<=21;h++){
@@ -2291,6 +2300,12 @@ function renderDashboard(){
       dataC.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='C'&&l.naik&&parseInt(l.naik.split(':')[0])===h).length);
       dataPergi.push(logs.filter(l=>l.tanggal===tgl&&l.naik&&parseInt(l.naik.split(':')[0])===h).length);
       dataPulang.push(logs.filter(l=>l.tanggal===tgl&&l.turun&&parseInt(l.turun.split(':')[0])===h).length);
+      dataAPergi.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='A'&&l.naik&&parseInt(l.naik.split(':')[0])===h).length);
+      dataAPulang.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='A'&&l.turun&&parseInt(l.turun.split(':')[0])===h).length);
+      dataBPergi.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='B'&&l.naik&&parseInt(l.naik.split(':')[0])===h).length);
+      dataBPulang.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='B'&&l.turun&&parseInt(l.turun.split(':')[0])===h).length);
+      dataCPergi.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='C'&&l.naik&&parseInt(l.naik.split(':')[0])===h).length);
+      dataCPulang.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='C'&&l.turun&&parseInt(l.turun.split(':')[0])===h).length);
     }
     rangeText='Hari Ini - '+tgl;
   } else if(dashPeriod==='minggu'){
@@ -2304,6 +2319,12 @@ function renderDashboard(){
       dataC.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='C').length);
       dataPergi.push(logs.filter(l=>l.tanggal===tgl&&l.naik).length);
       dataPulang.push(logs.filter(l=>l.tanggal===tgl&&l.turun).length);
+      dataAPergi.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='A'&&l.naik).length);
+      dataAPulang.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='A'&&l.turun).length);
+      dataBPergi.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='B'&&l.naik).length);
+      dataBPulang.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='B'&&l.turun).length);
+      dataCPergi.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='C'&&l.naik).length);
+      dataCPulang.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='C'&&l.turun).length);
     }
     rangeText='7 Hari Terakhir';
   } else if(dashPeriod==='bulan'){
@@ -2319,23 +2340,35 @@ function renderDashboard(){
       dataC.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='C').length);
       dataPergi.push(logs.filter(l=>l.tanggal===tgl&&l.naik).length);
       dataPulang.push(logs.filter(l=>l.tanggal===tgl&&l.turun).length);
+      dataAPergi.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='A'&&l.naik).length);
+      dataAPulang.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='A'&&l.turun).length);
+      dataBPergi.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='B'&&l.naik).length);
+      dataBPulang.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='B'&&l.turun).length);
+      dataCPergi.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='C'&&l.naik).length);
+      dataCPulang.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='C'&&l.turun).length);
     }
     rangeText='Bulan '+MN[m]+' '+y;
   } else {
     const MN=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agt','Sep','Okt','Nov','Des'];
     for(let m=0;m<12;m++){
       labels.push(MN[m]);let ca=0,cb=0,cc=0,cp=0,cu=0;
+      let caP=0,caU=0,cbP=0,cbU=0,ccP=0,ccU=0;
       logs.forEach(l=>{
         const pts=l.tanggal?l.tanggal.split('/'):[];
         if(pts.length<3)return;
         if(parseInt(pts[1])-1===m&&parseInt(pts[2])===now.getFullYear()){
-          if(l.rute==='A')ca++;else if(l.rute==='B')cb++;else if(l.rute==='C')cc++;
+          if(l.rute==='A'){ca++;if(l.naik)caP++;if(l.turun)caU++;}
+          else if(l.rute==='B'){cb++;if(l.naik)cbP++;if(l.turun)cbU++;}
+          else if(l.rute==='C'){cc++;if(l.naik)ccP++;if(l.turun)ccU++;}
           if(l.naik)cp++;
           if(l.turun)cu++;
         }
       });
       dataA.push(ca);dataB.push(cb);dataC.push(cc);
       dataPergi.push(cp);dataPulang.push(cu);
+      dataAPergi.push(caP);dataAPulang.push(caU);
+      dataBPergi.push(cbP);dataBPulang.push(cbU);
+      dataCPergi.push(ccP);dataCPulang.push(ccU);
     }
     rangeText='Tahun '+now.getFullYear();
   }
@@ -2355,7 +2388,7 @@ function renderDashboard(){
     ppS.style.fontSize='13px';
   }
 
-  // Kapasitas bus: 32 penumpang = 100% hadir. Dipakai untuk tooltip saat grafik disentuh/diklik.
+  // Kapasitas bus: 32 penumpang = 100% hadir. Dipakai untuk persentase & tooltip.
   const BUS_CAP=32;
   const tooltipCfg={
     callbacks:{
@@ -2367,7 +2400,18 @@ function renderDashboard(){
     },
     backgroundColor:'rgba(17,24,39,.92)',titleFont:{size:11.5,weight:'700'},bodyFont:{size:11.5},padding:10,cornerRadius:8,displayColors:true
   };
-  const sc={responsive:true,maintainAspectRatio:true,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:tooltipCfg},scales:{x:{grid:{display:false},ticks:{font:{size:10},color:'#94A3B8'}},y:{beginAtZero:true,ticks:{stepSize:1,font:{size:10},color:'#94A3B8'},grid:{color:'rgba(0,0,0,.05)'}}}};
+  // Label angka + persentase tampil langsung di atas tiap batang (tanpa perlu klik/hover)
+  const dlBar={anchor:'end',align:'top',offset:3,color:'#374151',font:{size:11,weight:'700'},formatter:v=>v>0?v+' ('+Math.round(v/BUS_CAP*100)+'%)':''};
+  const dlLine={align:'top',offset:6,color:'#374151',font:{size:10,weight:'700'},formatter:v=>v>0?v:''};
+  const sc={responsive:true,maintainAspectRatio:true,layout:{padding:{top:22}},interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:tooltipCfg,datalabels:dlLine},scales:{x:{grid:{display:false},ticks:{font:{size:10},color:'#94A3B8'}},y:{beginAtZero:true,grace:'12%',ticks:{stepSize:1,font:{size:10},color:'#94A3B8'},grid:{color:'rgba(0,0,0,.05)'}}}};
+  // Versi "bersih" untuk chart batang: sumbu Y disembunyikan (angka sudah tampil di atas batang), biar tidak ribet
+  const scBar={...sc,plugins:{legend:{display:true,position:'top',labels:{font:{size:12,weight:'600'},boxWidth:14,padding:16}},tooltip:tooltipCfg,datalabels:dlBar},scales:{x:{grid:{display:false},ticks:{font:{size:11,weight:'600'},color:'#374151'}},y:{beginAtZero:true,grace:'20%',display:false}}};
+
+  // Nama rute (sesuai Kelola Rute) ditampilkan di judul tiap kartu grafik
+  const setTitle=(id,txt)=>{const el=document.getElementById(id);if(el)el.textContent=txt;};
+  setTitle('chart-a-name',rutes.A.nama);
+  setTitle('chart-b-name',rutes.B.nama);
+  setTitle('chart-c-name',rutes.C.nama);
 
   const ca=document.getElementById('chart-all');
   if(ca){if(chartAll)chartAll.destroy();
@@ -2375,23 +2419,28 @@ function renderDashboard(){
       {label:rutes.A.nama,data:dataA,backgroundColor:'rgba(37,99,235,.75)',borderRadius:4},
       {label:rutes.B.nama,data:dataB,backgroundColor:'rgba(5,150,105,.75)',borderRadius:4},
       {label:rutes.C.nama,data:dataC,backgroundColor:'rgba(217,119,6,.75)',borderRadius:4}
-    ]},options:{...sc,interaction:{mode:'index',intersect:false},plugins:{legend:{display:true,position:'top',labels:{font:{size:11},boxWidth:12}},tooltip:tooltipCfg}}}); }
+    ]},options:scBar}); }
 
-  const mk=(cid,prev,data,color,lbl)=>{
+  // Grafik per rute: batang Pergi vs Pulang, biar bisa dibandingkan antar bus
+  const mkBusChart=(cid,prev,pergi,pulang)=>{
     const el=document.getElementById(cid);if(!el)return null;
     if(prev)prev.destroy();
-    return new Chart(el,{type:'line',data:{labels,datasets:[{label:lbl,data,borderColor:color,backgroundColor:color+'22',fill:true,tension:.4,pointRadius:3,pointBackgroundColor:color}]},options:sc});
+    return new Chart(el,{type:'bar',data:{labels,datasets:[
+      {label:'Pergi',data:pergi,backgroundColor:'rgba(22,163,74,.75)',borderRadius:4},
+      {label:'Pulang',data:pulang,backgroundColor:'rgba(234,88,12,.75)',borderRadius:4}
+    ]},options:scBar});
   };
-  chartA=mk('chart-a',chartA,dataA,'#2563EB',rutes.A.nama);
-  chartB=mk('chart-b',chartB,dataB,'#059669',rutes.B.nama);
-  chartC=mk('chart-c',chartC,dataC,'#D97706',rutes.C.nama);
+  chartA=mkBusChart('chart-a',chartA,dataAPergi,dataAPulang);
+  chartB=mkBusChart('chart-b',chartB,dataBPergi,dataBPulang);
+  chartC=mkBusChart('chart-c',chartC,dataCPergi,dataCPulang);
 
   // Donut proporsi rute (sesuai periode yang dipilih)
   const dcv=document.getElementById('chart-donut');
   if(dcv){
     if(chartDonut)chartDonut.destroy();
     if(tA+tB+tC>0){
-      chartDonut=new Chart(dcv,{type:'doughnut',data:{labels:[rutes.A.nama,rutes.B.nama,rutes.C.nama],datasets:[{data:[tA,tB,tC],backgroundColor:['#2563EB','#059669','#D97706'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:10}}}}});
+      const totalABC=tA+tB+tC;
+      chartDonut=new Chart(dcv,{type:'doughnut',data:{labels:[rutes.A.nama,rutes.B.nama,rutes.C.nama],datasets:[{data:[tA,tB,tC],backgroundColor:['#2563EB','#059669','#D97706'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:10}},datalabels:{color:'#fff',font:{size:11,weight:'700'},formatter:v=>v>0?v+' ('+Math.round(v/totalABC*100)+'%)':''}}}});
     }
   }
 
@@ -2402,7 +2451,20 @@ function renderDashboard(){
     chartPergiPulang=new Chart(cpp,{type:'bar',data:{labels,datasets:[
       {label:'Pergi',data:dataPergi,backgroundColor:'rgba(22,163,74,.75)',borderRadius:4},
       {label:'Pulang',data:dataPulang,backgroundColor:'rgba(234,88,12,.75)',borderRadius:4}
-    ]},options:{...sc,plugins:{legend:{display:true,position:'top',labels:{font:{size:11},boxWidth:12}},tooltip:{backgroundColor:'rgba(17,24,39,.92)',titleFont:{size:11.5,weight:'700'},bodyFont:{size:11.5},padding:10,cornerRadius:8}}}});
+    ]},options:scBar});
+  }
+
+  // Chart perbandingan LANGSUNG antar bus: total Pergi & Pulang per bus dalam periode terpilih
+  const cbc=document.getElementById('chart-bus-compare');
+  if(cbc){
+    if(chartBusCompare)chartBusCompare.destroy();
+    const tAP=dataAPergi.reduce((s,v)=>s+v,0),tAU=dataAPulang.reduce((s,v)=>s+v,0);
+    const tBP=dataBPergi.reduce((s,v)=>s+v,0),tBU=dataBPulang.reduce((s,v)=>s+v,0);
+    const tCP=dataCPergi.reduce((s,v)=>s+v,0),tCU=dataCPulang.reduce((s,v)=>s+v,0);
+    chartBusCompare=new Chart(cbc,{type:'bar',data:{labels:[rutes.A.nama,rutes.B.nama,rutes.C.nama],datasets:[
+      {label:'Pergi',data:[tAP,tBP,tCP],backgroundColor:'rgba(22,163,74,.75)',borderRadius:4},
+      {label:'Pulang',data:[tAU,tBU,tCU],backgroundColor:'rgba(234,88,12,.75)',borderRadius:4}
+    ]},options:{...scBar,scales:{x:{grid:{display:false},ticks:{font:{size:12,weight:'700'},color:'#374151'}},y:{beginAtZero:true,grace:'20%',display:false}}}});
   }
 
   renderDashboardExtra();
