@@ -632,19 +632,20 @@ tr.row-alert td{border-left:3px solid var(--red)}
         background:linear-gradient(to bottom,rgba(0,0,0,.7),rgba(0,0,0,.3) 80%,transparent);
       ">
         <div style="padding:12px 14px 8px;display:flex;align-items:center;justify-content:space-between">
-          <!-- Mode toggle di dalam kamera -->
-          <div style="display:flex;gap:6px">
-            <button id="cam-naik" onclick="setMode('naik')" style="
-              padding:5px 12px;border:none;border-radius:99px;
+          <!-- Sesi otomatis berdasarkan jam real-time (tidak bisa diklik manual) -->
+          <div style="display:flex;gap:6px;align-items:center">
+            <div id="sesi-badge" style="
+              padding:5px 14px;border-radius:99px;
               background:rgba(22,163,74,.85);color:#fff;
-              font-family:'Inter',sans-serif;font-size:11px;font-weight:700;cursor:pointer;
-            ">&#x2B06; Naik</button>
-            <button id="cam-turun" onclick="setMode('turun')" style="
-              padding:5px 12px;border:none;border-radius:99px;
-              background:rgba(255,255,255,.18);color:#fff;
-              font-family:'Inter',sans-serif;font-size:11px;font-weight:700;cursor:pointer;
-            ">&#x2B07; Turun</button>
+              font-family:'Inter',sans-serif;font-size:11px;font-weight:700;
+              display:flex;align-items:center;gap:5px;
+            "><span id="sesi-ico">&#x2600;&#xFE0F;</span> <span id="sesi-label">Sesi Pergi</span></div>
+            <div id="sesi-jam" style="
+              font-family:'Inter',sans-serif;font-size:10.5px;color:rgba(255,255,255,.8);
+            ">--:--</div>
           </div>
+          <div id="cam-naik" style="display:none"></div>
+          <div id="cam-turun" style="display:none"></div>
         </div>
         <!-- Pilihan Rute Bus - dipilih manual oleh petugas scan -->
         <div class="mh-rutes" style="padding:8px 14px 12px;margin-top:4px">
@@ -811,9 +812,9 @@ tr.row-alert td{border-left:3px solid var(--red)}
     <!-- HARIAN -->
     <div id="rekap-harian">
       <div class="stat-row">
-        <div class="stat"><div class="stat-n b" id="st-total">0</div><div class="stat-l">Total Naik</div></div>
-        <div class="stat"><div class="stat-n r" id="st-turun">0</div><div class="stat-l">Sudah Turun</div></div>
-        <div class="stat"><div class="stat-n o" id="st-blm">0</div><div class="stat-l">Belum Naik</div></div>
+        <div class="stat"><div class="stat-n g" id="st-pagi">0</div><div class="stat-l">Absen Pergi</div></div>
+        <div class="stat"><div class="stat-n r" id="st-turun">0</div><div class="stat-l">Absen Pulang</div></div>
+        <div class="stat"><div class="stat-n o" id="st-blm">0</div><div class="stat-l">Belum Absen</div></div>
       </div>
       <div class="card">
         <div class="card-hd" style="flex-wrap:wrap;gap:8px">
@@ -839,7 +840,7 @@ tr.row-alert td{border-left:3px solid var(--red)}
         </div>
         <div class="tbl-wrap">
           <table>
-            <thead><tr><th>#</th><th>Nama</th><th>ID</th><th>Rute</th><th>Naik</th><th>Turun</th><th>Status</th><th>Aksi</th></tr></thead>
+            <thead><tr><th>#</th><th>Nama</th><th>ID</th><th>Rute</th><th>Pergi</th><th>Pulang</th><th>Status</th><th>Aksi</th></tr></thead>
             <tbody id="rekap-tb"></tbody>
           </table>
         </div>
@@ -868,7 +869,7 @@ tr.row-alert td{border-left:3px solid var(--red)}
         </div>
         <div class="tbl-wrap">
           <table>
-            <thead><tr><th>Tanggal</th><th>Nama</th><th>ID</th><th>Rute</th><th>Naik</th><th>Turun</th><th>Status</th></tr></thead>
+            <thead><tr><th>Tanggal</th><th>Nama</th><th>ID</th><th>Rute</th><th>Pergi</th><th>Pulang</th><th>Status</th></tr></thead>
             <tbody id="rekap-bln-tb"></tbody>
           </table>
         </div>
@@ -979,7 +980,7 @@ tr.row-alert td{border-left:3px solid var(--red)}
     <div class="card" style="margin-bottom:13px">
       <div class="card-hd"><h3>QR Code Karyawan</h3></div>
       <div class="card-bd">
-        <p style="font-size:12px;color:var(--muted);margin-bottom:11px;line-height:1.6">QR code unik untuk tiap karyawan. Scan kamera saat naik &amp; turun bus. Cetak dan bagikan.</p>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:11px;line-height:1.6">QR code unik untuk tiap karyawan. Scan kamera saat naik bus Pergi &amp; Pulang (otomatis sesuai jam). Cetak dan bagikan.</p>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <div style="flex:1;min-width:180px;display:flex;align-items:center;gap:6px;background:var(--bg);border:1.5px solid var(--border);border-radius:7px;padding:5px 10px">
             <span style="color:var(--muted);font-size:13px">&#x1F50D;</span>
@@ -1050,8 +1051,8 @@ tr.row-alert td{border-left:3px solid var(--red)}
       <div class="card-bd" style="padding-top:14px">
         <div class="stat-row" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr));margin-bottom:0">
           <div class="stat"><div class="stat-icon">&#x1F465;</div><div class="stat-n b" id="dt-total">0</div><div class="stat-l">Total Karyawan</div></div>
-          <div class="stat"><div class="stat-icon">&#x2B06;</div><div class="stat-n g" id="dt-naik">0</div><div class="stat-l">Sudah Naik</div></div>
-          <div class="stat"><div class="stat-icon">&#x2B07;</div><div class="stat-n b" id="dt-turun">0</div><div class="stat-l">Sudah Turun</div></div>
+          <div class="stat"><div class="stat-icon">&#x2600;&#xFE0F;</div><div class="stat-n g" id="dt-naik">0</div><div class="stat-l">Absen Pergi</div></div>
+          <div class="stat"><div class="stat-icon">&#x1F319;</div><div class="stat-n b" id="dt-turun">0</div><div class="stat-l">Absen Pulang</div></div>
           <div class="stat"><div class="stat-icon">&#x26A0;&#xFE0F;</div><div class="stat-n r" id="dt-belum">0</div><div class="stat-l">Belum Absen</div></div>
           <div class="stat"><div class="stat-icon">&#x1F4C8;</div><div class="stat-n g" id="dt-persen">0%</div><div class="stat-l">Tingkat Kehadiran</div></div>
         </div>
@@ -1132,24 +1133,43 @@ tr.row-alert td{border-left:3px solid var(--red)}
 function beep(ok){
   try{
     const AC=window.AudioContext||window.webkitAudioContext;
-    const ctx=new AC(),o=ctx.createOscillator(),g=ctx.createGain();
-    o.connect(g);g.connect(ctx.destination);
+    const ctx=new AC();
+    // Compressor supaya suara bisa dipacu lebih keras tanpa pecah/distorsi
+    const comp=ctx.createDynamicsCompressor();
+    comp.threshold.setValueAtTime(-12,ctx.currentTime);
+    comp.knee.setValueAtTime(6,ctx.currentTime);
+    comp.ratio.setValueAtTime(8,ctx.currentTime);
+    comp.attack.setValueAtTime(0.003,ctx.currentTime);
+    comp.release.setValueAtTime(0.15,ctx.currentTime);
+    comp.connect(ctx.destination);
+
+    const master=ctx.createGain();
+    master.gain.setValueAtTime(1.6,ctx.currentTime); // boost keseluruhan volume
+    master.connect(comp);
+
+    function tone(freq,type,start,dur,peakGain){
+      const o=ctx.createOscillator(),g=ctx.createGain();
+      o.type=type;o.frequency.value=freq;
+      o.connect(g);g.connect(master);
+      const t0=ctx.currentTime+start;
+      g.gain.setValueAtTime(0.0001,t0);
+      g.gain.exponentialRampToValueAtTime(peakGain,t0+0.015); // serangan cepat = terasa lebih nyaring
+      g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
+      o.start(t0);o.stop(t0+dur+0.02);
+    }
+
     if(ok){
-      o.frequency.value=880;g.gain.setValueAtTime(.22,ctx.currentTime);
-      g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.14);
-      o.start();o.stop(ctx.currentTime+.14);
-      setTimeout(()=>{
-        const c2=new AC(),o2=c2.createOscillator(),g2=c2.createGain();
-        o2.connect(g2);g2.connect(c2.destination);
-        o2.frequency.value=1100;g2.gain.setValueAtTime(.18,c2.currentTime);
-        g2.gain.exponentialRampToValueAtTime(.001,c2.currentTime+.12);
-        o2.start();o2.stop(c2.currentTime+.12);
-      },150);
+      // Chime sukses: 3 nada naik, tebal (square+triangle bertumpuk), keras & jelas
+      tone(988,'square',0,0.13,0.9);
+      tone(988,'triangle',0,0.13,0.5);
+      tone(1318,'square',0.11,0.13,0.9);
+      tone(1318,'triangle',0.11,0.13,0.5);
+      tone(1568,'square',0.22,0.22,1.0);
+      tone(1568,'triangle',0.22,0.22,0.6);
     }else{
-      o.type='sawtooth';o.frequency.value=200;
-      g.gain.setValueAtTime(.15,ctx.currentTime);
-      g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.22);
-      o.start();o.stop(ctx.currentTime+.22);
+      // Buzzer gagal: lebih tebal & keras, dua nada rendah bergantian
+      tone(220,'sawtooth',0,0.16,0.9);
+      tone(160,'sawtooth',0.14,0.22,0.9);
     }
   }catch(e){}
 }
@@ -1306,11 +1326,11 @@ function saveLog(rec) {
 
 function updateLog(rec) {
   if (useFirebase && db) {
-    // Cari key log yang sesuai lalu update
+    // Cari key log yang sesuai lalu update field naik & turun (Pergi & Pulang independen)
     db.ref('logs').orderByChild('id').equalTo(rec.id).once('value', snap => {
       snap.forEach(child => {
         if (child.val().tanggal === rec.tanggal && child.val().rute === rec.rute) {
-          child.ref.update({ turun: rec.turun }).catch(dbErr);
+          child.ref.update({ naik: rec.naik, turun: rec.turun }).catch(dbErr);
         }
       });
     });
@@ -1437,7 +1457,7 @@ function applyLayout(l){
   // Re-attach Enter listener
   const mi=wrap.querySelector('#man-in');
   if(mi)mi.addEventListener('keydown',e=>{if(e.key==='Enter')doManual();});
-  renderOrang();loadRuteForm();updateRuteNames();setRute(aRute);setMode(aMode);
+  renderOrang();loadRuteForm();updateRuteNames();setRute(aRute);setMode(getSesi());
   updateAuthUI();
 }
 
@@ -1460,23 +1480,28 @@ function updateRuteNames(){
   });
 }
 
-// ── MODE ───────────────────────────────────────────────
+// ── SESI OTOMATIS (Pergi / Pulang) ───────────────────────
+// Batas waktu pergantian sesi: sebelum jam 12 siang = Pergi, setelah itu = Pulang.
+// Field internal tetap 'naik' (=Pergi) & 'turun' (=Pulang) agar kompatibel dengan data lama di Firebase.
+const SESI_CUTOFF_HOUR = 12;
+function getSesi(){
+  return new Date().getHours() < SESI_CUTOFF_HOUR ? 'naik' : 'turun';
+}
+function labelSesi(m){ return m==='naik' ? 'Pergi' : 'Pulang'; }
 function setMode(m){
   aMode=m;
-  // Tombol mode naik/turun di halaman scan
-  const ids={naik:['m-naik'],turun:['m-turun']};
-  ['naik','turun'].forEach(k=>{
-    ids[k].forEach(id=>{
-      const el=document.getElementById(id);
-      if(el){el.className=k+(m===k?' on':'');}
-    });
-  });
-  // In-camera buttons
-  const cn=document.getElementById('cam-naik');
-  const ct=document.getElementById('cam-turun');
-  if(cn){cn.style.background=m==='naik'?'rgba(22,163,74,.85)':'rgba(255,255,255,.18)';}
-  if(ct){ct.style.background=m==='turun'?'rgba(220,38,38,.85)':'rgba(255,255,255,.18)';}
+  const badge=document.getElementById('sesi-badge');
+  const ico=document.getElementById('sesi-ico');
+  const lbl=document.getElementById('sesi-label');
+  const jam=document.getElementById('sesi-jam');
+  const isPergi=m==='naik';
+  if(badge)badge.style.background=isPergi?'rgba(22,163,74,.85)':'rgba(234,88,12,.85)';
+  if(ico)ico.innerHTML=isPergi?'&#x2600;&#xFE0F;':'&#x1F319;';
+  if(lbl)lbl.textContent='Sesi '+labelSesi(m);
+  if(jam){const n=new Date();jam.textContent=p2(n.getHours())+':'+p2(n.getMinutes());}
 }
+function tickSesi(){ setMode(getSesi()); }
+setInterval(tickSesi,30000);
 
 // ── NAV ────────────────────────────────────────────────
 // ── AUTH GATE (1 password untuk semua fitur admin) ─────
@@ -1744,6 +1769,9 @@ function processCode(code){
   const p=people.find(x=>x.id===code);
   if(!p){beep(false);toast('ID tidak dikenali: '+code);return;}
   const rRute=aRute; // rute ditentukan manual oleh petugas scan (tidak lagi otomatis ikut data karyawan)
+  const sesi=getSesi(); // 'naik'=Pergi, 'turun'=Pulang — otomatis sesuai jam real-time
+  setMode(sesi);
+  const sesiLabel=labelSesi(sesi);
   const n=new Date();
   const tgl=n.toLocaleDateString('id-ID');
   const wkt=p2(n.getHours())+':'+p2(n.getMinutes());
@@ -1751,16 +1779,16 @@ function processCode(code){
   // Cari log orang ini di TANGGAL YANG SAMA tapi di rute LAIN (untuk cegah duplikat lintas rute)
   const logRuteLain=logs.find(l=>l.id===p.id&&l.tanggal===tgl&&l.rute!==rRute);
   let finalRute=rRute;
-  if(aMode==='naik'){
-    if(log&&log.naik){beep(false);toast(p.nama+' sudah naik');showResult(p,wkt,'sudah-naik',rRute);return;}
+  if(sesi==='naik'){
+    if(log&&log.naik){beep(false);toast(p.nama+' sudah absen Pergi');showResult(p,wkt,'sudah-naik',rRute);return;}
     if(logRuteLain&&logRuteLain.naik){
       const namaRuteLain=rutes[logRuteLain.rute]?rutes[logRuteLain.rute].nama:'Rute '+logRuteLain.rute;
       beep(false);
-      toast(p.nama+' sudah naik di '+namaRuteLain+' - tidak bisa scan di rute lain');
+      toast(p.nama+' sudah absen Pergi di '+namaRuteLain+' - tidak bisa scan di rute lain');
       showResult(p,wkt,'sudah-naik',logRuteLain.rute);
       return;
     }
-    const rec={id:p.id,nama:p.nama,jab:p.jab||'',rute:rRute,tanggal:tgl,naik:wkt,turun:null};
+    const rec={id:p.id,nama:p.nama,jab:p.jab||'',rute:rRute,tanggal:tgl,naik:wkt,turun:log?log.turun:null};
     if(!log){
       saveLog(rec);
       if(!useFirebase) logs.push(rec);
@@ -1769,20 +1797,29 @@ function processCode(code){
       updateLog(log);
     }
     beep(true);showResult(p,wkt,'naik',rRute);
-    toast(p.nama+' - Naik '+rutes[rRute].nama);
+    toast(p.nama+' - Absen Pergi '+rutes[rRute].nama);
   }else{
-    // Untuk turun, pakai log naik yang benar-benar tercatat - baik di rute ini maupun rute lain hari ini
-    const logAktif = (log&&log.naik) ? log : ((logRuteLain&&logRuteLain.naik) ? logRuteLain : null);
-    if(!logAktif){beep(false);toast(p.nama+' belum naik');showResult(p,wkt,'belum-naik',rRute);return;}
-    if(logAktif.turun){beep(false);toast(p.nama+' sudah turun');return;}
-    logAktif.turun=wkt;
-    updateLog(logAktif);
-    finalRute=logAktif.rute;
-    if(!useFirebase) localStorage.setItem('bkv4_l',JSON.stringify(logs));
-    beep(true);showResult(p,wkt,'turun',finalRute);
-    toast(p.nama+' - Turun '+rutes[finalRute].nama);
+    // Absen Pulang independen dari Pergi - tidak perlu absen Pergi dulu
+    if(log&&log.turun){beep(false);toast(p.nama+' sudah absen Pulang');showResult(p,wkt,'sudah-turun',rRute);return;}
+    if(logRuteLain&&logRuteLain.turun){
+      const namaRuteLain=rutes[logRuteLain.rute]?rutes[logRuteLain.rute].nama:'Rute '+logRuteLain.rute;
+      beep(false);
+      toast(p.nama+' sudah absen Pulang di '+namaRuteLain+' - tidak bisa scan di rute lain');
+      showResult(p,wkt,'sudah-turun',logRuteLain.rute);
+      return;
+    }
+    if(!log){
+      const rec={id:p.id,nama:p.nama,jab:p.jab||'',rute:rRute,tanggal:tgl,naik:null,turun:wkt};
+      saveLog(rec);
+      if(!useFirebase) logs.push(rec);
+    } else {
+      log.turun=wkt;
+      updateLog(log);
+    }
+    beep(true);showResult(p,wkt,'turun',rRute);
+    toast(p.nama+' - Absen Pulang '+rutes[rRute].nama);
   }
-  recent.unshift({nama:p.nama,rute:finalRute,mode:aMode,wkt});
+  recent.unshift({nama:p.nama,rute:finalRute,mode:sesi,wkt});
   if(recent.length>8)recent.pop();
   renderRecent();
   const sw=document.getElementById('scan-fullscreen');
@@ -1792,8 +1829,8 @@ function processCode(code){
 function showResult(p,wkt,st,rRute){
   const box=document.getElementById('result-box');if(!box)return;
   const r=rRute||aRute;
-  const mm={naik:'<span class="badge badge-up">&#x2B06; Naik</span>',turun:'<span class="badge badge-dn">&#x2B07; Turun</span>','sudah-naik':'<span class="badge badge-warn">Sudah Naik</span>','belum-naik':'<span class="badge badge-warn">Belum Naik</span>'};
-  const sm={naik:'<span class="badge badge-up">Tercatat &#x2713;</span>',turun:'<span class="badge badge-dn">Tercatat &#x2713;</span>','sudah-naik':'<span class="badge badge-warn">Duplikat</span>','belum-naik':'<span class="badge badge-warn">Naik Dulu</span>'};
+  const mm={naik:'<span class="badge badge-up">&#x2600;&#xFE0F; Absen Pergi</span>',turun:'<span class="badge badge-dn">&#x1F319; Absen Pulang</span>','sudah-naik':'<span class="badge badge-warn">Sudah Absen Pergi</span>','sudah-turun':'<span class="badge badge-warn">Sudah Absen Pulang</span>'};
+  const sm={naik:'<span class="badge badge-up">Tercatat &#x2713;</span>',turun:'<span class="badge badge-dn">Tercatat &#x2713;</span>','sudah-naik':'<span class="badge badge-warn">Duplikat</span>','sudah-turun':'<span class="badge badge-warn">Duplikat</span>'};
   document.getElementById('rb-av').textContent=p.nama[0].toUpperCase();
   document.getElementById('rb-name').textContent=p.nama;
   document.getElementById('rb-id').textContent=p.id+(p.jab?' - '+p.jab:'');
@@ -1807,7 +1844,7 @@ function showResult(p,wkt,st,rRute){
 function renderRecent(){
   const tb=document.getElementById('recent-tb');if(!tb)return;
   if(!recent.length){tb.innerHTML='<tr><td colspan="4"><div class="empty"><p>Belum ada aktivitas</p></div></td></tr>';return;}
-  tb.innerHTML=recent.map(r=>'<tr><td><strong>'+r.nama+'</strong></td><td><span class="rt '+r.rute.toLowerCase()+'">'+(rutes[r.rute]?rutes[r.rute].nama:r.rute)+'</span></td><td>'+(r.mode==='naik'?'<span class="badge badge-up">&#x2B06;</span>':'<span class="badge badge-dn">&#x2B07;</span>')+'</td><td>'+r.wkt+'</td></tr>').join('');
+  tb.innerHTML=recent.map(r=>'<tr><td><strong>'+r.nama+'</strong></td><td><span class="rt '+r.rute.toLowerCase()+'">'+(rutes[r.rute]?rutes[r.rute].nama:r.rute)+'</span></td><td>'+(r.mode==='naik'?'<span class="badge badge-up">&#x2600;&#xFE0F; Pergi</span>':'<span class="badge badge-dn">&#x1F319; Pulang</span>')+'</td><td>'+r.wkt+'</td></tr>').join('');
 }
 
 // ── REKAP TAB ──────────────────────────────────────────
@@ -1873,7 +1910,7 @@ function renderRekapBulanan(){
     deptNames.forEach(d=>{
       const anggota=deptGroups[d];
       html+='<tr><td colspan="7" style="background:var(--bg);font-weight:700;font-size:11.5px;color:var(--bus1);padding:7px 12px 7px 26px">&#x1F3E2; '+d+' <span style="color:var(--muted);font-weight:500">('+anggota.length+')</span></td></tr>';
-      html+=anggota.map(l=>'<tr'+(l.naik?'':' class="row-alert"')+'><td>'+l.tanggal+'</td><td><strong>'+l.nama+'</strong></td><td><span class="badge badge-blue">'+l.id+'</span></td><td><span class="rt '+l.rute.toLowerCase()+'">'+(rutes[l.rute]?rutes[l.rute].nama:l.rute)+'</span></td><td>'+(l.naik||'--')+'</td><td>'+(l.turun||'--')+'</td><td>'+(l.turun?'<span class="badge badge-dn">Turun</span>':l.naik?'<span class="badge badge-up">Di Bus</span>':'<span class="badge badge-warn">&#x26A0; Belum</span>')+'</td></tr>').join('');
+      html+=anggota.map(l=>'<tr'+(l.naik||l.turun?'':' class="row-alert"')+'><td>'+l.tanggal+'</td><td><strong>'+l.nama+'</strong></td><td><span class="badge badge-blue">'+l.id+'</span></td><td><span class="rt '+l.rute.toLowerCase()+'">'+(rutes[l.rute]?rutes[l.rute].nama:l.rute)+'</span></td><td>'+(l.naik||'--')+'</td><td>'+(l.turun||'--')+'</td><td>'+statusPergiPulangBadge(l)+'</td></tr>').join('');
     });
   });
   tb.innerHTML=html;
@@ -2015,6 +2052,20 @@ function calcDur(naik,turun){
   try{const [nh,nm]=naik.split(':').map(Number);const [th,tm]=turun.split(':').map(Number);const d=(th*60+tm)-(nh*60+nm);if(d<0)return '--';return Math.floor(d/60)+'j '+(d%60)+'m';}catch(e){return '--';}
 }
 
+// Badge status absen Pergi/Pulang (independen, tidak saling mensyaratkan)
+function statusPergiPulangBadge(l){
+  if(l.naik&&l.turun)return '<span class="badge badge-up">&#x2713; Lengkap</span>';
+  if(l.naik)return '<span class="badge badge-up">&#x2600;&#xFE0F; Pergi Saja</span>';
+  if(l.turun)return '<span class="badge badge-dn">&#x1F319; Pulang Saja</span>';
+  return '<span class="badge badge-warn">&#x26A0; Belum Absen</span>';
+}
+function statusPergiPulangText(l){
+  if(l.naik&&l.turun)return 'Lengkap';
+  if(l.naik)return 'Pergi Saja';
+  if(l.turun)return 'Pulang Saja';
+  return 'Belum Absen';
+}
+
 // ── REKAP HARIAN ───────────────────────────────────────
 function renderRekap(){
   const dp=document.getElementById('rek-date-pick');
@@ -2028,7 +2079,7 @@ function renderRekap(){
   if(fr)hari=hari.filter(l=>l.rute===fr);
   const g=id=>document.getElementById(id);
   if(g('rek-tgl'))g('rek-tgl').textContent=tgl;
-  if(g('st-total'))g('st-total').textContent=hari.length;
+  if(g('st-pagi'))g('st-pagi').textContent=hari.filter(l=>l.naik).length;
   if(g('st-turun'))g('st-turun').textContent=hari.filter(l=>l.turun).length;
   if(g('st-blm'))g('st-blm').textContent=people.filter(p=>!hariAll.find(l=>l.id===p.id)).length;
   const tb=document.getElementById('rekap-tb');
@@ -2048,7 +2099,7 @@ function renderRekap(){
       deptNames.forEach(d=>{
         const anggota=groups[d];
         html+='<tr class="rekap-dept-hd" data-dept="'+d+'"><td colspan="8" style="background:var(--bg);font-weight:700;font-size:11.5px;color:var(--bus1);padding:8px 12px">&#x1F3E2; '+d+' <span style="color:var(--muted);font-weight:500">('+anggota.length+')</span></td></tr>';
-        html+=anggota.map(l=>'<tr class="rekap-row'+(l.naik?'':' row-alert')+'" data-dept="'+d+'"><td style="color:var(--muted);font-size:11px">'+(no++)+'</td><td><strong>'+l.nama+'</strong></td><td><span class="badge badge-blue">'+l.id+'</span></td><td><span class="rt '+l.rute.toLowerCase()+'">'+(rutes[l.rute]?rutes[l.rute].nama:l.rute)+'</span></td><td>'+(l.naik||'--')+'</td><td>'+(l.turun||'--')+'</td><td>'+(l.turun?'<span class="badge badge-dn">Turun</span>':l.naik?'<span class="badge badge-up">Di Bus</span>':'<span class="badge badge-warn">&#x26A0; Belum</span>')+'</td><td><button class="btn btn-red btn-sm" onclick="hapusLogItem(\''+l.id+'\',\''+l.tanggal+'\',\''+l.rute+'\')" title="Hapus baris ini">&#x1F5D1;</button></td></tr>').join('');
+        html+=anggota.map(l=>'<tr class="rekap-row'+(l.naik||l.turun?'':' row-alert')+'" data-dept="'+d+'"><td style="color:var(--muted);font-size:11px">'+(no++)+'</td><td><strong>'+l.nama+'</strong></td><td><span class="badge badge-blue">'+l.id+'</span></td><td><span class="rt '+l.rute.toLowerCase()+'">'+(rutes[l.rute]?rutes[l.rute].nama:l.rute)+'</span></td><td>'+(l.naik||'--')+'</td><td>'+(l.turun||'--')+'</td><td>'+statusPergiPulangBadge(l)+'</td><td><button class="btn btn-red btn-sm" onclick="hapusLogItem(\''+l.id+'\',\''+l.tanggal+'\',\''+l.rute+'\')" title="Hapus baris ini">&#x1F5D1;</button></td></tr>').join('');
       });
       tb.innerHTML=html;
     }
@@ -2109,8 +2160,8 @@ function exportRekapExcel(){
   if(!hari.length){toast('Tidak ada data tanggal '+tgl+(fr?' untuk '+(rutes[fr]?rutes[fr].nama:'Rute '+fr):''));return;}
   const wb=XLSX.utils.book_new();
   const makeSheet=(data,name)=>{
-    const hdr=[['No','Nama','ID','Departemen','Rute','Jam Naik','Jam Turun','Status']];
-    const rows=data.map((l,i)=>[i+1,l.nama,l.id,l.jab||'',(rutes[l.rute]?rutes[l.rute].nama:'Rute '+l.rute),(l.naik||'--'),(l.turun||'--'),(l.turun?'Sudah Turun':l.naik?'Di Bus':'Belum Naik')]);
+    const hdr=[['No','Nama','ID','Departemen','Rute','Jam Pergi','Jam Pulang','Status']];
+    const rows=data.map((l,i)=>[i+1,l.nama,l.id,l.jab||'',(rutes[l.rute]?rutes[l.rute].nama:'Rute '+l.rute),(l.naik||'--'),(l.turun||'--'),statusPergiPulangText(l)]);
     const ws=XLSX.utils.aoa_to_sheet([...hdr,...rows,[],['','','TOTAL PERJALANAN','',data.length,'','','']]);
     ws['!cols']=[{wch:4},{wch:22},{wch:9},{wch:14},{wch:14},{wch:9},{wch:9},{wch:13}];
     XLSX.utils.book_append_sheet(wb,ws,name.substring(0,31));
@@ -2315,7 +2366,7 @@ function getLapData(bln,thn,semua){
     rute:l.rute||'',ruteNama:rutes[l.rute]?rutes[l.rute].nama:'Rute '+(l.rute||''),
     naik:l.naik||'',turun:l.turun||'',
     durasi:(l.naik&&l.turun)?calcDur(l.naik,l.turun):'--',
-    status:l.turun?'Sudah Turun':l.naik?'Di Bus':'Belum Naik'
+    status:statusPergiPulangText(l)
   }));
 }
 
@@ -2365,7 +2416,7 @@ function exportRekapBulananExcel(){
   if(!data.length){toast('Tidak ada data '+BNAMES[bln]+' '+thn+(fr?' untuk '+(rutes[fr]?rutes[fr].nama:'Rute '+fr):''));return;}
   const wb=XLSX.utils.book_new();
   const makeSheet=(d,name)=>{
-    const hdr=[['No','Tanggal','Nama','ID','Departemen','Rute','Jam Naik','Jam Turun','Durasi','Status']];
+    const hdr=[['No','Tanggal','Nama','ID','Departemen','Rute','Jam Pergi','Jam Pulang','Durasi','Status']];
     const rows=d.map((r,i)=>[i+1,r.tanggal,r.nama,r.id,r.jabatan,r.ruteNama,r.naik,r.turun,r.durasi,r.status]);
     const ws=XLSX.utils.aoa_to_sheet([...hdr,...rows,[],['','','TOTAL PERJALANAN','',d.length,'','','','','']]);
     ws['!cols']=[{wch:4},{wch:13},{wch:22},{wch:9},{wch:14},{wch:14},{wch:9},{wch:9},{wch:8},{wch:13}];
