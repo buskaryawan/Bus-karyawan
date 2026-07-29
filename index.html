@@ -825,6 +825,12 @@ tr.row-alert td{border-left:3px solid var(--red)}
               <option value="">Semua Rute</option>
               <option value="A">Rute A</option><option value="B">Rute B</option><option value="C">Rute C</option>
             </select>
+            <select id="filter-status" onchange="renderRekap()" style="padding:5px 9px;border:1.5px solid var(--border);border-radius:7px;font-family:'Inter',sans-serif;font-size:11px;background:var(--bg);color:var(--ink)">
+              <option value="">Semua Status</option>
+              <option value="lengkap">&#x2713; Lengkap (Pergi+Pulang)</option>
+              <option value="pergi">&#x2600;&#xFE0F; Pergi Saja</option>
+              <option value="pulang">&#x1F319; Pulang Saja</option>
+            </select>
             <button class="btn btn-ghost btn-sm" onclick="exportRekapExcel()">&#x2B07; Excel</button>
             <button class="btn btn-red btn-sm" onclick="resetHari()">&#x1F5D1; Reset Tanggal Ini</button>
           </div>
@@ -1063,6 +1069,28 @@ tr.row-alert td{border-left:3px solid var(--red)}
     <div class="card" style="margin-bottom:12px">
       <div class="card-hd"><h3>&#x1F4C8; Grafik Kehadiran — Semua Rute</h3></div>
       <div class="card-bd"><canvas id="chart-all" height="110"></canvas></div>
+    </div>
+
+    <!-- Perbandingan Sesi Pergi vs Pulang -->
+    <div class="card" style="margin-bottom:12px">
+      <div class="card-hd"><h3>&#x2696;&#xFE0F; Perbandingan Sesi — Pergi vs Pulang</h3></div>
+      <div class="card-bd">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+          <div style="flex:1;min-width:130px;background:rgba(22,163,74,.08);border:1.5px solid rgba(22,163,74,.25);border-radius:10px;padding:10px 14px">
+            <div style="font-size:11px;color:var(--muted);font-weight:600">&#x2600;&#xFE0F; Sesi Pergi</div>
+            <div id="pp-pergi-n" style="font-size:22px;font-weight:800;color:#16A34A">0</div>
+          </div>
+          <div style="flex:1;min-width:130px;background:rgba(234,88,12,.08);border:1.5px solid rgba(234,88,12,.25);border-radius:10px;padding:10px 14px">
+            <div style="font-size:11px;color:var(--muted);font-weight:600">&#x1F319; Sesi Pulang</div>
+            <div id="pp-pulang-n" style="font-size:22px;font-weight:800;color:#EA580C">0</div>
+          </div>
+          <div style="flex:1;min-width:130px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:10px 14px">
+            <div style="font-size:11px;color:var(--muted);font-weight:600">&#x1F4CA; Selisih</div>
+            <div id="pp-selisih-n" style="font-size:22px;font-weight:800;color:var(--ink)">0</div>
+          </div>
+        </div>
+        <canvas id="chart-pergipulang" height="110"></canvas>
+      </div>
     </div>
 
     <!-- Grafik Per Rute -->
@@ -1481,9 +1509,9 @@ function updateRuteNames(){
 }
 
 // ── SESI OTOMATIS (Pergi / Pulang) ───────────────────────
-// Batas waktu pergantian sesi: sebelum jam 12 siang = Pergi, setelah itu = Pulang.
+// Batas waktu pergantian sesi: sebelum jam 16:00 (4 sore) = Pergi, mulai jam 16:00 = Pulang.
 // Field internal tetap 'naik' (=Pergi) & 'turun' (=Pulang) agar kompatibel dengan data lama di Firebase.
-const SESI_CUTOFF_HOUR = 12;
+const SESI_CUTOFF_HOUR = 16;
 function getSesi(){
   return new Date().getHours() < SESI_CUTOFF_HOUR ? 'naik' : 'turun';
 }
@@ -2074,9 +2102,13 @@ function renderRekap(){
   else{tgl=new Date().toLocaleDateString('id-ID');}
   if(dp&&!dp.value)dp.value=new Date().toISOString().slice(0,10);
   const fr=(document.getElementById('filter-rute')||{value:''}).value||'';
+  const fs=(document.getElementById('filter-status')||{value:''}).value||'';
   const hariAll=logs.filter(l=>l.tanggal===tgl); // semua rute, dipakai utk hitung yg belum absen
   let hari=hariAll;
   if(fr)hari=hari.filter(l=>l.rute===fr);
+  if(fs==='lengkap')hari=hari.filter(l=>l.naik&&l.turun);
+  else if(fs==='pergi')hari=hari.filter(l=>l.naik&&!l.turun);
+  else if(fs==='pulang')hari=hari.filter(l=>l.turun&&!l.naik);
   const g=id=>document.getElementById(id);
   if(g('rek-tgl'))g('rek-tgl').textContent=tgl;
   if(g('st-pagi'))g('st-pagi').textContent=hari.filter(l=>l.naik).length;
@@ -2198,7 +2230,7 @@ function exportRekapExcel(){
 }
 
 // ── DASHBOARD ──────────────────────────────────────────
-let dashPeriod='minggu',chartAll=null,chartA=null,chartB=null,chartC=null,chartDonut=null;
+let dashPeriod='minggu',chartAll=null,chartA=null,chartB=null,chartC=null,chartDonut=null,chartPergiPulang=null;
 
 function setDashPeriod(p){
   dashPeriod=p;
@@ -2211,7 +2243,7 @@ function setDashPeriod(p){
 
 function renderDashboard(){
   const now=new Date();
-  let labels=[],dataA=[],dataB=[],dataC=[],rangeText='';
+  let labels=[],dataA=[],dataB=[],dataC=[],dataPergi=[],dataPulang=[],rangeText='';
   if(dashPeriod==='harian'){
     const tgl=now.toLocaleDateString('id-ID');
     for(let h=5;h<=21;h++){
@@ -2219,6 +2251,8 @@ function renderDashboard(){
       dataA.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='A'&&l.naik&&parseInt(l.naik.split(':')[0])===h).length);
       dataB.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='B'&&l.naik&&parseInt(l.naik.split(':')[0])===h).length);
       dataC.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='C'&&l.naik&&parseInt(l.naik.split(':')[0])===h).length);
+      dataPergi.push(logs.filter(l=>l.tanggal===tgl&&l.naik&&parseInt(l.naik.split(':')[0])===h).length);
+      dataPulang.push(logs.filter(l=>l.tanggal===tgl&&l.turun&&parseInt(l.turun.split(':')[0])===h).length);
     }
     rangeText='Hari Ini - '+tgl;
   } else if(dashPeriod==='minggu'){
@@ -2230,6 +2264,8 @@ function renderDashboard(){
       dataA.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='A').length);
       dataB.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='B').length);
       dataC.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='C').length);
+      dataPergi.push(logs.filter(l=>l.tanggal===tgl&&l.naik).length);
+      dataPulang.push(logs.filter(l=>l.tanggal===tgl&&l.turun).length);
     }
     rangeText='7 Hari Terakhir';
   } else if(dashPeriod==='bulan'){
@@ -2243,27 +2279,43 @@ function renderDashboard(){
       dataA.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='A').length);
       dataB.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='B').length);
       dataC.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='C').length);
+      dataPergi.push(logs.filter(l=>l.tanggal===tgl&&l.naik).length);
+      dataPulang.push(logs.filter(l=>l.tanggal===tgl&&l.turun).length);
     }
     rangeText='Bulan '+MN[m]+' '+y;
   } else {
     const MN=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agt','Sep','Okt','Nov','Des'];
     for(let m=0;m<12;m++){
-      labels.push(MN[m]);let ca=0,cb=0,cc=0;
+      labels.push(MN[m]);let ca=0,cb=0,cc=0,cp=0,cu=0;
       logs.forEach(l=>{
         const pts=l.tanggal?l.tanggal.split('/'):[];
         if(pts.length<3)return;
         if(parseInt(pts[1])-1===m&&parseInt(pts[2])===now.getFullYear()){
           if(l.rute==='A')ca++;else if(l.rute==='B')cb++;else if(l.rute==='C')cc++;
+          if(l.naik)cp++;
+          if(l.turun)cu++;
         }
       });
       dataA.push(ca);dataB.push(cb);dataC.push(cc);
+      dataPergi.push(cp);dataPulang.push(cu);
     }
     rangeText='Tahun '+now.getFullYear();
   }
   const dr=document.getElementById('dash-range');if(dr)dr.textContent=rangeText;
   const tA=dataA.reduce((s,v)=>s+v,0),tB=dataB.reduce((s,v)=>s+v,0),tC=dataC.reduce((s,v)=>s+v,0);
+  const totalPergi=dataPergi.reduce((s,v)=>s+v,0),totalPulang=dataPulang.reduce((s,v)=>s+v,0);
   const da=document.getElementById('d-a'),db=document.getElementById('d-b'),dc=document.getElementById('d-c'),dt=document.getElementById('d-total');
   if(da)da.textContent=tA;if(db)db.textContent=tB;if(dc)dc.textContent=tC;if(dt)dt.textContent=tA+tB+tC;
+
+  // Ringkasan perbandingan Pergi vs Pulang
+  const ppP=document.getElementById('pp-pergi-n'),ppU=document.getElementById('pp-pulang-n'),ppS=document.getElementById('pp-selisih-n');
+  if(ppP)ppP.textContent=totalPergi;
+  if(ppU)ppU.textContent=totalPulang;
+  if(ppS){
+    const selisih=totalPergi-totalPulang;
+    ppS.textContent=(selisih>0?'+':'')+selisih+' ('+(selisih>0?'Pergi lebih banyak':selisih<0?'Pulang lebih banyak':'Sama banyak')+')';
+    ppS.style.fontSize='13px';
+  }
 
   // Kapasitas bus: 32 penumpang = 100% hadir. Dipakai untuk tooltip saat grafik disentuh/diklik.
   const BUS_CAP=32;
@@ -2303,6 +2355,16 @@ function renderDashboard(){
     if(tA+tB+tC>0){
       chartDonut=new Chart(dcv,{type:'doughnut',data:{labels:[rutes.A.nama,rutes.B.nama,rutes.C.nama],datasets:[{data:[tA,tB,tC],backgroundColor:['#2563EB','#059669','#D97706'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:10}}}}});
     }
+  }
+
+  // Chart perbandingan Sesi Pergi vs Pulang (per periode yang sama dengan grafik di atas)
+  const cpp=document.getElementById('chart-pergipulang');
+  if(cpp){
+    if(chartPergiPulang)chartPergiPulang.destroy();
+    chartPergiPulang=new Chart(cpp,{type:'bar',data:{labels,datasets:[
+      {label:'Pergi',data:dataPergi,backgroundColor:'rgba(22,163,74,.75)',borderRadius:4},
+      {label:'Pulang',data:dataPulang,backgroundColor:'rgba(234,88,12,.75)',borderRadius:4}
+    ]},options:{...sc,plugins:{legend:{display:true,position:'top',labels:{font:{size:11},boxWidth:12}},tooltip:{backgroundColor:'rgba(17,24,39,.92)',titleFont:{size:11.5,weight:'700'},bodyFont:{size:11.5},padding:10,cornerRadius:8}}}});
   }
 
   renderDashboardExtra();
