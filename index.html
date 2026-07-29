@@ -1070,12 +1070,12 @@ tr.row-alert td{border-left:3px solid var(--red)}
     <!-- Grafik Semua Rute -->
     <div class="card" style="margin-bottom:12px">
       <div class="card-hd"><h3>&#x1F4C8; Grafik Kehadiran — Semua Rute</h3></div>
-      <div class="card-bd"><canvas id="chart-all" height="170"></canvas></div>
+      <div class="card-bd"><canvas id="chart-all" height="130"></canvas></div>
     </div>
 
     <!-- Perbandingan Sesi Pergi vs Pulang -->
     <div class="card" style="margin-bottom:12px">
-      <div class="card-hd"><h3>&#x2696;&#xFE0F; Perbandingan Sesi — Pergi vs Pulang</h3></div>
+      <div class="card-hd"><h3>&#x2696;&#xFE0F; Perbandingan Sesi — Pergi &amp; Pulang</h3></div>
       <div class="card-bd">
         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px">
           <div style="flex:1;min-width:130px;background:rgba(22,163,74,.08);border:1.5px solid rgba(22,163,74,.25);border-radius:10px;padding:10px 14px">
@@ -1091,22 +1091,22 @@ tr.row-alert td{border-left:3px solid var(--red)}
             <div id="pp-selisih-n" style="font-size:22px;font-weight:800;color:var(--ink)">0</div>
           </div>
         </div>
-        <canvas id="chart-pergipulang" height="170"></canvas>
+        <canvas id="chart-pergipulang" height="130"></canvas>
       </div>
     </div>
 
     <!-- Grafik Per Rute: Pergi vs Pulang (biar bisa dibandingkan antar bus) -->
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px;margin-bottom:12px">
       <div class="card">
-        <div class="card-hd"><h3 id="chart-a-title" style="color:var(--bus1)">&#x1F68C; <span id="chart-a-name">Rute A</span> — Pergi vs Pulang</h3></div>
+        <div class="card-hd"><h3 id="chart-a-title" style="color:var(--bus1)">&#x1F68C; <span id="chart-a-name">Rute A</span> — Pergi &amp; Pulang</h3></div>
         <div class="card-bd"><canvas id="chart-a" height="190"></canvas></div>
       </div>
       <div class="card">
-        <div class="card-hd"><h3 id="chart-b-title" style="color:var(--bus2)">&#x1F68C; <span id="chart-b-name">Rute B</span> — Pergi vs Pulang</h3></div>
+        <div class="card-hd"><h3 id="chart-b-title" style="color:var(--bus2)">&#x1F68C; <span id="chart-b-name">Rute B</span> — Pergi &amp; Pulang</h3></div>
         <div class="card-bd"><canvas id="chart-b" height="190"></canvas></div>
       </div>
       <div class="card">
-        <div class="card-hd"><h3 id="chart-c-title" style="color:var(--bus3)">&#x1F68C; <span id="chart-c-name">Rute C</span> — Pergi vs Pulang</h3></div>
+        <div class="card-hd"><h3 id="chart-c-title" style="color:var(--bus3)">&#x1F68C; <span id="chart-c-name">Rute C</span> — Pergi &amp; Pulang</h3></div>
         <div class="card-bd"><canvas id="chart-c" height="190"></canvas></div>
       </div>
     </div>
@@ -1114,7 +1114,7 @@ tr.row-alert td{border-left:3px solid var(--red)}
     <!-- Perbandingan Langsung Antar Bus (Pergi & Pulang) -->
     <div class="card" style="margin-bottom:12px">
       <div class="card-hd"><h3>&#x1F686; Perbandingan Antar Bus — Sesi Pergi &amp; Pulang</h3></div>
-      <div class="card-bd"><canvas id="chart-bus-compare" height="200"></canvas></div>
+      <div class="card-bd"><canvas id="chart-bus-compare" height="150"></canvas></div>
     </div>
 
     <!-- Proporsi Rute -->
