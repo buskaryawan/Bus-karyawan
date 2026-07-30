@@ -1070,7 +1070,9 @@ tr.row-alert td{border-left:3px solid var(--red)}
     <!-- Grafik Semua Rute -->
     <div class="card" style="margin-bottom:12px">
       <div class="card-hd"><h3>&#x1F4C8; Grafik Kehadiran — Semua Rute</h3></div>
-      <div class="card-bd" style="height:250px"><canvas id="chart-all"></canvas></div>
+      <div class="card-bd" style="height:340px;overflow-x:auto;overflow-y:hidden">
+        <div id="chart-all-inner" style="height:100%;min-width:100%"><canvas id="chart-all"></canvas></div>
+      </div>
     </div>
 
     <!-- Perbandingan Sesi Pergi vs Pulang -->
@@ -1091,7 +1093,9 @@ tr.row-alert td{border-left:3px solid var(--red)}
             <div id="pp-selisih-n" style="font-size:22px;font-weight:800;color:var(--ink)">0</div>
           </div>
         </div>
-        <div style="height:250px"><canvas id="chart-pergipulang"></canvas></div>
+        <div style="height:340px;overflow-x:auto;overflow-y:hidden">
+          <div id="chart-pp-inner" style="height:100%;min-width:100%"><canvas id="chart-pergipulang"></canvas></div>
+        </div>
       </div>
     </div>
 
@@ -2391,24 +2395,36 @@ function renderDashboard(){
   setTitle('chart-b-name',rutes.B.nama);
   setTitle('chart-c-name',rutes.C.nama);
 
-  // Opsi khusus grafik "Semua Rute": tinggi tetap (tidak ikut rasio lebar layar). Supaya label
-  // BUS01/02/03 tidak saling tabrakan di periode manapun (Minggu/Bulan/Tahun/Harian), label
-  // tiap bus ditaruh di ketinggian yang berbeda (bertingkat) di atas batangnya masing-masing.
-  // Saat kategori terlalu padat (Bulan/Tahun/Harian punya lebih banyak kolom dari Minggu),
-  // format label disingkat jadi angka saja (tanpa persentase) supaya tetap muat & mudah dibaca.
+  // Opsi khusus grafik "Semua Rute": tinggi tetap (tidak ikut rasio lebar layar).
+  // Supaya label BUS01/02/03 tidak saling tabrakan di periode manapun (Minggu/Bulan/Tahun/
+  // Harian), label dibuat 2 baris pendek (angka di atas, persentase di bawah) — jauh lebih
+  // ringkas secara horizontal daripada satu baris "20 (63%)" — dan tiap bus diberi warna
+  // sendiri (biru/hijau/oranye) supaya gampang dibedakan walau posisinya berdekatan.
   const denseAll=labels.length>10;
-  const fmtAll=v=>{if(v<=0)return'';return v+' ('+Math.round(v/BUS_CAP*100)+'%)';};
-  const mkDlAll=off=>({anchor:'end',align:'top',offset:off,color:'#374151',font:{size:denseAll?8:9.5,weight:'700'},formatter:fmtAll});
-  const scBarAll={...scBar,maintainAspectRatio:false,layout:{padding:{top:46}},
+  const mkFmtAll=()=>v=>{if(v<=0)return'';return [String(v),'('+Math.round(v/BUS_CAP*100)+'%)'];};
+  const mkDlAll=color=>({anchor:'end',align:'top',offset:3,color,font:{size:denseAll?8.5:9.5,weight:'700',lineHeight:1.15},textAlign:'center',formatter:mkFmtAll()});
+  const scBarAll={...scBar,maintainAspectRatio:false,layout:{padding:{top:40}},
     plugins:{...scBar.plugins},
     scales:{...scBar.scales,x:{...scBar.scales.x,ticks:{...scBar.scales.x.ticks,font:{size:denseAll?9:10,weight:'600'}}}}};
+
+  // Kasih tiap kolom lebar minimum yang cukup lapang (bukan cuma saat data padat) supaya batang
+  // & label tidak berdesakan di layar HP sekalipun. Wrapper akan jadi lebih lebar dari kartu dan
+  // bisa digeser (scroll) ke samping kalau perlu; kalau kartu masih cukup lebar, tetap 100% penuh
+  // seperti biasa (tidak dipaksa scroll).
+  const setInnerWidth=(wrapId,perCol)=>{
+    const wrap=document.getElementById(wrapId);if(!wrap)return;
+    const parentW=wrap.parentElement?wrap.parentElement.clientWidth:0;
+    const needed=labels.length*perCol;
+    wrap.style.width=Math.max(needed,parentW)+'px';
+  };
+  setInnerWidth('chart-all-inner',denseAll?60:88);
 
   const ca=document.getElementById('chart-all');
   if(ca){if(chartAll)chartAll.destroy();
     chartAll=new Chart(ca,{type:'bar',data:{labels,datasets:[
-      {label:rutes.A.nama,data:dataA,backgroundColor:'rgba(37,99,235,.75)',borderRadius:4,maxBarThickness:24,categoryPercentage:0.85,barPercentage:0.82,datalabels:mkDlAll(2)},
-      {label:rutes.B.nama,data:dataB,backgroundColor:'rgba(5,150,105,.75)',borderRadius:4,maxBarThickness:24,categoryPercentage:0.85,barPercentage:0.82,datalabels:mkDlAll(15)},
-      {label:rutes.C.nama,data:dataC,backgroundColor:'rgba(217,119,6,.75)',borderRadius:4,maxBarThickness:24,categoryPercentage:0.85,barPercentage:0.82,datalabels:mkDlAll(28)}
+      {label:rutes.A.nama,data:dataA,backgroundColor:'rgba(37,99,235,.75)',borderRadius:4,maxBarThickness:22,categoryPercentage:0.9,barPercentage:0.72,datalabels:mkDlAll('#60A5FA')},
+      {label:rutes.B.nama,data:dataB,backgroundColor:'rgba(5,150,105,.75)',borderRadius:4,maxBarThickness:22,categoryPercentage:0.9,barPercentage:0.72,datalabels:mkDlAll('#34D399')},
+      {label:rutes.C.nama,data:dataC,backgroundColor:'rgba(217,119,6,.75)',borderRadius:4,maxBarThickness:22,categoryPercentage:0.9,barPercentage:0.72,datalabels:mkDlAll('#FBBF24')}
     ]},options:scBarAll}); }
 
   // Grafik per rute: garis Pergi vs Pulang (bukan batang), dengan label angka + persentase
@@ -2439,14 +2455,21 @@ function renderDashboard(){
   chartB=mkRouteLineChart('chart-b',chartB,dataBPergi,dataBPulang);
   chartC=mkRouteLineChart('chart-c',chartC,dataCPergi,dataCPulang);
 
-  // Chart perbandingan Sesi Pergi vs Pulang (per periode yang sama dengan grafik di atas)
+  // Chart perbandingan Sesi Pergi vs Pulang (per periode yang sama dengan grafik di atas).
+  // Sama seperti grafik Semua Rute: label 2 baris (angka + persentase) yang ringkas, warna
+  // mengikuti warna batangnya (hijau=Pergi, oranye=Pulang), dan kolom selalu diberi lebar
+  // minimum supaya tidak berdesakan/tabrakan di periode manapun.
+  const mkDlPP=color=>({anchor:'end',align:'top',offset:3,color,font:{size:denseAll?8.5:10,weight:'700',lineHeight:1.15},textAlign:'center',formatter:mkFmtAll()});
+  const scBarPP={...scBar,plugins:{...scBar.plugins},
+    scales:{...scBar.scales,x:{...scBar.scales.x,ticks:{...scBar.scales.x.ticks,font:{size:denseAll?9:10,weight:'600'}}}}};
+  setInnerWidth('chart-pp-inner',denseAll?54:70);
   const cpp=document.getElementById('chart-pergipulang');
   if(cpp){
     if(chartPergiPulang)chartPergiPulang.destroy();
     chartPergiPulang=new Chart(cpp,{type:'bar',data:{labels,datasets:[
-      {label:'Pergi',data:dataPergi,backgroundColor:'rgba(22,163,74,.75)',borderRadius:4,maxBarThickness:34},
-      {label:'Pulang',data:dataPulang,backgroundColor:'rgba(234,88,12,.75)',borderRadius:4,maxBarThickness:34}
-    ]},options:{...scBar,maintainAspectRatio:false}});
+      {label:'Pergi',data:dataPergi,backgroundColor:'rgba(22,163,74,.75)',borderRadius:4,maxBarThickness:30,categoryPercentage:0.88,barPercentage:0.78,datalabels:mkDlPP('#4ADE80')},
+      {label:'Pulang',data:dataPulang,backgroundColor:'rgba(234,88,12,.75)',borderRadius:4,maxBarThickness:30,categoryPercentage:0.88,barPercentage:0.78,datalabels:mkDlPP('#FB923C')}
+    ]},options:{...scBarPP,maintainAspectRatio:false,layout:{padding:{top:34}}}});
   }
 
   renderDashboardExtra();
