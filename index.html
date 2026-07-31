@@ -270,6 +270,80 @@ tbody tr:hover td{background:#FAFAFA}
 .fg input:focus,.fg select:focus{outline:none;border-color:var(--red);background:var(--white);box-shadow:0 0 0 3px rgba(229,62,62,.08)}
 .fg input::placeholder{color:#D1D5DB}
 
+/* BERANDA HERO */
+.ber-hero{
+  position:relative;overflow:hidden;
+  background:linear-gradient(135deg,var(--red) 0%,#C53030 60%,#9B2C2C 100%);
+  border-radius:16px;padding:24px 24px 22px;margin-bottom:18px;
+  box-shadow:0 10px 28px rgba(197,48,48,.22);
+}
+.ber-hero::before{
+  content:'';position:absolute;right:-14px;bottom:-24px;
+  width:150px;height:150px;opacity:.12;transform:rotate(-8deg);
+  background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v10A2.5 2.5 0 0 1 17.5 18H6.5A2.5 2.5 0 0 1 4 15.5v-10Z"/><path d="M4 5.5h16v2H4z" fill="%239B2C2C"/><rect x="5.5" y="8" width="6" height="4.6" rx="0.8" fill="%239B2C2C"/><rect x="13" y="8" width="5.5" height="4.6" rx="0.8" fill="%239B2C2C"/><circle cx="7.5" cy="19" r="2" fill="white"/><circle cx="16.5" cy="19" r="2" fill="white"/></svg>');
+  background-size:contain;background-repeat:no-repeat;
+}
+.ber-hero-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;position:relative;z-index:1}
+.ber-greet{font-size:19px;font-weight:800;color:#fff;letter-spacing:-.3px;margin-bottom:5px}
+.ber-sub{font-size:11.5px;color:rgba(255,255,255,.72);font-weight:500}
+.ber-date{font-size:11px;color:rgba(255,255,255,.55);margin-top:10px;font-weight:500;text-transform:capitalize}
+.ber-clockbox{
+  text-align:right;flex-shrink:0;background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.18);border-radius:12px;
+  padding:10px 16px;backdrop-filter:blur(4px);
+}
+.ber-clock{font-size:24px;font-weight:800;color:#fff;letter-spacing:.5px;line-height:1.1}
+.ber-clock-lb{font-size:9px;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.8px;font-weight:700;margin-top:2px}
+
+.ber-menu-title{font-size:12px;font-weight:700;color:var(--ink2);text-transform:uppercase;letter-spacing:.6px;margin:2px 0 12px 2px;display:flex;align-items:center;gap:8px}
+.ber-lock-btn{
+  width:100%;align-items:center;justify-content:center;gap:8px;
+  margin-top:18px;padding:12px;border:1.5px solid var(--red);
+  background:var(--red-l);border-radius:12px;
+  font-family:'Inter',sans-serif;font-size:12.5px;font-weight:700;
+  color:var(--red-d);cursor:pointer;display:flex;transition:background .15s;
+}
+.ber-lock-btn:hover{background:#FED7D7}
+.bmi-badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:18px;height:18px;border-radius:5px;font-size:10px;
+  background:linear-gradient(135deg,#2D3748,#1A202C);color:#F6AD55;flex-shrink:0;
+}
+
+/* MENU LIST (Beranda) — kartu persegi panjang, profesional */
+.menu-grid{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:12px;
+}
+@media(max-width:680px){.menu-grid{grid-template-columns:1fr}}
+
+.menu-tile{
+  display:flex;flex-direction:row;align-items:center;justify-content:flex-start;
+  gap:14px;padding:14px 18px;position:relative;
+  background:var(--white);border:1px solid var(--border);border-radius:16px;
+  cursor:pointer;transition:all .15s;text-align:left;
+  font-family:'Inter',sans-serif;
+  box-shadow:0 1px 2px rgba(17,24,39,.03);
+}
+.menu-tile:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(17,24,39,.08);border-color:transparent}
+.menu-tile:active{transform:scale(.98)}
+.menu-tile::after{
+  content:'';position:absolute;right:18px;top:50%;transform:translateY(-50%);
+  width:8px;height:8px;border-top:2px solid var(--muted);border-right:2px solid var(--muted);
+  border-radius:1px;rotate:45deg;opacity:.55;
+}
+.mt-ico{
+  width:46px;height:46px;border-radius:12px;
+  display:grid;place-items:center;flex-shrink:0;
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.03);
+}
+.mt-ico svg{width:23px;height:23px}
+.mt-txt{min-width:0;padding-right:14px}
+.mt-lb{font-size:13.5px;font-weight:700;color:var(--ink);line-height:1.3}
+.mt-ds{font-size:10.5px;color:var(--muted);font-weight:500;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mt-blue{background:#EBF4FF;color:#2B6CB0}.mt-green{background:#F0FFF4;color:#276749}.mt-orange{background:#FFFAF0;color:#C05621}
+.mt-red{background:#FFF5F5;color:#E53E3E}.mt-purple{background:#FAF5FF;color:#805AD5}.mt-teal{background:#E6FFFA;color:#2C7A7B}
+.mt-yellow{background:#FFFBEA;color:#B7791F}
+
 /* BUTTONS */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 16px;border:none;border-radius:8px;font-family:'Inter',sans-serif;font-size:12.5px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;letter-spacing:.1px}
 .btn:active{transform:scale(.97)}
@@ -363,19 +437,19 @@ tr.row-alert td{border-left:3px solid var(--red)}
 <!-- WELCOME -->
 <div id="welcome">
   <div class="wlc-brand">
-    <div class="wlc-ico">&#x1F68C;</div>
+    <div class="wlc-ico"><svg viewBox="0 0 24 24" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><rect x="2.5" y="5" width="19" height="12.5" rx="3.2" fill="#E53E3E"/><rect x="5" y="7.3" width="6" height="4.6" rx="1" fill="#fff"/><rect x="13" y="7.3" width="6" height="4.6" rx="1" fill="#fff"/><rect x="2.5" y="14.2" width="19" height="1.7" fill="#B92626"/><circle cx="7.2" cy="18.6" r="1.9" fill="#1A202C"/><circle cx="16.8" cy="18.6" r="1.9" fill="#1A202C"/><circle cx="7.2" cy="18.6" r="0.7" fill="#fff"/><circle cx="16.8" cy="18.6" r="0.7" fill="#fff"/></svg></div>
     <div class="wlc-name">Bus <em>Karyawan</em></div>
   </div>
   <div class="w-sub" style="font-size:12px;color:rgba(255,255,255,.4);margin-bottom:44px;letter-spacing:.3px">Sistem Absensi Shuttle Karyawan</div>
   <div class="wlc-label" style="font-size:12px;font-weight:600;color:rgba(255,255,255,.5);margin-bottom:16px;text-transform:uppercase;letter-spacing:.8px">Pilih tampilan perangkat Anda</div>
   <div class="wlc-cards">
     <div class="wlc-card" id="wc-hp" onclick="pickLayout('hp')">
-      <div class="wlc-ico2">&#x1F4F1;</div>
+      <div class="wlc-ico2"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#FC8181" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2.4"/><line x1="7" y1="17.5" x2="17" y2="17.5"/></svg></div>
       <div class="wlc-ttl">Handphone</div>
       <div class="wlc-dsc">Tampilan ringkas, cocok dipegang satu tangan saat scan di pintu bus</div>
     </div>
     <div class="wlc-card" id="wc-lt" onclick="pickLayout('laptop')">
-      <div class="wlc-ico2">&#x1F4BB;</div>
+      <div class="wlc-ico2"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#FC8181" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="1.6"/><path d="M2 20h20"/><path d="M9.5 16 8 20M14.5 16 16 20"/></svg></div>
       <div class="wlc-ttl">Laptop / PC</div>
       <div class="wlc-dsc">Tampilan luas dengan sidebar, cocok untuk admin dan rekap data</div>
     </div>
@@ -391,28 +465,28 @@ tr.row-alert td{border-left:3px solid var(--red)}
   <div id="ly-laptop" style="display:none">
     <div class="sidebar">
       <div class="sb-logo">
-        <div class="sb-ico">&#x1F68C;</div>
+        <div class="sb-ico"><svg viewBox="0 0 24 24" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><rect x="2.5" y="5" width="19" height="12.5" rx="3.2" fill="#E53E3E"/><rect x="5" y="7.3" width="6" height="4.6" rx="1" fill="#fff"/><rect x="13" y="7.3" width="6" height="4.6" rx="1" fill="#fff"/><rect x="2.5" y="14.2" width="19" height="1.7" fill="#B92626"/><circle cx="7.2" cy="18.6" r="1.9" fill="#1A202C"/><circle cx="16.8" cy="18.6" r="1.9" fill="#1A202C"/><circle cx="7.2" cy="18.6" r="0.7" fill="#fff"/><circle cx="16.8" cy="18.6" r="0.7" fill="#fff"/></svg></div>
         <div class="sb-name">Bus <em>Karyawan</em></div>
       </div>
       <div class="sb-section">Menu Utama</div>
-      <button class="sb-item on" id="sbi-scan"      onclick="goTab('scan')"><span class="si">&#x1F4F7;</span> Scan Absen</button>
-      <button class="sb-item"    id="sbi-orang"      onclick="goTab('orang')"><span class="si">&#x1F465;</span> Karyawan</button>
-      <button class="sb-item" id="sbi-lanjutan" onclick="clickFiturLanjutan()" style="background:var(--red-l);color:var(--red-d)"><span class="si">&#x1F513;</span> Fitur Lanjutan</button>
-      <button class="sb-item admin-only" id="sbi-dashboard"  onclick="goTab('dashboard')" style="display:none"><span class="si">&#x1F4C8;</span> Dashboard</button>
-      <button class="sb-item admin-only" id="sbi-rekap"      onclick="goTab('rekap')" style="display:none"><span class="si">&#x1F4CA;</span> Rekap</button>
-      <button class="sb-item admin-only" id="sbi-tidakhadir" onclick="goTab('tidakhadir')" style="display:none"><span class="si">&#x26A0;&#xFE0F;</span> Tidak Hadir</button>
-      <button class="sb-item admin-only" id="sbi-barcode"    onclick="goTab('barcode')" style="display:none"><span class="si">&#x1F516;</span> QR Code</button>
-      <button class="sb-item admin-only" id="sbi-rute"       onclick="goTab('rute')" style="display:none"><span class="si">&#x1F5FA;&#xFE0F;</span> Kelola Rute</button>
+      <button class="sb-item on" id="sbi-scan"      onclick="goTab('scan')"><span class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8a2 2 0 0 1 2-2h1.6l1-1.5h8.8l1 1.5H19a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8Z"/><circle cx="12" cy="13" r="3.4"/></svg></span> Scan Absen</button>
+      <button class="sb-item"    id="sbi-orang"      onclick="goTab('orang')"><span class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 19c0-3 3-5 6.5-5s6.5 2 6.5 5"/><circle cx="17" cy="8.5" r="2.6"/><path d="M15.7 14.2c2.7.4 4.8 2.2 4.8 4.8"/></svg></span> Karyawan</button>
+      <button class="sb-item" id="sbi-lanjutan" onclick="clickFiturLanjutan()" style="background:var(--red-l);color:var(--red-d)"><span class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/></svg></span> Fitur Lanjutan</button>
+      <button class="sb-item admin-only" id="sbi-dashboard"  onclick="goTab('dashboard')" style="display:none"><span class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="12.5" width="3.4" height="7.5" rx="1"/><rect x="10.3" y="7.5" width="3.4" height="12.5" rx="1"/><rect x="16.6" y="3.5" width="3.4" height="16.5" rx="1"/></svg></span> Dashboard</button>
+      <button class="sb-item admin-only" id="sbi-rekap"      onclick="goTab('rekap')" style="display:none"><span class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 3.5h6a1 1 0 0 1 1 1V6H8V4.5a1 1 0 0 1 1-1Z"/><path d="M8.3 11h7.4M8.3 14.5h7.4M8.3 18h4.5"/></svg></span> Rekap</button>
+      <button class="sb-item admin-only" id="sbi-tidakhadir" onclick="goTab('tidakhadir')" style="display:none"><span class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 19.5c0-3 3-5.2 6.5-5.2 1 0 1.9.15 2.7.44"/><path d="M16.5 9.5l4.5 4.5M21 9.5l-4.5 4.5"/></svg></span> Tidak Hadir</button>
+      <button class="sb-item admin-only" id="sbi-barcode"    onclick="goTab('barcode')" style="display:none"><span class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="6.5" height="6.5" rx="1"/><rect x="14" y="3.5" width="6.5" height="6.5" rx="1"/><rect x="3.5" y="14" width="6.5" height="6.5" rx="1"/><path d="M14 14h3v3h-3zM20.5 14v3M17.5 20.5h3"/></svg></span> QR Code</button>
+      <button class="sb-item admin-only" id="sbi-rute"       onclick="goTab('rute')" style="display:none"><span class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3 3 5.5v15L9 18l6 2.5 6-2.5v-15L15 5.5 9 3Z"/><path d="M9 3v15M15 5.5v15"/></svg></span> Kelola Rute</button>
       <div class="sb-section" style="margin-top:6px">Rute Bus</div>
       <div class="sb-rute-box">
         <div class="sb-rute-title">Pilih Rute</div>
-        <button class="sb-rb on" id="srb-A" onclick="setRute('A')"><span class="rdot a"></span><span id="sn-A">Rute A</span></button>
-        <button class="sb-rb"    id="srb-B" onclick="setRute('B')"><span class="rdot b"></span><span id="sn-B">Rute B</span></button>
-        <button class="sb-rb"    id="srb-C" onclick="setRute('C')"><span class="rdot c"></span><span id="sn-C">Rute C</span></button>
+        <button class="sb-rb on" id="srb-A" onclick="setRute('A')"><span class="rdot a"></span><span id="sn-A">Bus 01</span></button>
+        <button class="sb-rb"    id="srb-B" onclick="setRute('B')"><span class="rdot b"></span><span id="sn-B">Bus 02</span></button>
+        <button class="sb-rb"    id="srb-C" onclick="setRute('C')"><span class="rdot c"></span><span id="sn-C">Bus 03</span></button>
       </div>
       <div class="sb-footer">
-        <button class="sb-switch-btn" id="btn-lock-app" onclick="lockApp()" style="background:rgba(229,62,62,.15);color:#FCA5A5;margin-bottom:8px">&#x1F512; Kunci Fitur Admin</button>
-        <button class="sb-switch-btn" onclick="switchLayout()">&#x1F4F1; Ganti ke Tampilan HP</button>
+        <button class="sb-switch-btn" id="btn-lock-app" onclick="lockApp()" style="background:rgba(229,62,62,.15);color:#FCA5A5;margin-bottom:8px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg> Kunci Fitur Admin</button>
+        <button class="sb-switch-btn" onclick="switchLayout()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><rect x="7" y="2" width="10" height="20" rx="2.4"/><line x1="7" y1="17.5" x2="17" y2="17.5"/></svg> Ganti ke Tampilan HP</button>
         <div class="sb-db-status">
           <div id="db-dot" style="width:7px;height:7px;border-radius:50%;background:#EF4444;flex-shrink:0"></div>
           <span id="db-txt" style="font-size:10.5px;color:rgba(255,255,255,.35);font-weight:500">Menghubungkan...</span>
@@ -440,7 +514,7 @@ tr.row-alert td{border-left:3px solid var(--red)}
     <div class="mob-hdr">
       <div class="mh-row1">
         <div class="mh-brand">
-          <div class="mh-ico">&#x1F68C;</div>
+          <div class="mh-ico"><svg viewBox="0 0 24 24" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><rect x="2.5" y="5" width="19" height="12.5" rx="3.2" fill="#E53E3E"/><rect x="5" y="7.3" width="6" height="4.6" rx="1" fill="#fff"/><rect x="13" y="7.3" width="6" height="4.6" rx="1" fill="#fff"/><rect x="2.5" y="14.2" width="19" height="1.7" fill="#B92626"/><circle cx="7.2" cy="18.6" r="1.9" fill="#1A202C"/><circle cx="16.8" cy="18.6" r="1.9" fill="#1A202C"/><circle cx="7.2" cy="18.6" r="0.7" fill="#fff"/><circle cx="16.8" cy="18.6" r="0.7" fill="#fff"/></svg></div>
           <div>
             <div class="mh-name">Bus <em>Karyawan</em></div>
             <div id="mh-clk" style="font-size:9.5px;color:rgba(255,255,255,.65);margin-top:1px">--</div>
@@ -448,7 +522,7 @@ tr.row-alert td{border-left:3px solid var(--red)}
         </div>
         <div class="mh-right">
           <div id="mh-db-dot" style="width:7px;height:7px;border-radius:50%;background:#EF4444;margin-right:4px"></div>
-          <button class="mh-sw" onclick="switchLayout()" title="Ganti tampilan">&#x1F4BB;</button>
+          <button class="mh-sw" onclick="switchLayout()" title="Ganti tampilan"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block"><rect x="3" y="4" width="18" height="12" rx="1.6"/><path d="M2 20h20"/></svg></button>
         </div>
       </div>
     </div>
@@ -458,11 +532,8 @@ tr.row-alert td{border-left:3px solid var(--red)}
 
     <!-- BOTTOM NAV - GoPay Style -->
     <div class="bot-nav">
-      <button class="bn-btn on" id="mbn-scan" onclick="goTab('scan')">
-        <span class="bi">&#x1F3E0;</span>Beranda
-      </button>
-      <button class="bn-btn" id="mbn-orang" onclick="goTab('orang')">
-        <span class="bi">&#x1F465;</span>Karyawan
+      <button class="bn-btn on" id="mbn-scan" onclick="goTab('beranda')">
+        <span class="bi"><svg class="bi-line" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5 12 3.5l8.5 7"/><path d="M5.5 9v10a1.2 1.2 0 0 0 1.2 1.2H9v-6h6v6h2.3A1.2 1.2 0 0 0 18.5 19V9"/></svg></span>Beranda
       </button>
 
       <!-- TOMBOL SCAN TENGAH MENONJOL -->
@@ -480,131 +551,87 @@ tr.row-alert td{border-left:3px solid var(--red)}
       </div>
 
       <button class="bn-btn" id="mbn-lanjutan" onclick="handleLanjutanSlot()">
-        <span class="bi" id="mbn-lanjutan-ic">&#x1F513;</span><span id="mbn-lanjutan-lb">Lanjutan</span>
-      </button>
-      <button class="bn-btn" id="mbn-more" onclick="toggleMoreMenu()">
-        <span class="bi">&#x22EE;&#xFE0F;</span>Lainnya
+        <span class="bi" id="mbn-lanjutan-ic"><svg class="bi-line" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/></svg></span><span id="mbn-lanjutan-lb">Lanjutan</span>
       </button>
     </div>
 
-    <!-- MORE MENU POPUP -->
-    <div id="more-menu-overlay" onclick="closeMoreMenu()" style="
-      display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);
-      z-index:199;backdrop-filter:blur(2px);
-    "></div>
-    <div id="more-menu" style="
-      display:none;position:fixed;bottom:70px;left:12px;right:12px;
-      background:var(--white);border-radius:16px;z-index:200;
-      box-shadow:0 -4px 32px rgba(0,0,0,.18);
-      overflow:hidden;
-    ">
-      <!-- Header -->
-      <div style="padding:14px 18px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
-        <div style="font-size:13px;font-weight:700;color:var(--ink)">Menu Lainnya</div>
-        <button onclick="closeMoreMenu()" style="background:var(--bg);border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:16px;color:var(--muted);display:grid;place-items:center">&#x2715;</button>
-      </div>
-
-      <!-- Menu Grid -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border)">
-
-        <button onclick="goTabMore('orang')" style="
-          display:flex;flex-direction:column;align-items:center;gap:8px;
-          padding:20px 14px;background:var(--white);border:none;cursor:pointer;
-          transition:background .15s;
-        " onmousedown="this.style.background='var(--bg)'" onmouseup="this.style.background='var(--white)'">
-          <div style="width:44px;height:44px;background:#FFFBEB;border-radius:12px;display:grid;place-items:center;font-size:22px">&#x1F465;</div>
-          <div style="font-size:12px;font-weight:600;color:var(--ink)">Karyawan</div>
-          <div style="font-size:10px;color:var(--muted)">Tambah & kelola</div>
-        </button>
-
-        <button onclick="clickFiturLanjutan();closeMoreMenu()" id="mmt-lanjutan" style="
-          display:flex;flex-direction:column;align-items:center;gap:8px;
-          padding:20px 14px;background:var(--white);border:none;cursor:pointer;
-          transition:background .15s;
-        " onmousedown="this.style.background='var(--bg)'" onmouseup="this.style.background='var(--white)'">
-          <div style="width:44px;height:44px;background:var(--red-l);border-radius:12px;display:grid;place-items:center;font-size:22px">&#x1F513;</div>
-          <div style="font-size:12px;font-weight:600;color:var(--red-d)">Fitur Lanjutan</div>
-          <div style="font-size:10px;color:var(--muted)">Login admin</div>
-        </button>
-
-        <button onclick="goTabMore('dashboard')" class="admin-only-tile" style="
-          display:none;flex-direction:column;align-items:center;gap:8px;
-          padding:20px 14px;background:var(--white);border:none;cursor:pointer;
-          transition:background .15s;
-        " onmousedown="this.style.background='var(--bg)'" onmouseup="this.style.background='var(--white)'">
-          <div style="width:44px;height:44px;background:#EBF4FF;border-radius:12px;display:grid;place-items:center;font-size:22px">&#x1F4C8;</div>
-          <div style="font-size:12px;font-weight:600;color:var(--ink)">Dashboard</div>
-          <div style="font-size:10px;color:var(--muted)">Statistik & grafik</div>
-        </button>
-
-        <button onclick="goTabMore('rekap')" class="admin-only-tile" style="
-          display:none;flex-direction:column;align-items:center;gap:8px;
-          padding:20px 14px;background:var(--white);border:none;cursor:pointer;
-          transition:background .15s;
-        " onmousedown="this.style.background='var(--bg)'" onmouseup="this.style.background='var(--white)'">
-          <div style="width:44px;height:44px;background:#EBF4FF;border-radius:12px;display:grid;place-items:center;font-size:22px">&#x1F4CA;</div>
-          <div style="font-size:12px;font-weight:600;color:var(--ink)">Rekap</div>
-          <div style="font-size:10px;color:var(--muted)">Absensi harian/bulanan</div>
-        </button>
-
-        <button onclick="goTabMore('barcode')" class="admin-only-tile" style="
-          display:none;flex-direction:column;align-items:center;gap:8px;
-          padding:20px 14px;background:var(--white);border:none;cursor:pointer;
-          transition:background .15s;
-        " onmousedown="this.style.background='var(--bg)'" onmouseup="this.style.background='var(--white)'">
-          <div style="width:44px;height:44px;background:#EBF4FF;border-radius:12px;display:grid;place-items:center;font-size:22px">&#x1F4F1;</div>
-          <div style="font-size:12px;font-weight:600;color:var(--ink)">QR Code</div>
-          <div style="font-size:10px;color:var(--muted)">Generate & cetak</div>
-        </button>
-
-        <button onclick="goTabMore('rute')" class="admin-only-tile" style="
-          display:none;flex-direction:column;align-items:center;gap:8px;
-          padding:20px 14px;background:var(--white);border:none;cursor:pointer;
-          transition:background .15s;
-        " onmousedown="this.style.background='var(--bg)'" onmouseup="this.style.background='var(--white)'">
-          <div style="width:44px;height:44px;background:#F0FFF4;border-radius:12px;display:grid;place-items:center;font-size:22px">&#x1F5FA;&#xFE0F;</div>
-          <div style="font-size:12px;font-weight:600;color:var(--ink)">Kelola Rute</div>
-          <div style="font-size:10px;color:var(--muted)">Atur jadwal bus</div>
-        </button>
-
-        <button onclick="goTabMore('tidakhadir')" class="admin-only-tile" style="
-          display:none;flex-direction:column;align-items:center;gap:8px;
-          padding:20px 14px;background:var(--white);border:none;cursor:pointer;
-          transition:background .15s;
-        " onmousedown="this.style.background='var(--bg)'" onmouseup="this.style.background='var(--white)'">
-          <div style="width:44px;height:44px;background:var(--red-l);border-radius:12px;display:grid;place-items:center;font-size:22px">&#x26A0;&#xFE0F;</div>
-          <div style="font-size:12px;font-weight:600;color:var(--ink)">Tidak Hadir</div>
-          <div style="font-size:10px;color:var(--muted)">Belum absen</div>
-        </button>
-
-      </div>
-
-      <!-- Kunci fitur admin -->
-      <div class="admin-only-tile" data-disp="block" style="display:none;padding:12px 16px 0">
-        <button onclick="lockApp();closeMoreMenu()" style="
-          width:100%;padding:11px;border:1.5px solid var(--red);
-          background:var(--red-l);border-radius:10px;
-          font-family:'Inter',sans-serif;font-size:12.5px;font-weight:600;
-          color:var(--red-d);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
-        ">&#x1F512; Kunci Fitur Admin</button>
-      </div>
-
-      <!-- Switch layout button -->
-      <div style="padding:12px 16px;border-top:1px solid var(--border)">
-        <button onclick="switchLayout();closeMoreMenu()" style="
-          width:100%;padding:11px;border:1.5px solid var(--border);
-          background:var(--bg);border-radius:10px;
-          font-family:'Inter',sans-serif;font-size:12.5px;font-weight:600;
-          color:var(--ink2);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
-        ">&#x1F4BB; Ganti ke Tampilan Laptop</button>
-      </div>
-    </div>
   </div>
 
 </div>
 
 <!-- PAGE TEMPLATES -->
 <div id="tpl" style="display:none">
+
+  <!-- BERANDA -->
+  <div data-page="beranda">
+    <div class="ber-hero">
+      <div class="ber-hero-top">
+        <div>
+          <div class="ber-greet" id="ber-greet">Selamat Datang &#x1F44B;</div>
+          <div class="ber-sub">Sistem Absensi Bus Karyawan</div>
+          <div class="ber-date" id="ber-tgl">--</div>
+        </div>
+        <div class="ber-clockbox">
+          <div class="ber-clock" id="ber-jam">--:--</div>
+          <div class="ber-clock-lb">WIB</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="admin-only ber-lock-btn" id="ber-lock-btn" onclick="lockApp()" style="display:none"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg> Kunci Fitur Admin</button>
+
+    <div class="ber-menu-title admin-only" id="ber-admin-title" style="display:none;margin-top:20px">
+      <span class="bmi-badge"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span> Menu Admin
+    </div>
+    <div class="menu-grid admin-only" id="ber-menu-admin" style="display:none">
+      <div class="menu-tile" onclick="goTab('dashboard')">
+        <div class="mt-ico mt-purple">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="12.5" width="3.4" height="7.5" rx="1"/><rect x="10.3" y="7.5" width="3.4" height="12.5" rx="1"/><rect x="16.6" y="3.5" width="3.4" height="16.5" rx="1"/></svg>
+        </div>
+        <div class="mt-txt"><div class="mt-lb">Dashboard</div><div class="mt-ds">Statistik & grafik absensi</div></div>
+      </div>
+      <div class="menu-tile" onclick="goTab('rekap')">
+        <div class="mt-ico mt-green">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 3.5h6a1 1 0 0 1 1 1V6H8V4.5a1 1 0 0 1 1-1Z"/><path d="M8.3 11h7.4M8.3 14.5h7.4M8.3 18h4.5"/></svg>
+        </div>
+        <div class="mt-txt"><div class="mt-lb">Rekap Absensi</div><div class="mt-ds">Riwayat & laporan harian</div></div>
+      </div>
+      <div class="menu-tile" onclick="goTab('tidakhadir')">
+        <div class="mt-ico mt-orange">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 19.5c0-3 3-5.2 6.5-5.2 1 0 1.9.15 2.7.44"/><path d="M16.5 9.5l4.5 4.5M21 9.5l-4.5 4.5"/></svg>
+        </div>
+        <div class="mt-txt"><div class="mt-lb">Tidak Hadir</div><div class="mt-ds">Karyawan belum absen</div></div>
+      </div>
+      <div class="menu-tile" onclick="goTab('barcode')">
+        <div class="mt-ico mt-teal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="6.5" height="6.5" rx="1"/><rect x="14" y="3.5" width="6.5" height="6.5" rx="1"/><rect x="3.5" y="14" width="6.5" height="6.5" rx="1"/><path d="M14 14h3v3h-3zM20.5 14v3M17.5 20.5h3"/></svg>
+        </div>
+        <div class="mt-txt"><div class="mt-lb">QR Code</div><div class="mt-ds">Kartu absensi karyawan</div></div>
+      </div>
+      <div class="menu-tile" onclick="goTab('rute')">
+        <div class="mt-ico mt-yellow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3 3 5.5v15L9 18l6 2.5 6-2.5v-15L15 5.5 9 3Z"/><path d="M9 3v15M15 5.5v15"/></svg>
+        </div>
+        <div class="mt-txt"><div class="mt-lb">Kelola Rute</div><div class="mt-ds">Atur jadwal & rute bus</div></div>
+      </div>
+    </div>
+
+    <div class="ber-menu-title" style="margin-top:20px">&#x26A1; Menu Utama</div>
+    <div class="menu-grid">
+      <div class="menu-tile" onclick="goTab('scan');setTimeout(()=>startCam(),300)">
+        <div class="mt-ico mt-red">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8a2 2 0 0 1 2-2h1.6l1-1.5h8.8l1 1.5H19a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8Z"/><circle cx="12" cy="13" r="3.4"/></svg>
+        </div>
+        <div class="mt-txt"><div class="mt-lb">Scan Absen</div><div class="mt-ds">Absen pergi & pulang via QR</div></div>
+      </div>
+      <div class="menu-tile" onclick="goTab('orang')">
+        <div class="mt-ico mt-blue">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 19c0-3 3-5 6.5-5s6.5 2 6.5 5"/><circle cx="17" cy="8.5" r="2.6"/><path d="M15.7 14.2c2.7.4 4.8 2.2 4.8 4.8"/></svg>
+        </div>
+        <div class="mt-txt"><div class="mt-lb">Data Karyawan</div><div class="mt-ds">Kelola daftar karyawan</div></div>
+      </div>
+    </div>
+  </div>
 
   <!-- SCAN -->
   <div data-page="scan">
@@ -650,9 +677,9 @@ tr.row-alert td{border-left:3px solid var(--red)}
         </div>
         <!-- Pilihan Rute Bus - dipilih manual oleh petugas scan -->
         <div class="mh-rutes" style="padding:8px 14px 12px;margin-top:4px">
-          <button class="mh-rt a on" id="mrb-A" onclick="setRute('A')"><span class="rdot2"></span><span id="mn-A">Rute A</span></button>
-          <button class="mh-rt b"    id="mrb-B" onclick="setRute('B')"><span class="rdot2"></span><span id="mn-B">Rute B</span></button>
-          <button class="mh-rt c"    id="mrb-C" onclick="setRute('C')"><span class="rdot2"></span><span id="mn-C">Rute C</span></button>
+          <button class="mh-rt a on" id="mrb-A" onclick="setRute('A')"><span class="rdot2"></span><span id="mn-A">Bus 01</span></button>
+          <button class="mh-rt b"    id="mrb-B" onclick="setRute('B')"><span class="rdot2"></span><span id="mn-B">Bus 02</span></button>
+          <button class="mh-rt c"    id="mrb-C" onclick="setRute('C')"><span class="rdot2"></span><span id="mn-C">Bus 03</span></button>
         </div>
       </div>
 
@@ -824,7 +851,7 @@ tr.row-alert td{border-left:3px solid var(--red)}
             <input type="date" id="rek-date-pick" onchange="renderRekap()" style="padding:5px 8px;border:1.5px solid var(--border);border-radius:7px;font-family:'Inter',sans-serif;font-size:11px;background:var(--bg);color:var(--ink)">
             <select id="filter-rute" onchange="renderRekap()" style="padding:5px 9px;border:1.5px solid var(--border);border-radius:7px;font-family:'Inter',sans-serif;font-size:11px;background:var(--bg);color:var(--ink)">
               <option value="">Semua Rute</option>
-              <option value="A">Rute A</option><option value="B">Rute B</option><option value="C">Rute C</option>
+              <option value="A" id="fr-opt-A">Bus 01</option><option value="B" id="fr-opt-B">Bus 02</option><option value="C" id="fr-opt-C">Bus 03</option>
             </select>
             <select id="filter-status" onchange="renderRekap()" style="padding:5px 9px;border:1.5px solid var(--border);border-radius:7px;font-family:'Inter',sans-serif;font-size:11px;background:var(--bg);color:var(--ink)">
               <option value="">Semua Status</option>
@@ -833,7 +860,6 @@ tr.row-alert td{border-left:3px solid var(--red)}
               <option value="pulang">&#x1F319; Pulang Saja</option>
             </select>
             <button class="btn btn-ghost btn-sm" onclick="exportRekapExcel()">&#x2B07; Excel</button>
-            <button class="btn btn-ghost btn-sm" onclick="perbaikiSesiOtomatis()" title="Pindahkan data lama ke kolom Pergi/Pulang yang benar sesuai jam">&#x1F527; Perbaiki Sesi Lama</button>
             <button class="btn btn-red btn-sm" onclick="resetHari()">&#x1F5D1; Reset Tanggal Ini</button>
           </div>
         </div>
@@ -870,7 +896,7 @@ tr.row-alert td{border-left:3px solid var(--red)}
             <select id="thn-pick" onchange="renderRekapBulanan()" style="padding:5px 9px;border:1.5px solid var(--border);border-radius:7px;font-family:'Inter',sans-serif;font-size:11px;background:var(--bg);color:var(--ink)"></select>
             <select id="filter-rute-bln" onchange="renderRekapBulanan()" style="padding:5px 9px;border:1.5px solid var(--border);border-radius:7px;font-family:'Inter',sans-serif;font-size:11px;background:var(--bg);color:var(--ink)">
               <option value="">Semua Rute</option>
-              <option value="A">Rute A</option><option value="B">Rute B</option><option value="C">Rute C</option>
+              <option value="A" id="frb-opt-A">Bus 01</option><option value="B" id="frb-opt-B">Bus 02</option><option value="C" id="frb-opt-C">Bus 03</option>
             </select>
             <button class="btn btn-ghost btn-sm" onclick="exportRekapBulananExcel()">&#x2B07; Excel</button>
           </div>
@@ -1102,16 +1128,22 @@ tr.row-alert td{border-left:3px solid var(--red)}
     <!-- Grafik Per Rute: Pergi vs Pulang -->
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px;margin-bottom:12px">
       <div class="card">
-        <div class="card-hd"><h3 id="chart-a-title" style="color:var(--bus1)">&#x1F68C; <span id="chart-a-name">Rute A</span> — Pergi &amp; Pulang</h3></div>
-        <div class="card-bd"><canvas id="chart-a" height="220"></canvas></div>
+        <div class="card-hd"><h3 id="chart-a-title" style="color:var(--bus1)">&#x1F68C; <span id="chart-a-name">Bus 01</span> — Pergi &amp; Pulang</h3></div>
+        <div class="card-bd" style="height:280px;overflow-x:auto;overflow-y:hidden">
+          <div id="chart-a-inner" style="height:100%;min-width:100%"><canvas id="chart-a"></canvas></div>
+        </div>
       </div>
       <div class="card">
-        <div class="card-hd"><h3 id="chart-b-title" style="color:var(--bus2)">&#x1F68C; <span id="chart-b-name">Rute B</span> — Pergi &amp; Pulang</h3></div>
-        <div class="card-bd"><canvas id="chart-b" height="220"></canvas></div>
+        <div class="card-hd"><h3 id="chart-b-title" style="color:var(--bus2)">&#x1F68C; <span id="chart-b-name">Bus 02</span> — Pergi &amp; Pulang</h3></div>
+        <div class="card-bd" style="height:280px;overflow-x:auto;overflow-y:hidden">
+          <div id="chart-b-inner" style="height:100%;min-width:100%"><canvas id="chart-b"></canvas></div>
+        </div>
       </div>
       <div class="card">
-        <div class="card-hd"><h3 id="chart-c-title" style="color:var(--bus3)">&#x1F68C; <span id="chart-c-name">Rute C</span> — Pergi &amp; Pulang</h3></div>
-        <div class="card-bd"><canvas id="chart-c" height="220"></canvas></div>
+        <div class="card-hd"><h3 id="chart-c-title" style="color:var(--bus3)">&#x1F68C; <span id="chart-c-name">Bus 03</span> — Pergi &amp; Pulang</h3></div>
+        <div class="card-bd" style="height:280px;overflow-x:auto;overflow-y:hidden">
+          <div id="chart-c-inner" style="height:100%;min-width:100%"><canvas id="chart-c"></canvas></div>
+        </div>
       </div>
     </div>
 
@@ -1135,7 +1167,7 @@ tr.row-alert td{border-left:3px solid var(--red)}
 <div id="auth-overlay" style="display:none;position:fixed;inset:0;background:rgba(17,24,39,.55);z-index:9998;backdrop-filter:blur(3px);align-items:center;justify-content:center;padding:20px">
   <div style="background:#fff;border-radius:18px;max-width:360px;width:100%;padding:28px 26px;box-shadow:0 20px 60px rgba(0,0,0,.35)">
     <div style="text-align:center;margin-bottom:18px">
-      <div style="width:56px;height:56px;border-radius:14px;background:var(--red-l);display:grid;place-items:center;font-size:26px;margin:0 auto 12px">&#x1F512;</div>
+      <div style="width:56px;height:56px;border-radius:14px;background:var(--red-l);display:grid;place-items:center;margin:0 auto 12px"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--red-d)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
       <div style="font-size:17px;font-weight:800;color:var(--ink)">Akses Terbatas</div>
       <div style="font-size:12.5px;color:var(--muted);margin-top:4px">Masukkan username &amp; password admin untuk membuka fitur ini</div>
     </div>
@@ -1218,9 +1250,9 @@ const FB_CONFIG = {
 let people = [];
 let logs   = [];
 let rutes  = {
-  A:{nama:'Rute A',berangkat:'07:00',pulang:'17:00'},
-  B:{nama:'Rute B',berangkat:'07:00',pulang:'17:00'},
-  C:{nama:'Rute C',berangkat:'07:00',pulang:'17:00'}
+  A:{nama:'Bus 01',berangkat:'07:00',pulang:'17:00'},
+  B:{nama:'Bus 02',berangkat:'07:00',pulang:'17:00'},
+  C:{nama:'Bus 03',berangkat:'07:00',pulang:'17:00'}
 };
 let layout = localStorage.getItem('bkv4_ly') || '';
 let aRute='A', aMode='naik', recent=[];
@@ -1452,11 +1484,12 @@ function applyLayout(l){
     :document.getElementById('mob-wrap');
   wrap.innerHTML='';
   const tpl=document.getElementById('tpl');
+  const defaultPage=l==='laptop'?'scan':'beranda';
   Array.from(tpl.children).forEach(c=>{
     const cl=c.cloneNode(true);
     cl.classList.add('page');
     cl.id='page-'+c.dataset.page;
-    if(c.dataset.page==='scan')cl.classList.add('on');
+    if(c.dataset.page===defaultPage)cl.classList.add('on');
     wrap.appendChild(cl);
   });
   if(l==='laptop'){
@@ -1485,7 +1518,7 @@ function applyLayout(l){
   // Re-attach Enter listener
   const mi=wrap.querySelector('#man-in');
   if(mi)mi.addEventListener('keydown',e=>{if(e.key==='Enter')doManual();});
-  renderOrang();loadRuteForm();updateRuteNames();setRute(aRute);setMode(getSesi());
+  renderOrang();loadRuteForm();updateRuteNames();setRute(aRute);setMode(getSesi());renderBeranda();
   updateAuthUI();
 }
 
@@ -1505,6 +1538,8 @@ function updateRuteNames(){
   ['A','B','C'].forEach(r=>{
     const mn=document.getElementById('mn-'+r);if(mn)mn.textContent=rutes[r].nama||'Rute '+r;
     const sn=document.getElementById('sn-'+r);if(sn)sn.textContent=rutes[r].nama||'Rute '+r;
+    const fo=document.getElementById('fr-opt-'+r);if(fo)fo.textContent=rutes[r].nama||'Rute '+r;
+    const fob=document.getElementById('frb-opt-'+r);if(fob)fob.textContent=rutes[r].nama||'Rute '+r;
   });
 }
 
@@ -1518,6 +1553,18 @@ function getSesi(){
 // ── NORMALISASI NAMA DEPARTEMEN ───────────────────────
 // Supaya "Aviako", "AVIAKO", "aviako" dianggap SATU departemen yang sama
 // (tidak peduli besar/kecil huruf saat diketik), ditampilkan dengan format konsisten.
+// Urutan departemen khusus untuk halaman Data Karyawan & QR Code
+// (di luar 2 halaman ini, departemen lain tetap diurutkan A-Z seperti biasa)
+const DEPT_ORDER=['HRGA','MRC','FINANCE','PARTS','SALES','SCC','SHE','MST','SVC','SERVICE','AVIAKO','CKB','PKL'];
+function sortDeptCustom(deptNames){
+  return deptNames.slice().sort((a,b)=>{
+    const ia=DEPT_ORDER.indexOf(a.toUpperCase()), ib=DEPT_ORDER.indexOf(b.toUpperCase());
+    if(ia===-1&&ib===-1) return a.localeCompare(b,'id');
+    if(ia===-1) return 1;
+    if(ib===-1) return -1;
+    return ia-ib;
+  });
+}
 function normDept(jab){
   const s=(jab||'').trim();
   if(!s) return 'Tanpa Departemen';
@@ -1646,7 +1693,7 @@ function updateAuthUI(){
   if(mmtLanjutan)mmtLanjutan.style.display=authed?'none':'flex';
   const mbnIc=document.getElementById('mbn-lanjutan-ic');
   const mbnLb=document.getElementById('mbn-lanjutan-lb');
-  if(mbnIc)mbnIc.innerHTML=authed?'&#x1F4C8;':'&#x1F513;';
+  if(mbnIc)mbnIc.innerHTML=authed?'<svg class="bi-line" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="12.5" width="3.4" height="7.5" rx="1"/><rect x="10.3" y="7.5" width="3.4" height="12.5" rx="1"/><rect x="16.6" y="3.5" width="3.4" height="16.5" rx="1"/></svg>':'<svg class="bi-line" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/></svg>';
   if(mbnLb)mbnLb.textContent=authed?'Grafik':'Lanjutan';
 }
 
@@ -1668,21 +1715,22 @@ function goTab(id){
   });
 
   // Mobile bottom nav active state
-  const mobBtns=['scan','orang'];
-  mobBtns.forEach(x=>{
-    const b=document.getElementById('mbn-'+x);
-    if(b)b.classList.toggle('on',x===id);
+  const mobBtns=[['scan','beranda']];
+  mobBtns.forEach(([domKey,pageKey])=>{
+    const b=document.getElementById('mbn-'+domKey);
+    if(b)b.classList.toggle('on',pageKey===id);
   });
   const lj=document.getElementById('mbn-lanjutan');
   if(lj)lj.classList.toggle('on',id==='dashboard'&&isAuthed());
 
   const titles={
-    scan:'Beranda & Scan',dashboard:'Dashboard Statistik',
+    beranda:'Beranda',scan:'Beranda & Scan',dashboard:'Dashboard Statistik',
     rekap:'Rekap Absensi',tidakhadir:'Rekap Ketidakhadiran',
     orang:'Data Karyawan',barcode:'QR Code',rute:'Kelola Rute'
   };
   const ltt=document.getElementById('lt-ttl');if(ltt)ltt.textContent=titles[id]||id;
 
+  if(id==='beranda'){renderBeranda();}
   if(id==='rekap'){renderRekap();}
   if(id==='tidakhadir'){initTidakHadirBlnPicker();renderTidakHadirHarian();renderTidakHadirBulanan();}
   if(id==='orang'){renderOrang();}
@@ -2132,6 +2180,19 @@ function statusPergiPulangText(l){
 }
 
 // ── REKAP HARIAN ───────────────────────────────────────
+// ── BERANDA (Ringkasan Hari Ini) ───────────────────────
+function renderBeranda(){
+  const now=new Date();
+  const jam=now.getHours();
+  const sapa= jam<10 ? 'Selamat Pagi' : jam<15 ? 'Selamat Siang' : jam<18 ? 'Selamat Sore' : 'Selamat Malam';
+  const greetEl=document.getElementById('ber-greet');
+  if(greetEl)greetEl.textContent=sapa+' \u{1F44B}';
+  const tglEl=document.getElementById('ber-tgl');
+  if(tglEl)tglEl.textContent=now.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const jamEl=document.getElementById('ber-jam');
+  if(jamEl)jamEl.textContent=p2(now.getHours())+':'+p2(now.getMinutes());
+}
+
 function renderRekap(){
   const dp=document.getElementById('rek-date-pick');
   let tgl;
@@ -2382,8 +2443,10 @@ function renderDashboard(){
 
   // Kapasitas bus: 32 penumpang = 100% hadir. Dipakai untuk persentase pada label angka.
   const BUS_CAP=32;
+  // Di tampilan Tahunan, persentase disembunyikan — hanya angka murni yang ditampilkan di semua grafik.
+  const isTahun=(dashPeriod==='tahun');
   // Label angka + persentase tampil langsung di atas tiap batang (tanpa perlu klik/hover)
-  const dlBar={anchor:'end',align:'top',offset:3,color:'#374151',font:{size:11,weight:'700'},formatter:v=>v>0?v+' ('+Math.round(v/BUS_CAP*100)+'%)':''};
+  const dlBar={anchor:'end',align:'top',offset:3,color:'#374151',font:{size:11,weight:'700'},formatter:v=>v>0?(isTahun?v:v+' ('+Math.round(v/BUS_CAP*100)+'%)'):''};
   const dlLine={align:'top',offset:6,color:'#374151',font:{size:10,weight:'700'},formatter:v=>v>0?v:''};
   const sc={responsive:true,maintainAspectRatio:true,layout:{padding:{top:22}},interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{enabled:false},datalabels:dlLine},scales:{x:{grid:{display:false},ticks:{font:{size:10},color:'#94A3B8'}},y:{beginAtZero:true,grace:'12%',ticks:{stepSize:1,font:{size:10},color:'#94A3B8'},grid:{color:'rgba(0,0,0,.05)'}}}};
   // Versi "bersih" untuk chart batang: sumbu Y disembunyikan (angka sudah tampil di atas batang), biar tidak ribet
@@ -2401,7 +2464,7 @@ function renderDashboard(){
   // ringkas secara horizontal daripada satu baris "20 (63%)" — dan tiap bus diberi warna
   // sendiri (biru/hijau/oranye) supaya gampang dibedakan walau posisinya berdekatan.
   const denseAll=labels.length>10;
-  const mkFmtAll=()=>v=>{if(v<=0)return'';return [String(v),'('+Math.round(v/BUS_CAP*100)+'%)'];};
+  const mkFmtAll=()=>v=>{if(v<=0)return'';if(isTahun)return String(v);return [String(v),'('+Math.round(v/BUS_CAP*100)+'%)'];};
   const mkDlAll=color=>({anchor:'end',align:'top',offset:3,color,font:{size:denseAll?8.5:9.5,weight:'700',lineHeight:1.15},textAlign:'center',formatter:mkFmtAll()});
   const scBarAll={...scBar,maintainAspectRatio:false,layout:{padding:{top:40}},
     plugins:{...scBar.plugins},
@@ -2417,7 +2480,9 @@ function renderDashboard(){
     const needed=labels.length*perCol;
     wrap.style.width=Math.max(needed,parentW)+'px';
   };
-  setInnerWidth('chart-all-inner',denseAll?60:88);
+  // Mode "Bulan" (harian dalam 1 bulan, s/d 31 titik) paling padat & paling sering tabrakan,
+  // jadi diberi kolom ekstra lebar dibanding periode lain.
+  setInnerWidth('chart-all-inner',dashPeriod==='bulan'?100:(denseAll?60:88));
 
   const ca=document.getElementById('chart-all');
   if(ca){if(chartAll)chartAll.destroy();
@@ -2430,6 +2495,9 @@ function renderDashboard(){
   // Grafik per rute: garis Pergi vs Pulang (bukan batang), dengan label angka + persentase
   // tampil permanen di atas/di bawah tiap titik (Pergi di atas, Pulang di bawah supaya
   // tidak saling tabrakan saat kedua garis berdekatan). Tooltip hover dimatikan.
+  // Di mode Tahunan, persentase disembunyikan (hanya angka). Di mode Bulan, tiap kolom diberi
+  // lebar minimum ekstra + wrapper bisa di-scroll supaya titik & label tidak berdesakan/tabrakan.
+  const fmtRoute=v=>{if(v<=0)return'';return isTahun?String(v):(v+' ('+Math.round(v/BUS_CAP*100)+'%)');};
   const mkRouteLineChart=(cid,prev,pergi,pulang)=>{
     const el=document.getElementById(cid);if(!el)return null;
     if(prev)prev.destroy();
@@ -2438,19 +2506,29 @@ function renderDashboard(){
        fill:true,tension:.35,borderWidth:2.5,pointRadius:4,pointHoverRadius:5,
        pointBackgroundColor:'#16A34A',pointBorderColor:'#fff',pointBorderWidth:1.5,
        datalabels:{anchor:'end',align:'top',offset:6,color:'#16A34A',font:{size:10,weight:'700'},
-         formatter:v=>v>0?v+' ('+Math.round(v/BUS_CAP*100)+'%)':''}},
+         formatter:fmtRoute}},
       {label:'Pulang',data:pulang,borderColor:'#EA580C',backgroundColor:'rgba(234,88,12,.14)',
        fill:true,tension:.35,borderWidth:2.5,pointRadius:4,pointHoverRadius:5,
        pointBackgroundColor:'#EA580C',pointBorderColor:'#fff',pointBorderWidth:1.5,
        datalabels:{anchor:'end',align:'top',offset:18,color:'#EA580C',font:{size:10,weight:'700'},
-         formatter:v=>v>0?v+' ('+Math.round(v/BUS_CAP*100)+'%)':''}}
-    ]},options:{responsive:true,maintainAspectRatio:true,
-      layout:{padding:{top:34,bottom:14}},
-      plugins:{legend:{display:true,position:'top',labels:{font:{size:11,weight:'600'},boxWidth:12,padding:12}},
+         formatter:fmtRoute}}
+    ]},options:{responsive:true,maintainAspectRatio:false,
+      layout:{padding:{top:48,bottom:14}},
+      plugins:{legend:{display:true,position:'top',align:'start',labels:{font:{size:11,weight:'600'},boxWidth:12,padding:12}},
         tooltip:{enabled:false}},
       scales:{x:{grid:{display:false},ticks:{font:{size:10},color:'#94A3B8'}},
         y:{beginAtZero:true,grace:'25%',ticks:{font:{size:10},color:'#94A3B8'},grid:{color:'rgba(0,0,0,.05)'}}}}});
   };
+  // Kolom lebih lebar khusus mode Bulan (titik harian bisa sampai 31), supaya label Pergi/Pulang
+  // yang berdekatan tidak saling menimpa. Periode lain (Harian/Minggu/Tahun) cukup lapang secara
+  // alami sehingga dibiarkan mengikuti lebar kartu seperti biasa.
+  if(dashPeriod==='bulan'){
+    setInnerWidth('chart-a-inner',70);
+    setInnerWidth('chart-b-inner',70);
+    setInnerWidth('chart-c-inner',70);
+  }else{
+    ['chart-a-inner','chart-b-inner','chart-c-inner'].forEach(id=>{const w=document.getElementById(id);if(w)w.style.width='100%';});
+  }
   chartA=mkRouteLineChart('chart-a',chartA,dataAPergi,dataAPulang);
   chartB=mkRouteLineChart('chart-b',chartB,dataBPergi,dataBPulang);
   chartC=mkRouteLineChart('chart-c',chartC,dataCPergi,dataCPulang);
@@ -2651,11 +2729,11 @@ function renderOrang(){
     if(!groups[d])groups[d]=[];
     groups[d].push(p);
   });
-  const deptNames=Object.keys(groups).sort((a,b)=>a.localeCompare(b,'id'));
+  const deptNames=sortDeptCustom(Object.keys(groups));
   let html='';
   deptNames.forEach(d=>{
     const anggota=groups[d].slice().sort((a,b)=>a.nama.localeCompare(b.nama,'id'));
-    html+='<tr><td colspan="4" style="background:var(--bg);font-weight:700;font-size:11.5px;color:var(--bus1);padding:8px 12px">&#x1F3E2; '+d+' <span style="color:var(--muted);font-weight:500">('+anggota.length+')</span></td></tr>';
+    html+='<tr><td colspan="4" style="background:var(--bg);font-weight:700;font-size:11.5px;color:var(--bus1);padding:8px 12px">&#x1F3E2; '+d.toUpperCase()+' <span style="color:var(--muted);font-weight:500">('+anggota.length+')</span></td></tr>';
     html+=anggota.map(function(p){
       return '<tr>'+
         '<td><span class="badge badge-blue">'+p.id+'</span></td>'+
@@ -2686,11 +2764,11 @@ function renderQR(){
     if(!groups[d])groups[d]=[];
     groups[d].push(p);
   });
-  const deptNames=Object.keys(groups).sort((a,b)=>a.localeCompare(b,'id'));
+  const deptNames=sortDeptCustom(Object.keys(groups));
   let html='';
   deptNames.forEach(d=>{
     const anggota=groups[d].slice().sort((a,b)=>a.nama.localeCompare(b.nama,'id'));
-    html+='<div style="grid-column:1/-1;font-weight:700;font-size:13px;color:var(--bus1);padding:14px 2px 4px;border-bottom:1.5px solid var(--border);margin-bottom:2px">&#x1F3E2; '+d+' <span style="color:var(--muted);font-weight:500;font-size:11.5px">('+anggota.length+' orang)</span></div>';
+    html+='<div style="grid-column:1/-1;font-weight:700;font-size:13px;color:var(--bus1);padding:14px 2px 4px;border-bottom:1.5px solid var(--border);margin-bottom:2px">&#x1F3E2; '+d.toUpperCase()+' <span style="color:var(--muted);font-weight:500;font-size:11.5px">('+anggota.length+' orang)</span></div>';
     html+=anggota.map(p=>'<div class="bc-item"><div class="bc-card"><div class="bc-name">'+p.nama+'</div><div class="bc-sub">'+p.id+(p.jab?' &bull; '+p.jab:'')+'</div><div class="bc-qr" id="qr-'+p.id+'"></div></div><div class="bc-actions"><button class="btn btn-ghost" onclick="downloadQRPNG(\''+p.id+'\')" title="Unduh PNG">&#x1F5BC; PNG</button><button class="btn btn-ghost" onclick="downloadQRPDF(\''+p.id+'\')" title="Unduh PDF">&#x1F4C4; PDF</button><button class="btn btn-ghost" onclick="downloadQRZIP(\''+p.id+'\')" title="Unduh ZIP">&#x1F4E6; ZIP</button><button class="btn btn-primary" onclick="shareQR(\''+p.id+'\')" title="Bagikan">&#x1F4E4; Bagikan</button></div></div>').join('');
   });
   grid.innerHTML=html;
@@ -2822,39 +2900,6 @@ function toast(msg){
   const el=document.getElementById('toast');
   el.textContent=msg;el.classList.add('show');
   clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('show'),2600);
-}
-
-// ── MORE MENU (Mobile) ─────────────────────────────────
-function toggleMoreMenu(){
-  const menu=document.getElementById('more-menu');
-  const overlay=document.getElementById('more-menu-overlay');
-  const isOpen=menu&&menu.style.display!=='none';
-  if(isOpen){ closeMoreMenu(); }
-  else {
-    if(menu)menu.style.display='block';
-    if(overlay)overlay.style.display='block';
-    // animate in
-    if(menu){menu.style.transform='translateY(20px)';menu.style.opacity='0';menu.style.transition='all .22s ease';
-      setTimeout(()=>{menu.style.transform='translateY(0)';menu.style.opacity='1';},10);}
-    // mark more btn active
-    const mb=document.getElementById('mbn-more');
-    if(mb)mb.classList.add('on');
-  }
-}
-
-function closeMoreMenu(){
-  const menu=document.getElementById('more-menu');
-  const overlay=document.getElementById('more-menu-overlay');
-  if(menu){menu.style.transform='translateY(20px)';menu.style.opacity='0';
-    setTimeout(()=>{menu.style.display='none';menu.style.transform='';menu.style.opacity='';},200);}
-  if(overlay)overlay.style.display='none';
-  const mb=document.getElementById('mbn-more');
-  if(mb)mb.classList.remove('on');
-}
-
-function goTabMore(id){
-  closeMoreMenu();
-  setTimeout(()=>goTab(id), 250);
 }
 
 // ── INIT ───────────────────────────────────────────────
