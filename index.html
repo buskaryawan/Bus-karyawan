@@ -20,7 +20,7 @@
   --ink:#111827;--ink2:#374151;--muted:#9CA3AF;
   --border:#E5E7EB;--bg:#F3F4F6;--white:#fff;
   --red:#E53E3E;--red-d:#C53030;--red-l:#FFF5F5;
-  --bus1:#2B6CB0;--bus2:#276749;--bus3:#C05621;
+  --bus1:#2B6CB0;--bus2:#276749;--bus3:#C05621;--bus4:#805AD5;--bus5:#2C7A7B;
   --up:#276749;--dn:#C53030;--upl:#F0FFF4;--dnl:#FFF5F5;
   --sidebar:#1A202C;--r:10px;
 }
@@ -111,12 +111,14 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);min-he
 
 .sb-rute-box{margin:10px 10px 0;padding:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:10px}
 .sb-rute-title{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:rgba(255,255,255,.25);margin-bottom:8px}
+.sb-rute-title.g2{margin-top:12px}
+.sb-rute-divider{height:1px;background:rgba(255,255,255,.1);margin:10px 2px 0}
 .sb-rb{display:flex;align-items:center;gap:8px;width:100%;padding:7px 8px;background:none;border:none;border-radius:6px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;color:rgba(255,255,255,.4);cursor:pointer;transition:all .15s;margin-bottom:2px}
 .sb-rb:hover{background:rgba(255,255,255,.07);color:#fff}
 .sb-rb.on{background:rgba(255,255,255,.1);color:#fff}
 .sb-rb.on .rdot{opacity:1;transform:scale(1)}
 .rdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;opacity:.2;transform:scale(.7);transition:all .15s}
-.rdot.a{background:#63B3ED}.rdot.b{background:#68D391}.rdot.c{background:#F6AD55}
+.rdot.a{background:#63B3ED}.rdot.b{background:#68D391}.rdot.c{background:#F6AD55}.rdot.d{background:#B794F4}.rdot.e{background:#4FD1C5}
 
 .sb-footer{margin-top:auto;border-top:1px solid rgba(255,255,255,.06)}
 .sb-switch-btn{display:flex;align-items:center;gap:8px;padding:12px 16px;background:none;border:none;font-family:'Inter',sans-serif;font-size:11.5px;color:rgba(255,255,255,.35);cursor:pointer;transition:color .15s;width:100%}
@@ -176,7 +178,12 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);min-he
 .mh-rt .rdot2{width:6px;height:6px;border-radius:50%;flex-shrink:0;background:currentColor;opacity:.55}
 .mh-rt.on{background:#fff;color:#111827;border-color:#fff}
 .mh-rt.on .rdot2{opacity:1}
-.mh-rt.a.on .rdot2{background:#2563EB}.mh-rt.b.on .rdot2{background:#059669}.mh-rt.c.on .rdot2{background:#D97706}
+.mh-rt.a.on .rdot2{background:#2563EB}.mh-rt.b.on .rdot2{background:#059669}.mh-rt.c.on .rdot2{background:#D97706}.mh-rt.d.on .rdot2{background:#7C3AED}.mh-rt.e.on .rdot2{background:#0D9488}
+.mh-grp-label{display:flex;align-items:center;flex-shrink:0;white-space:nowrap;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:rgba(255,255,255,.4);padding:0 2px}
+.mh-rt-divider{width:1.5px;align-self:stretch;background:rgba(255,255,255,.28);border-radius:2px;flex-shrink:0;margin:2px 2px}
+.dash-grp-label{font-size:12px;font-weight:800;color:var(--ink2);text-transform:uppercase;letter-spacing:.6px;margin:4px 2px 10px;display:flex;align-items:center;gap:8px}
+.dash-grp-label::before{content:'';width:4px;height:14px;background:var(--red);border-radius:2px;flex-shrink:0}
+.dash-grp-divider{height:1px;background:var(--border);margin:4px 2px 20px}
 
 /* MOBILE CONTENT */
 .mob-wrap{padding:14px 14px 86px}
@@ -390,6 +397,8 @@ tr.row-alert td{border-left:3px solid var(--red)}
 .rt.a{background:#EBF4FF;color:var(--bus1)}
 .rt.b{background:#F0FFF4;color:var(--bus2)}
 .rt.c{background:#FFFAF0;color:var(--bus3)}
+.rt.d{background:#FAF5FF;color:var(--bus4)}
+.rt.e{background:#E6FFFA;color:var(--bus5)}
 
 /* SCAN FULLSCREEN */
 #scan-fullscreen{border-radius:14px;overflow:hidden;margin-bottom:14px}
@@ -479,10 +488,14 @@ tr.row-alert td{border-left:3px solid var(--red)}
       <button class="sb-item admin-only" id="sbi-rute"       onclick="goTab('rute')" style="display:none"><span class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3 3 5.5v15L9 18l6 2.5 6-2.5v-15L15 5.5 9 3Z"/><path d="M9 3v15M15 5.5v15"/></svg></span> Kelola Rute</button>
       <div class="sb-section" style="margin-top:6px">Rute Bus</div>
       <div class="sb-rute-box">
-        <div class="sb-rute-title">Pilih Rute</div>
+        <div class="sb-rute-title">Kelompok 1</div>
         <button class="sb-rb on" id="srb-A" onclick="setRute('A')"><span class="rdot a"></span><span id="sn-A">Bus 01</span></button>
         <button class="sb-rb"    id="srb-B" onclick="setRute('B')"><span class="rdot b"></span><span id="sn-B">Bus 02</span></button>
         <button class="sb-rb"    id="srb-C" onclick="setRute('C')"><span class="rdot c"></span><span id="sn-C">Bus 03</span></button>
+        <div class="sb-rute-divider"></div>
+        <div class="sb-rute-title g2">Kelompok 2</div>
+        <button class="sb-rb"    id="srb-D" onclick="setRute('D')"><span class="rdot d"></span><span id="sn-D">Bus 04</span></button>
+        <button class="sb-rb"    id="srb-E" onclick="setRute('E')"><span class="rdot e"></span><span id="sn-E">Bus 05</span></button>
       </div>
       <div class="sb-footer">
         <button class="sb-switch-btn" id="btn-lock-app" onclick="lockApp()" style="background:rgba(229,62,62,.15);color:#FCA5A5;margin-bottom:8px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg> Kunci Fitur Admin</button>
@@ -677,9 +690,14 @@ tr.row-alert td{border-left:3px solid var(--red)}
         </div>
         <!-- Pilihan Rute Bus - dipilih manual oleh petugas scan -->
         <div class="mh-rutes" style="padding:8px 14px 12px;margin-top:4px">
+          <span class="mh-grp-label">Kel. 1</span>
           <button class="mh-rt a on" id="mrb-A" onclick="setRute('A')"><span class="rdot2"></span><span id="mn-A">Bus 01</span></button>
           <button class="mh-rt b"    id="mrb-B" onclick="setRute('B')"><span class="rdot2"></span><span id="mn-B">Bus 02</span></button>
           <button class="mh-rt c"    id="mrb-C" onclick="setRute('C')"><span class="rdot2"></span><span id="mn-C">Bus 03</span></button>
+          <span class="mh-rt-divider"></span>
+          <span class="mh-grp-label">Kel. 2</span>
+          <button class="mh-rt d"    id="mrb-D" onclick="setRute('D')"><span class="rdot2"></span><span id="mn-D">Bus 04</span></button>
+          <button class="mh-rt e"    id="mrb-E" onclick="setRute('E')"><span class="rdot2"></span><span id="mn-E">Bus 05</span></button>
         </div>
       </div>
 
@@ -851,7 +869,7 @@ tr.row-alert td{border-left:3px solid var(--red)}
             <input type="date" id="rek-date-pick" onchange="renderRekap()" style="padding:5px 8px;border:1.5px solid var(--border);border-radius:7px;font-family:'Inter',sans-serif;font-size:11px;background:var(--bg);color:var(--ink)">
             <select id="filter-rute" onchange="renderRekap()" style="padding:5px 9px;border:1.5px solid var(--border);border-radius:7px;font-family:'Inter',sans-serif;font-size:11px;background:var(--bg);color:var(--ink)">
               <option value="">Semua Rute</option>
-              <option value="A" id="fr-opt-A">Bus 01</option><option value="B" id="fr-opt-B">Bus 02</option><option value="C" id="fr-opt-C">Bus 03</option>
+              <option value="A" id="fr-opt-A">Bus 01</option><option value="B" id="fr-opt-B">Bus 02</option><option value="C" id="fr-opt-C">Bus 03</option><option value="D" id="fr-opt-D">Bus 04</option><option value="E" id="fr-opt-E">Bus 05</option>
             </select>
             <select id="filter-status" onchange="renderRekap()" style="padding:5px 9px;border:1.5px solid var(--border);border-radius:7px;font-family:'Inter',sans-serif;font-size:11px;background:var(--bg);color:var(--ink)">
               <option value="">Semua Status</option>
@@ -896,7 +914,7 @@ tr.row-alert td{border-left:3px solid var(--red)}
             <select id="thn-pick" onchange="renderRekapBulanan()" style="padding:5px 9px;border:1.5px solid var(--border);border-radius:7px;font-family:'Inter',sans-serif;font-size:11px;background:var(--bg);color:var(--ink)"></select>
             <select id="filter-rute-bln" onchange="renderRekapBulanan()" style="padding:5px 9px;border:1.5px solid var(--border);border-radius:7px;font-family:'Inter',sans-serif;font-size:11px;background:var(--bg);color:var(--ink)">
               <option value="">Semua Rute</option>
-              <option value="A" id="frb-opt-A">Bus 01</option><option value="B" id="frb-opt-B">Bus 02</option><option value="C" id="frb-opt-C">Bus 03</option>
+              <option value="A" id="frb-opt-A">Bus 01</option><option value="B" id="frb-opt-B">Bus 02</option><option value="C" id="frb-opt-C">Bus 03</option><option value="D" id="frb-opt-D">Bus 04</option><option value="E" id="frb-opt-E">Bus 05</option>
             </select>
             <button class="btn btn-ghost btn-sm" onclick="exportRekapBulananExcel()">&#x2B07; Excel</button>
           </div>
@@ -1063,6 +1081,26 @@ tr.row-alert td{border-left:3px solid var(--red)}
           <div style="margin-top:8px;font-size:10.5px;color:var(--muted)" id="ri-C">--</div>
         </div>
       </div>
+      <div class="card">
+        <div class="card-hd"><h3><span class="rt d">Rute D</span></h3></div>
+        <div class="card-bd">
+          <div class="fg"><label>Nama Rute</label><input id="rn-d" placeholder="Cth: Rute Bogor" /></div>
+          <div class="fg"><label>Jam Berangkat</label><input id="rj-d" type="time" value="07:00" /></div>
+          <div class="fg"><label>Jam Pulang</label><input id="rjp-d" type="time" value="17:00" /></div>
+          <button class="btn btn-primary btn-full btn-sm" onclick="saveRute('D')">Simpan Rute D</button>
+          <div style="margin-top:8px;font-size:10.5px;color:var(--muted)" id="ri-D">--</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><h3><span class="rt e">Rute E</span></h3></div>
+        <div class="card-bd">
+          <div class="fg"><label>Nama Rute</label><input id="rn-e" placeholder="Cth: Rute Bandung" /></div>
+          <div class="fg"><label>Jam Berangkat</label><input id="rj-e" type="time" value="07:00" /></div>
+          <div class="fg"><label>Jam Pulang</label><input id="rjp-e" type="time" value="17:00" /></div>
+          <button class="btn btn-primary btn-full btn-sm" onclick="saveRute('E')">Simpan Rute E</button>
+          <div style="margin-top:8px;font-size:10.5px;color:var(--muted)" id="ri-E">--</div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1126,7 +1164,8 @@ tr.row-alert td{border-left:3px solid var(--red)}
     </div>
 
     <!-- Grafik Per Rute: Pergi vs Pulang -->
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px;margin-bottom:12px">
+    <div class="dash-grp-label">Kelompok 1 &mdash; Bus 01, 02, 03</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px;margin-bottom:20px">
       <div class="card">
         <div class="card-hd"><h3 id="chart-a-title" style="color:var(--bus1)">&#x1F68C; <span id="chart-a-name">Bus 01</span> — Pergi &amp; Pulang</h3></div>
         <div class="card-bd" style="height:280px;overflow-x:auto;overflow-y:hidden">
@@ -1143,6 +1182,23 @@ tr.row-alert td{border-left:3px solid var(--red)}
         <div class="card-hd"><h3 id="chart-c-title" style="color:var(--bus3)">&#x1F68C; <span id="chart-c-name">Bus 03</span> — Pergi &amp; Pulang</h3></div>
         <div class="card-bd" style="height:280px;overflow-x:auto;overflow-y:hidden">
           <div id="chart-c-inner" style="height:100%;min-width:100%"><canvas id="chart-c"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dash-grp-divider"></div>
+    <div class="dash-grp-label">Kelompok 2 &mdash; Bus 04, 05</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px;margin-bottom:12px">
+      <div class="card">
+        <div class="card-hd"><h3 id="chart-d-title" style="color:var(--bus4)">&#x1F68C; <span id="chart-d-name">Bus 04</span> — Pergi &amp; Pulang</h3></div>
+        <div class="card-bd" style="height:280px;overflow-x:auto;overflow-y:hidden">
+          <div id="chart-d-inner" style="height:100%;min-width:100%"><canvas id="chart-d"></canvas></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><h3 id="chart-e-title" style="color:var(--bus5)">&#x1F68C; <span id="chart-e-name">Bus 05</span> — Pergi &amp; Pulang</h3></div>
+        <div class="card-bd" style="height:280px;overflow-x:auto;overflow-y:hidden">
+          <div id="chart-e-inner" style="height:100%;min-width:100%"><canvas id="chart-e"></canvas></div>
         </div>
       </div>
     </div>
@@ -1252,8 +1308,28 @@ let logs   = [];
 let rutes  = {
   A:{nama:'Bus 01',berangkat:'07:00',pulang:'17:00'},
   B:{nama:'Bus 02',berangkat:'07:00',pulang:'17:00'},
-  C:{nama:'Bus 03',berangkat:'07:00',pulang:'17:00'}
+  C:{nama:'Bus 03',berangkat:'07:00',pulang:'17:00'},
+  D:{nama:'Bus 04',berangkat:'07:00',pulang:'17:00'},
+  E:{nama:'Bus 05',berangkat:'07:00',pulang:'17:00'}
 };
+// Nilai default rute — dipakai untuk melengkapi data lama (Firebase/localStorage) yang
+// mungkin belum punya Bus 04/05, supaya tidak error saat dashboard/scan mengakses rutes.D atau rutes.E.
+const RUTE_DEFAULTS = {
+  A:{nama:'Bus 01',berangkat:'07:00',pulang:'17:00'},
+  B:{nama:'Bus 02',berangkat:'07:00',pulang:'17:00'},
+  C:{nama:'Bus 03',berangkat:'07:00',pulang:'17:00'},
+  D:{nama:'Bus 04',berangkat:'07:00',pulang:'17:00'},
+  E:{nama:'Bus 05',berangkat:'07:00',pulang:'17:00'}
+};
+// Lengkapi rute yang hilang (mis. data lama sebelum Bus 04/05 ada) tanpa mengubah rute yang sudah ada.
+// Mengembalikan true kalau ada rute yang ditambahkan (dipakai untuk tahu perlu disimpan ulang ke Firebase atau tidak).
+function mergeRuteDefaults(){
+  let changed=false;
+  Object.keys(RUTE_DEFAULTS).forEach(k=>{
+    if(!rutes[k]){ rutes[k]=Object.assign({},RUTE_DEFAULTS[k]); changed=true; }
+  });
+  return changed;
+}
 let layout = localStorage.getItem('bkv4_ly') || '';
 let aRute='A', aMode='naik', recent=[];
 let isFront=false, camStream=null, scanIv=null, scanCvs=null, scanCtx2=null;
@@ -1306,8 +1382,10 @@ function initFirebase() {
     db.ref('rutes').on('value', snap => {
       if (snap.exists()) {
         rutes = snap.val();
+        const changed = mergeRuteDefaults();
         updateRuteNames();
         loadRuteForm();
+        if (changed) db.ref('rutes').set(rutes).catch(dbErr);
       } else {
         db.ref('rutes').set(rutes).catch(dbErr);
       }
@@ -1326,6 +1404,7 @@ function loadLocal() {
   logs   = JSON.parse(localStorage.getItem('bkv4_l') || '[]');
   const r= JSON.parse(localStorage.getItem('bkv4_r') || 'null');
   if (r) rutes = r;
+  mergeRuteDefaults();
   if (!people.length) seedDemo();
 }
 
@@ -1337,6 +1416,10 @@ function seedDemo() {
     {id:'EMP004',nama:'Dian Purnama', jab:'Analis',    rute:'B'},
     {id:'EMP005',nama:'Eka Rahmat',   jab:'SPV',       rute:'C'},
     {id:'EMP006',nama:'Fitri Hnd',    jab:'Staff',     rute:'C'},
+    {id:'EMP007',nama:'Galih Wibowo', jab:'Staff',     rute:'D'},
+    {id:'EMP008',nama:'Hesti Amalia', jab:'Staff',     rute:'D'},
+    {id:'EMP009',nama:'Irfan Maulana',jab:'Staff',     rute:'E'},
+    {id:'EMP010',nama:'Joko Prasetyo',jab:'Staff',     rute:'E'},
   ];
   save();
 }
@@ -1525,7 +1608,7 @@ function applyLayout(l){
 // ── RUTE ───────────────────────────────────────────────
 function setRute(r){
   aRute=r;
-  ['A','B','C'].forEach(x=>{
+  ['A','B','C','D','E'].forEach(x=>{
     const sb=document.getElementById('srb-'+x);
     if(sb)sb.classList.toggle('on',x===r);
     const mb=document.getElementById('mrb-'+x);
@@ -1535,7 +1618,7 @@ function setRute(r){
   if(rt){rt.textContent=(rutes[r]?rutes[r].nama:('Rute '+r));}
 }
 function updateRuteNames(){
-  ['A','B','C'].forEach(r=>{
+  ['A','B','C','D','E'].forEach(r=>{
     const mn=document.getElementById('mn-'+r);if(mn)mn.textContent=rutes[r].nama||'Rute '+r;
     const sn=document.getElementById('sn-'+r);if(sn)sn.textContent=rutes[r].nama||'Rute '+r;
     const fo=document.getElementById('fr-opt-'+r);if(fo)fo.textContent=rutes[r].nama||'Rute '+r;
@@ -2303,7 +2386,7 @@ function exportRekapExcel(){
   } else {
     // Semua rute, dipisah per sheet
     makeSheet(hari,'Semua Rute');
-    ['A','B','C'].forEach(r=>{const dr=hari.filter(l=>l.rute===r);if(dr.length)makeSheet(dr,rutes[r]?rutes[r].nama:'Rute '+r);});
+    ['A','B','C','D','E'].forEach(r=>{const dr=hari.filter(l=>l.rute===r);if(dr.length)makeSheet(dr,rutes[r]?rutes[r].nama:'Rute '+r);});
   }
   // Sheet tambahan: karyawan yang belum absen/scan sama sekali tanggal ini (ditambahkan TERAKHIR)
   const hariSemuaRute=logs.filter(l=>l.tanggal===tgl);
@@ -2328,7 +2411,7 @@ function exportRekapExcel(){
 }
 
 // ── DASHBOARD ──────────────────────────────────────────
-let dashPeriod='minggu',chartAll=null,chartA=null,chartB=null,chartC=null,chartPergiPulang=null;
+let dashPeriod='minggu',chartAll=null,chartA=null,chartB=null,chartC=null,chartD=null,chartE=null,chartPergiPulang=null;
 if(typeof Chart!=='undefined'&&typeof ChartDataLabels!=='undefined'){Chart.register(ChartDataLabels);}
 
 function setDashPeriod(p){
@@ -2342,8 +2425,8 @@ function setDashPeriod(p){
 
 function renderDashboard(){
   const now=new Date();
-  let labels=[],dataA=[],dataB=[],dataC=[],dataPergi=[],dataPulang=[],rangeText='';
-  let dataAPergi=[],dataAPulang=[],dataBPergi=[],dataBPulang=[],dataCPergi=[],dataCPulang=[];
+  let labels=[],dataA=[],dataB=[],dataC=[],dataD=[],dataE=[],dataPergi=[],dataPulang=[],rangeText='';
+  let dataAPergi=[],dataAPulang=[],dataBPergi=[],dataBPulang=[],dataCPergi=[],dataCPulang=[],dataDPergi=[],dataDPulang=[],dataEPergi=[],dataEPulang=[];
   if(dashPeriod==='harian'){
     const tgl=now.toLocaleDateString('id-ID');
     for(let h=5;h<=21;h++){
@@ -2351,6 +2434,8 @@ function renderDashboard(){
       dataA.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='A'&&l.naik&&parseInt(l.naik.split(':')[0])===h).length);
       dataB.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='B'&&l.naik&&parseInt(l.naik.split(':')[0])===h).length);
       dataC.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='C'&&l.naik&&parseInt(l.naik.split(':')[0])===h).length);
+      dataD.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='D'&&l.naik&&parseInt(l.naik.split(':')[0])===h).length);
+      dataE.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='E'&&l.naik&&parseInt(l.naik.split(':')[0])===h).length);
       dataPergi.push(logs.filter(l=>l.tanggal===tgl&&l.naik&&parseInt(l.naik.split(':')[0])===h).length);
       dataPulang.push(logs.filter(l=>l.tanggal===tgl&&l.turun&&parseInt(l.turun.split(':')[0])===h).length);
       dataAPergi.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='A'&&l.naik&&parseInt(l.naik.split(':')[0])===h).length);
@@ -2359,6 +2444,10 @@ function renderDashboard(){
       dataBPulang.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='B'&&l.turun&&parseInt(l.turun.split(':')[0])===h).length);
       dataCPergi.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='C'&&l.naik&&parseInt(l.naik.split(':')[0])===h).length);
       dataCPulang.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='C'&&l.turun&&parseInt(l.turun.split(':')[0])===h).length);
+      dataDPergi.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='D'&&l.naik&&parseInt(l.naik.split(':')[0])===h).length);
+      dataDPulang.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='D'&&l.turun&&parseInt(l.turun.split(':')[0])===h).length);
+      dataEPergi.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='E'&&l.naik&&parseInt(l.naik.split(':')[0])===h).length);
+      dataEPulang.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='E'&&l.turun&&parseInt(l.turun.split(':')[0])===h).length);
     }
     rangeText='Hari Ini - '+tgl;
   } else if(dashPeriod==='minggu'){
@@ -2370,6 +2459,8 @@ function renderDashboard(){
       dataA.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='A').length);
       dataB.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='B').length);
       dataC.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='C').length);
+      dataD.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='D').length);
+      dataE.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='E').length);
       dataPergi.push(logs.filter(l=>l.tanggal===tgl&&l.naik).length);
       dataPulang.push(logs.filter(l=>l.tanggal===tgl&&l.turun).length);
       dataAPergi.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='A'&&l.naik).length);
@@ -2378,6 +2469,10 @@ function renderDashboard(){
       dataBPulang.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='B'&&l.turun).length);
       dataCPergi.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='C'&&l.naik).length);
       dataCPulang.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='C'&&l.turun).length);
+      dataDPergi.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='D'&&l.naik).length);
+      dataDPulang.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='D'&&l.turun).length);
+      dataEPergi.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='E'&&l.naik).length);
+      dataEPulang.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='E'&&l.turun).length);
     }
     rangeText='7 Hari Terakhir';
   } else if(dashPeriod==='bulan'){
@@ -2391,6 +2486,8 @@ function renderDashboard(){
       dataA.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='A').length);
       dataB.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='B').length);
       dataC.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='C').length);
+      dataD.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='D').length);
+      dataE.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='E').length);
       dataPergi.push(logs.filter(l=>l.tanggal===tgl&&l.naik).length);
       dataPulang.push(logs.filter(l=>l.tanggal===tgl&&l.turun).length);
       dataAPergi.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='A'&&l.naik).length);
@@ -2399,13 +2496,17 @@ function renderDashboard(){
       dataBPulang.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='B'&&l.turun).length);
       dataCPergi.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='C'&&l.naik).length);
       dataCPulang.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='C'&&l.turun).length);
+      dataDPergi.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='D'&&l.naik).length);
+      dataDPulang.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='D'&&l.turun).length);
+      dataEPergi.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='E'&&l.naik).length);
+      dataEPulang.push(logs.filter(l=>l.tanggal===tgl&&l.rute==='E'&&l.turun).length);
     }
     rangeText='Bulan '+MN[m]+' '+y;
   } else {
     const MN=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agt','Sep','Okt','Nov','Des'];
     for(let m=0;m<12;m++){
-      labels.push(MN[m]);let ca=0,cb=0,cc=0,cp=0,cu=0;
-      let caP=0,caU=0,cbP=0,cbU=0,ccP=0,ccU=0;
+      labels.push(MN[m]);let ca=0,cb=0,cc=0,cd=0,ce=0,cp=0,cu=0;
+      let caP=0,caU=0,cbP=0,cbU=0,ccP=0,ccU=0,cdP=0,cdU=0,ceP=0,ceU=0;
       logs.forEach(l=>{
         const pts=l.tanggal?l.tanggal.split('/'):[];
         if(pts.length<3)return;
@@ -2413,23 +2514,27 @@ function renderDashboard(){
           if(l.rute==='A'){ca++;if(l.naik)caP++;if(l.turun)caU++;}
           else if(l.rute==='B'){cb++;if(l.naik)cbP++;if(l.turun)cbU++;}
           else if(l.rute==='C'){cc++;if(l.naik)ccP++;if(l.turun)ccU++;}
+          else if(l.rute==='D'){cd++;if(l.naik)cdP++;if(l.turun)cdU++;}
+          else if(l.rute==='E'){ce++;if(l.naik)ceP++;if(l.turun)ceU++;}
           if(l.naik)cp++;
           if(l.turun)cu++;
         }
       });
-      dataA.push(ca);dataB.push(cb);dataC.push(cc);
+      dataA.push(ca);dataB.push(cb);dataC.push(cc);dataD.push(cd);dataE.push(ce);
       dataPergi.push(cp);dataPulang.push(cu);
       dataAPergi.push(caP);dataAPulang.push(caU);
       dataBPergi.push(cbP);dataBPulang.push(cbU);
       dataCPergi.push(ccP);dataCPulang.push(ccU);
+      dataDPergi.push(cdP);dataDPulang.push(cdU);
+      dataEPergi.push(ceP);dataEPulang.push(ceU);
     }
     rangeText='Tahun '+now.getFullYear();
   }
   const dr=document.getElementById('dash-range');if(dr)dr.textContent=rangeText;
-  const tA=dataA.reduce((s,v)=>s+v,0),tB=dataB.reduce((s,v)=>s+v,0),tC=dataC.reduce((s,v)=>s+v,0);
+  const tA=dataA.reduce((s,v)=>s+v,0),tB=dataB.reduce((s,v)=>s+v,0),tC=dataC.reduce((s,v)=>s+v,0),tD=dataD.reduce((s,v)=>s+v,0),tE=dataE.reduce((s,v)=>s+v,0);
   const totalPergi=dataPergi.reduce((s,v)=>s+v,0),totalPulang=dataPulang.reduce((s,v)=>s+v,0);
-  const da=document.getElementById('d-a'),db=document.getElementById('d-b'),dc=document.getElementById('d-c'),dt=document.getElementById('d-total');
-  if(da)da.textContent=tA;if(db)db.textContent=tB;if(dc)dc.textContent=tC;if(dt)dt.textContent=tA+tB+tC;
+  const da=document.getElementById('d-a'),db=document.getElementById('d-b'),dc=document.getElementById('d-c'),dd=document.getElementById('d-d'),de=document.getElementById('d-e'),dt=document.getElementById('d-total');
+  if(da)da.textContent=tA;if(db)db.textContent=tB;if(dc)dc.textContent=tC;if(dd)dd.textContent=tD;if(de)de.textContent=tE;if(dt)dt.textContent=tA+tB+tC+tD+tE;
 
   // Ringkasan perbandingan Pergi vs Pulang
   const ppP=document.getElementById('pp-pergi-n'),ppU=document.getElementById('pp-pulang-n'),ppS=document.getElementById('pp-selisih-n');
@@ -2452,11 +2557,17 @@ function renderDashboard(){
   // Versi "bersih" untuk chart batang: sumbu Y disembunyikan (angka sudah tampil di atas batang), biar tidak ribet
   const scBar={...sc,plugins:{legend:{display:true,position:'top',labels:{font:{size:12,weight:'600'},boxWidth:14,padding:16}},tooltip:{enabled:false},datalabels:dlBar},scales:{x:{grid:{display:false},ticks:{font:{size:11,weight:'600'},color:'#374151'}},y:{beginAtZero:true,grace:'20%',display:false}}};
 
-  // Nama rute (sesuai Kelola Rute) ditampilkan di judul tiap kartu grafik
+  // Nama rute (sesuai Kelola Rute) ditampilkan di judul tiap kartu grafik.
+  // ruteNama() dipakai sebagai pengaman ekstra: kalau data rute D/E entah kenapa masih
+  // belum ada (mis. race condition saat load pertama kali), tetap pakai nama default
+  // 'Bus 0X' daripada error dan bikin seluruh dashboard gagal digambar.
+  const ruteNama=r=>(rutes[r]&&rutes[r].nama)||(RUTE_DEFAULTS[r]?RUTE_DEFAULTS[r].nama:('Rute '+r));
   const setTitle=(id,txt)=>{const el=document.getElementById(id);if(el)el.textContent=txt;};
-  setTitle('chart-a-name',rutes.A.nama);
-  setTitle('chart-b-name',rutes.B.nama);
-  setTitle('chart-c-name',rutes.C.nama);
+  setTitle('chart-a-name',ruteNama('A'));
+  setTitle('chart-b-name',ruteNama('B'));
+  setTitle('chart-c-name',ruteNama('C'));
+  setTitle('chart-d-name',ruteNama('D'));
+  setTitle('chart-e-name',ruteNama('E'));
 
   // Opsi khusus grafik "Semua Rute": tinggi tetap (tidak ikut rasio lebar layar).
   // Supaya label BUS01/02/03 tidak saling tabrakan di periode manapun (Minggu/Bulan/Tahun/
@@ -2487,9 +2598,11 @@ function renderDashboard(){
   const ca=document.getElementById('chart-all');
   if(ca){if(chartAll)chartAll.destroy();
     chartAll=new Chart(ca,{type:'bar',data:{labels,datasets:[
-      {label:rutes.A.nama,data:dataA,backgroundColor:'rgba(37,99,235,.75)',borderRadius:4,maxBarThickness:22,categoryPercentage:0.9,barPercentage:0.72,datalabels:mkDlAll('#60A5FA')},
-      {label:rutes.B.nama,data:dataB,backgroundColor:'rgba(5,150,105,.75)',borderRadius:4,maxBarThickness:22,categoryPercentage:0.9,barPercentage:0.72,datalabels:mkDlAll('#34D399')},
-      {label:rutes.C.nama,data:dataC,backgroundColor:'rgba(217,119,6,.75)',borderRadius:4,maxBarThickness:22,categoryPercentage:0.9,barPercentage:0.72,datalabels:mkDlAll('#FBBF24')}
+      {label:ruteNama('A'),data:dataA,backgroundColor:'rgba(37,99,235,.75)',borderRadius:4,maxBarThickness:22,categoryPercentage:0.9,barPercentage:0.72,datalabels:mkDlAll('#60A5FA')},
+      {label:ruteNama('B'),data:dataB,backgroundColor:'rgba(5,150,105,.75)',borderRadius:4,maxBarThickness:22,categoryPercentage:0.9,barPercentage:0.72,datalabels:mkDlAll('#34D399')},
+      {label:ruteNama('C'),data:dataC,backgroundColor:'rgba(217,119,6,.75)',borderRadius:4,maxBarThickness:22,categoryPercentage:0.9,barPercentage:0.72,datalabels:mkDlAll('#FBBF24')},
+      {label:ruteNama('D'),data:dataD,backgroundColor:'rgba(128,90,213,.75)',borderRadius:4,maxBarThickness:22,categoryPercentage:0.9,barPercentage:0.72,datalabels:mkDlAll('#B794F4')},
+      {label:ruteNama('E'),data:dataE,backgroundColor:'rgba(44,122,123,.75)',borderRadius:4,maxBarThickness:22,categoryPercentage:0.9,barPercentage:0.72,datalabels:mkDlAll('#4FD1C5')}
     ]},options:scBarAll}); }
 
   // Grafik per rute: garis Pergi vs Pulang (bukan batang), dengan label angka + persentase
@@ -2526,12 +2639,16 @@ function renderDashboard(){
     setInnerWidth('chart-a-inner',70);
     setInnerWidth('chart-b-inner',70);
     setInnerWidth('chart-c-inner',70);
+    setInnerWidth('chart-d-inner',70);
+    setInnerWidth('chart-e-inner',70);
   }else{
-    ['chart-a-inner','chart-b-inner','chart-c-inner'].forEach(id=>{const w=document.getElementById(id);if(w)w.style.width='100%';});
+    ['chart-a-inner','chart-b-inner','chart-c-inner','chart-d-inner','chart-e-inner'].forEach(id=>{const w=document.getElementById(id);if(w)w.style.width='100%';});
   }
   chartA=mkRouteLineChart('chart-a',chartA,dataAPergi,dataAPulang);
   chartB=mkRouteLineChart('chart-b',chartB,dataBPergi,dataBPulang);
   chartC=mkRouteLineChart('chart-c',chartC,dataCPergi,dataCPulang);
+  chartD=mkRouteLineChart('chart-d',chartD,dataDPergi,dataDPulang);
+  chartE=mkRouteLineChart('chart-e',chartE,dataEPergi,dataEPulang);
 
   // Chart perbandingan Sesi Pergi vs Pulang (per periode yang sama dengan grafik di atas).
   // Sama seperti grafik Semua Rute: label 2 baris (angka + persentase) yang ringkas, warna
@@ -2672,7 +2789,7 @@ function exportRekapBulananExcel(){
     XLSX.writeFile(wb,'Rekap_'+BNAMES[bln]+'_'+thn+'_'+(rutes[fr]?rutes[fr].nama:'Rute'+fr).replace(/\s+/g,'')+'.xlsx');
   } else {
     makeSheet(data,'Semua Rute');
-    ['A','B','C'].forEach(r=>{const dr=data.filter(x=>x.rute===r);if(dr.length)makeSheet(dr,rutes[r]?rutes[r].nama:'Rute '+r);});
+    ['A','B','C','D','E'].forEach(r=>{const dr=data.filter(x=>x.rute===r);if(dr.length)makeSheet(dr,rutes[r]?rutes[r].nama:'Rute '+r);});
     XLSX.writeFile(wb,'Rekap_'+BNAMES[bln]+'_'+thn+'.xlsx');
   }
   toast('File Excel berhasil diunduh!');
@@ -2876,7 +2993,7 @@ async function shareQR(id){
 
 // ── RUTE ───────────────────────────────────────────────
 function loadRuteForm(){
-  ['A','B','C'].forEach(r=>{
+  ['A','B','C','D','E'].forEach(r=>{
     const k=r.toLowerCase();
     const rn=document.getElementById('rn-'+k);if(rn)rn.value=rutes[r].nama||'';
     const rj=document.getElementById('rj-'+k);if(rj)rj.value=rutes[r].berangkat||'07:00';
