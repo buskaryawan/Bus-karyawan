@@ -1114,6 +1114,16 @@ tr.row-alert td{border-left:3px solid var(--red)}
         <button id="dp-bulan"   onclick="setDashPeriod('bulan')"   style="padding:6px 14px;border:none;border-radius:6px;background:transparent;color:var(--muted);font-family:'Inter',sans-serif;font-size:12px;font-weight:600;cursor:pointer">Bulan</button>
         <button id="dp-tahun"   onclick="setDashPeriod('tahun')"   style="padding:6px 14px;border:none;border-radius:6px;background:transparent;color:var(--muted);font-family:'Inter',sans-serif;font-size:12px;font-weight:600;cursor:pointer">Tahun</button>
       </div>
+      <!-- Pilih Bulan & Tahun: muncul saat periode "Bulan" dipilih, supaya bisa lihat data bulan 1,2,3...12 -->
+      <div id="dash-bln-picker" style="display:none;gap:6px;align-items:center">
+        <select id="dash-bln-pick" onchange="setDashBulanTahun()" style="padding:6px 9px;border:1.5px solid var(--border);border-radius:7px;font-family:'Inter',sans-serif;font-size:12px;background:var(--white);color:var(--ink);font-weight:600">
+          <option value="0">Januari</option><option value="1">Februari</option><option value="2">Maret</option>
+          <option value="3">April</option><option value="4">Mei</option><option value="5">Juni</option>
+          <option value="6">Juli</option><option value="7">Agustus</option><option value="8">September</option>
+          <option value="9">Oktober</option><option value="10">November</option><option value="11">Desember</option>
+        </select>
+        <select id="dash-thn-pick" onchange="setDashBulanTahun()" style="padding:6px 9px;border:1.5px solid var(--border);border-radius:7px;font-family:'Inter',sans-serif;font-size:12px;background:var(--white);color:var(--ink);font-weight:600"></select>
+      </div>
       <div id="dash-range" style="font-size:12px;color:var(--muted);font-weight:500"></div>
     </div>
 
@@ -2412,7 +2422,36 @@ function exportRekapExcel(){
 
 // ── DASHBOARD ──────────────────────────────────────────
 let dashPeriod='minggu',chartAll=null,chartA=null,chartB=null,chartC=null,chartD=null,chartE=null,chartPergiPulang=null;
+// Bulan & tahun yang sedang dipilih untuk tampilan "Bulan" (default: bulan & tahun berjalan).
+// Dengan ini pengguna bisa pilih bulan 1 (Januari), 2 (Februari), dst untuk lihat rekap bulan itu.
+let dashBulanSel=new Date().getMonth(), dashTahunSel=new Date().getFullYear();
 if(typeof Chart!=='undefined'&&typeof ChartDataLabels!=='undefined'){Chart.register(ChartDataLabels);}
+
+// Isi pilihan tahun di dropdown "Bulan": dari tahun tertua yang ada di data absen sampai tahun berjalan.
+function initDashTahunPick(){
+  const sel=document.getElementById('dash-thn-pick');
+  if(!sel)return;
+  const thisYear=new Date().getFullYear();
+  let minYear=thisYear;
+  logs.forEach(l=>{
+    const pts=l.tanggal?l.tanggal.split('/'):[];
+    if(pts.length===3){const y=parseInt(pts[2]);if(!isNaN(y)&&y<minYear)minYear=y;}
+  });
+  const years=[];
+  for(let y=thisYear;y>=minYear;y--)years.push(y);
+  sel.innerHTML=years.map(y=>'<option value="'+y+'">'+y+'</option>').join('');
+  sel.value=String(dashTahunSel);
+  const blnSel=document.getElementById('dash-bln-pick');
+  if(blnSel)blnSel.value=String(dashBulanSel);
+}
+
+// Dipanggil saat dropdown bulan/tahun diubah pengguna.
+function setDashBulanTahun(){
+  const blnSel=document.getElementById('dash-bln-pick'),thnSel=document.getElementById('dash-thn-pick');
+  if(blnSel)dashBulanSel=parseInt(blnSel.value);
+  if(thnSel)dashTahunSel=parseInt(thnSel.value);
+  renderDashboard();
+}
 
 function setDashPeriod(p){
   dashPeriod=p;
@@ -2420,6 +2459,15 @@ function setDashPeriod(p){
     const el=document.getElementById('dp-'+x);
     if(el){el.style.background=x===p?'var(--bus1)':'transparent';el.style.color=x===p?'#fff':'var(--muted)';}
   });
+  const picker=document.getElementById('dash-bln-picker');
+  if(picker){
+    if(p==='bulan'){
+      picker.style.display='flex';
+      initDashTahunPick();
+    } else {
+      picker.style.display='none';
+    }
+  }
   renderDashboard();
 }
 
@@ -2477,7 +2525,7 @@ function renderDashboard(){
     rangeText='7 Hari Terakhir';
   } else if(dashPeriod==='bulan'){
     const MN=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-    const y=now.getFullYear(), m=now.getMonth();
+    const y=dashTahunSel, m=dashBulanSel;
     const daysInMonth=new Date(y,m+1,0).getDate();
     for(let d=1;d<=daysInMonth;d++){
       const dt=new Date(y,m,d);
