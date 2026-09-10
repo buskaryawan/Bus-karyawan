@@ -2596,6 +2596,9 @@ function renderDashboard(){
 
   // Kapasitas bus: 32 penumpang = 100% hadir. Dipakai untuk persentase pada label angka.
   const BUS_CAP=32;
+  // Kapasitas khusus Kelompok 2 (LV Karyawan / Bus 04 & 05): 7 penumpang = 100% hadir.
+  const LV_CAP=7;
+  const capFor=r=>(r==='D'||r==='E')?LV_CAP:BUS_CAP;
   // Di tampilan Tahunan, persentase disembunyikan — hanya angka murni yang ditampilkan di semua grafik.
   const isTahun=(dashPeriod==='tahun');
   // Label angka + persentase tampil langsung di atas tiap batang (tanpa perlu klik/hover)
@@ -2623,8 +2626,8 @@ function renderDashboard(){
   // ringkas secara horizontal daripada satu baris "20 (63%)" — dan tiap bus diberi warna
   // sendiri (biru/hijau/oranye) supaya gampang dibedakan walau posisinya berdekatan.
   const denseAll=labels.length>10;
-  const mkFmtAll=()=>v=>{if(v<=0)return'';if(isTahun)return String(v);return [String(v),'('+Math.round(v/BUS_CAP*100)+'%)'];};
-  const mkDlAll=color=>({anchor:'end',align:'top',offset:3,color,font:{size:denseAll?8.5:9.5,weight:'700',lineHeight:1.15},textAlign:'center',formatter:mkFmtAll()});
+  const mkFmtAll=(cap=BUS_CAP)=>v=>{if(v<=0)return'';if(isTahun)return String(v);return [String(v),'('+Math.round(v/cap*100)+'%)'];};
+  const mkDlAll=(color,cap=BUS_CAP)=>({anchor:'end',align:'top',offset:3,color,font:{size:denseAll?8.5:9.5,weight:'700',lineHeight:1.15},textAlign:'center',formatter:mkFmtAll(cap)});
   const scBarAll={...scBar,maintainAspectRatio:false,layout:{padding:{top:40}},
     plugins:{...scBar.plugins},
     scales:{...scBar.scales,x:{...scBar.scales.x,ticks:{...scBar.scales.x.ticks,font:{size:denseAll?9:10,weight:'600'}}}}};
@@ -2646,11 +2649,11 @@ function renderDashboard(){
   const ca=document.getElementById('chart-all');
   if(ca){if(chartAll)chartAll.destroy();
     chartAll=new Chart(ca,{type:'bar',data:{labels,datasets:[
-      {label:ruteNama('A'),data:dataA,backgroundColor:'rgba(37,99,235,.75)',borderRadius:4,maxBarThickness:22,categoryPercentage:0.9,barPercentage:0.72,datalabels:mkDlAll('#60A5FA')},
-      {label:ruteNama('B'),data:dataB,backgroundColor:'rgba(5,150,105,.75)',borderRadius:4,maxBarThickness:22,categoryPercentage:0.9,barPercentage:0.72,datalabels:mkDlAll('#34D399')},
-      {label:ruteNama('C'),data:dataC,backgroundColor:'rgba(217,119,6,.75)',borderRadius:4,maxBarThickness:22,categoryPercentage:0.9,barPercentage:0.72,datalabels:mkDlAll('#FBBF24')},
-      {label:ruteNama('D'),data:dataD,backgroundColor:'rgba(128,90,213,.75)',borderRadius:4,maxBarThickness:22,categoryPercentage:0.9,barPercentage:0.72,datalabels:mkDlAll('#B794F4')},
-      {label:ruteNama('E'),data:dataE,backgroundColor:'rgba(44,122,123,.75)',borderRadius:4,maxBarThickness:22,categoryPercentage:0.9,barPercentage:0.72,datalabels:mkDlAll('#4FD1C5')}
+      {label:ruteNama('A'),data:dataA,backgroundColor:'rgba(37,99,235,.75)',borderRadius:4,maxBarThickness:22,categoryPercentage:0.9,barPercentage:0.72,datalabels:mkDlAll('#60A5FA',BUS_CAP)},
+      {label:ruteNama('B'),data:dataB,backgroundColor:'rgba(5,150,105,.75)',borderRadius:4,maxBarThickness:22,categoryPercentage:0.9,barPercentage:0.72,datalabels:mkDlAll('#34D399',BUS_CAP)},
+      {label:ruteNama('C'),data:dataC,backgroundColor:'rgba(217,119,6,.75)',borderRadius:4,maxBarThickness:22,categoryPercentage:0.9,barPercentage:0.72,datalabels:mkDlAll('#FBBF24',BUS_CAP)},
+      {label:ruteNama('D'),data:dataD,backgroundColor:'rgba(128,90,213,.75)',borderRadius:4,maxBarThickness:22,categoryPercentage:0.9,barPercentage:0.72,datalabels:mkDlAll('#B794F4',LV_CAP)},
+      {label:ruteNama('E'),data:dataE,backgroundColor:'rgba(44,122,123,.75)',borderRadius:4,maxBarThickness:22,categoryPercentage:0.9,barPercentage:0.72,datalabels:mkDlAll('#4FD1C5',LV_CAP)}
     ]},options:scBarAll}); }
 
   // Grafik per rute: garis Pergi vs Pulang (bukan batang), dengan label angka + persentase
@@ -2658,9 +2661,10 @@ function renderDashboard(){
   // tidak saling tabrakan saat kedua garis berdekatan). Tooltip hover dimatikan.
   // Di mode Tahunan, persentase disembunyikan (hanya angka). Di mode Bulan, tiap kolom diberi
   // lebar minimum ekstra + wrapper bisa di-scroll supaya titik & label tidak berdesakan/tabrakan.
-  const fmtRoute=v=>{if(v<=0)return'';return isTahun?String(v):(v+' ('+Math.round(v/BUS_CAP*100)+'%)');};
-  const mkRouteLineChart=(cid,prev,pergi,pulang)=>{
+  const fmtRouteFor=cap=>v=>{if(v<=0)return'';return isTahun?String(v):(v+' ('+Math.round(v/cap*100)+'%)');};
+  const mkRouteLineChart=(cid,prev,pergi,pulang,cap=BUS_CAP)=>{
     const el=document.getElementById(cid);if(!el)return null;
+    const fmtRoute=fmtRouteFor(cap);
     if(prev)prev.destroy();
     return new Chart(el,{type:'line',data:{labels,datasets:[
       {label:'Pergi',data:pergi,borderColor:'#16A34A',backgroundColor:'rgba(22,163,74,.14)',
@@ -2692,11 +2696,11 @@ function renderDashboard(){
   }else{
     ['chart-a-inner','chart-b-inner','chart-c-inner','chart-d-inner','chart-e-inner'].forEach(id=>{const w=document.getElementById(id);if(w)w.style.width='100%';});
   }
-  chartA=mkRouteLineChart('chart-a',chartA,dataAPergi,dataAPulang);
-  chartB=mkRouteLineChart('chart-b',chartB,dataBPergi,dataBPulang);
-  chartC=mkRouteLineChart('chart-c',chartC,dataCPergi,dataCPulang);
-  chartD=mkRouteLineChart('chart-d',chartD,dataDPergi,dataDPulang);
-  chartE=mkRouteLineChart('chart-e',chartE,dataEPergi,dataEPulang);
+  chartA=mkRouteLineChart('chart-a',chartA,dataAPergi,dataAPulang,BUS_CAP);
+  chartB=mkRouteLineChart('chart-b',chartB,dataBPergi,dataBPulang,BUS_CAP);
+  chartC=mkRouteLineChart('chart-c',chartC,dataCPergi,dataCPulang,BUS_CAP);
+  chartD=mkRouteLineChart('chart-d',chartD,dataDPergi,dataDPulang,LV_CAP);
+  chartE=mkRouteLineChart('chart-e',chartE,dataEPergi,dataEPulang,LV_CAP);
 
   // Chart perbandingan Sesi Pergi vs Pulang (per periode yang sama dengan grafik di atas).
   // Sama seperti grafik Semua Rute: label 2 baris (angka + persentase) yang ringkas, warna
